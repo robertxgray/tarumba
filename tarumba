@@ -1,0 +1,33 @@
+#/bin/sh
+
+# This file configures the paths used by Tarumba.
+# You can modify to suit your needs.
+# Read the INSTALL file for more details.
+
+# Get the folder for default installation
+OLD_DIR=`pwd`
+cd `dirname $0`
+TARUMBA_BASE=`pwd`
+cd "$OLD_DIR"
+
+# Path to the source files
+export TARUMBA_SOURCE=$TARUMBA_BASE
+
+# Path to the icon files
+export TARUMBA_ICONS=$TARUMBA_BASE/icons
+
+# Path to the gettext resources
+export TARUMBA_I18N=$TARUMBA_BASE/i18n
+
+# Path to the extra scripts
+export TARUMBA_SCRIPTS=$TARUMBA_BASE/scripts
+
+# Add the extra scripts to the PATH
+export PATH=$TARUMBA_SCRIPTS:$PATH
+
+# It helps the scripts to find GettextLoader.py
+export PYTHONPATH=$TARUMBA_BASE
+
+# Execute the python interpreter
+/usr/bin/env python "$TARUMBA_SOURCE/Tarumba.py" "$@"
+

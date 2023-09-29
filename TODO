@@ -1,0 +1,6 @@
+- SFX + makeself support.
+- Test and update the TextInterface. Must be obsolete.
+- Volumes support for zip files. Use zip to join volumes.
+- Include support for files without known extension (autodetect on open)... maybe.
+- Support more file formats. Do not forget ar and iso.
+

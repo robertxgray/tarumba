@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="97.339996"
+   height="97.339996"
+   id="svg2"
+   sodipodi:version="0.32"
+   inkscape:version="0.46"
+   sodipodi:docname="Jack-in-the-box-box.svg"
+   inkscape:output_extension="org.inkscape.output.svg.inkscape"
+   sodipodi:docbase="C:\Dokumente und Einstellungen\Daniel\Desktop"
+   version="1.0"
+   inkscape:export-filename="/home1/xuko/tarumba/tarumba0.37/icons/box.png"
+   inkscape:export-xdpi="14.793508"
+   inkscape:export-ydpi="14.793508">
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="2.8284271"
+     inkscape:cx="134.04905"
+     inkscape:cy="48.198624"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     inkscape:window-width="1375"
+     inkscape:window-height="850"
+     inkscape:window-x="58"
+     inkscape:window-y="2"
+     units="px" />
+  <defs
+     id="defs4">
+    <inkscape:perspective
+       sodipodi:type="inkscape:persp3d"
+       inkscape:vp_x="-50 : 600 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_z="700 : 600 : 1"
+       inkscape:persp3d-origin="300 : 400 : 1"
+       id="perspective29" />
+    <inkscape:perspective
+       sodipodi:type="inkscape:persp3d"
+       inkscape:vp_x="-50 : 600 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_z="700 : 600 : 1"
+       inkscape:persp3d-origin="300 : 400 : 1"
+       id="perspective26" />
+    <inkscape:perspective
+       sodipodi:type="inkscape:persp3d"
+       inkscape:vp_x="-50 : 600 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_z="700 : 600 : 1"
+       inkscape:persp3d-origin="300 : 400 : 1"
+       id="perspective82" />
+    <inkscape:perspective
+       id="perspective10"
+       sodipodi:type="inkscape:persp3d"
+       inkscape:vp_z="700 : 600 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="-50 : 600 : 1"
+       inkscape:persp3d-origin="300 : 400 : 1" />
+  </defs>
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title />
+        <dc:date />
+        <dc:creator>
+          <cc:Agent>
+            <dc:title />
+          </cc:Agent>
+        </dc:creator>
+        <dc:rights>
+          <cc:Agent>
+            <dc:title />
+          </cc:Agent>
+        </dc:rights>
+        <dc:publisher>
+          <cc:Agent>
+            <dc:title />
+          </cc:Agent>
+        </dc:publisher>
+        <dc:identifier />
+        <dc:source />
+        <dc:relation />
+        <dc:language />
+        <dc:subject>
+          <rdf:Bag />
+        </dc:subject>
+        <dc:coverage />
+        <dc:description />
+        <dc:contributor>
+          <cc:Agent>
+            <dc:title />
+          </cc:Agent>
+        </dc:contributor>
+        <cc:license
+           rdf:resource="" />
+      </cc:Work>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Ebene 1"
+     id="layer1"
+     inkscape:groupmode="layer"
+     transform="translate(-143.97074,-146.86422)">
+    <path
+       style="fill:#edd400;fill-opacity:1;stroke:#000000;stroke-width:0.94415885;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 223.13414,152.9633 L 149.58863,161.60445 L 146.66655,232.97068 L 217.51639,236.19637 L 217.51639,236.21993 L 217.55753,236.19637 L 218.01023,236.21993 L 218.0308,235.93738 L 223.13414,152.9633 z"
+       id="path3277"
+       sodipodi:nodetypes="ccccccccc"
+       inkscape:export-filename="/home1/xuko/tarumba/tarumba0.37/icons/box.png"
+       inkscape:export-xdpi="14.769689"
+       inkscape:export-ydpi="14.769689" />
+    <path
+       style="fill:#c4a000;fill-opacity:1;stroke:#000000;stroke-width:0.94415885;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 238.96999,157.083 L 223.13379,152.95345 L 217.5244,236.2127 L 231.62185,228.44811 L 238.96999,157.083 z"
+       sodipodi:nodetypes="ccccc"
+       id="path3284"
+       inkscape:export-filename="/home1/xuko/tarumba/tarumba0.37/icons/box.png"
+       inkscape:export-xdpi="14.769689"
+       inkscape:export-ydpi="14.769689" />
+    <text
+       xml:space="preserve"
+       style="font-size:103.39992523px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000080;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Domestic Manners;-inkscape-font-specification:Domestic Manners"
+       x="146.67639"
+       y="232.36317"
+       id="text2403"
+       sodipodi:linespacing="125%"
+       transform="scale(1.0216073,0.9788497)"
+       inkscape:export-filename="/home1/xuko/tarumba/tarumba0.37/icons/box.png"
+       inkscape:export-xdpi="14.769689"
+       inkscape:export-ydpi="14.769689"><tspan
+         sodipodi:role="line"
+         id="tspan2405"
+         x="146.67639"
+         y="232.36317">T</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Aksharyogini;-inkscape-font-specification:Aksharyogini"
+       x="361"
+       y="221.93994"
+       id="text2407"
+       transform="translate(2.78125,-37.2837)"><tspan
+         sodipodi:role="line"
+         id="tspan2409"
+         x="361"
+         y="221.93994" /></text>
+  </g>
+</svg>
