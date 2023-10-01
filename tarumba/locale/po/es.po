@@ -1,0 +1,138 @@
+# Copyright: (c) 2023, Félix Medrano
+# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+
+msgid ""
+msgstr ""
+"Project-Id-Version: tarumba\n"
+"POT-Creation-Date: 2023-10-01 19:27+0200\n"
+"PO-Revision-Date: 2023-10-01 19:27+0200\n"
+"Last-Translator: Félix Medrano\n"
+"Language-Team: Spanish\n"
+"Language: es\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+msgid "The universal archive manager"
+msgstr "El gestor de archivos universal"
+
+msgid "Command"
+msgstr "Commando"
+
+msgid "Archive file to process"
+msgstr "Archivo a procesar"
+
+############
+# argparse #
+############
+
+msgid "usage: "
+msgstr "uso: "
+
+msgid "argument %(argument_name)s: %(message)s"
+msgstr "argumento %(argument_name)s: %(message)s"
+
+msgid ".__call__() not defined"
+msgstr ".__call__() no definido"
+
+msgid "conflicting subparser: %s"
+msgstr "subanalizador en conflicto: %s"
+
+msgid "conflicting subparser alias: %s"
+msgstr "alias de subanalizador en conflicto: %s"
+
+msgid "unknown parser %(parser_name)r (choices: %(choices)s)"
+msgstr "analizador %(parser_name)r desconocido (opciones: %(choices)s)"
+
+msgid "argument \"-\" with mode %r"
+msgstr "argumento \"-\" con modo %r"
+
+msgid "can't open '%(filename)s': %(error)s"
+msgstr "no se puede abrir '%(filename)s': %(error)s"
+
+msgid "cannot merge actions - two groups are named %r"
+msgstr "no se pueden unir las acciones - dos grupos se llaman %r"
+
+msgid "'required' is an invalid argument for positionals"
+msgstr "'required' es un argumento inválido para posicionales"
+
+msgid ""
+"invalid option string %(option)r: must start with a character "
+"%(prefix_chars)r"
+msgstr ""
+"literal de opción inválido %(option)r: debe empezar con un carácter "
+"%(prefix_chars)r"
+
+msgid "dest= is required for options like %r"
+msgstr "dest= es necesario en opciones como %r"
+
+msgid "invalid conflict_resolution value: %r"
+msgstr "valor inválido para conflict_resolution: %r"
+
+msgid "conflicting option string: %s"
+msgid_plural "conflicting option strings: %s"
+msgstr[0] "literal de opción en conflicto: %s"
+msgstr[1] "literales de opción en conflicto: %s"
+
+msgid "mutually exclusive arguments must be optional"
+msgstr "los argumentos mutuamente exclusivos deben ser opcionales"
+
+msgid "positional arguments"
+msgstr "argumentos posicionales"
+
+msgid "options"
+msgstr "opciones"
+
+msgid "show this help message and exit"
+msgstr "muestra este mensaje de ayuda y termina"
+
+msgid "cannot have multiple subparser arguments"
+msgstr "no puede haber múltiples argumentos de subanalizador"
+
+msgid "unrecognized arguments: %s"
+msgstr "argumentos no conocidos: %s"
+
+msgid "not allowed with argument %s"
+msgstr "no se permite con el argumento %s"
+
+msgid "ignored explicit argument %r"
+msgstr "argumento explícito %r ignorado"
+
+msgid "the following arguments are required: %s"
+msgstr "los siguientes argumentos son necesarios: %s"
+
+msgid "one of the arguments %s is required"
+msgstr "uno de los argumentos %s es necesario"
+
+msgid "expected one argument"
+msgstr "se espera un argumento"
+
+msgid "expected at most one argument"
+msgstr "se espera a lo sumo un argumento"
+
+msgid "expected at least one argument"
+msgstr "se espera al menos un argumento"
+
+msgid "expected %s argument"
+msgid_plural "expected %s arguments"
+msgstr[0] "se espera el argumento %s"
+msgstr[1] "se esperan los argumentos %s"
+
+msgid "ambiguous option: %(option)s could match %(matches)s"
+msgstr "opción ambigua: %(option)s podría corresponder con %(matches)s"
+
+msgid "unexpected option string: %s"
+msgstr "literal de opción inesperado: %s"
+
+msgid "%r is not callable"
+msgstr "%r no es invocable"
+
+msgid "invalid %(type)s value: %(value)r"
+msgstr "valor %(type)s inválido: %(value)r"
+
+msgid "invalid choice: %(value)r (choose from %(choices)s)"
+msgstr "opción inválida: %(value)r (elegir entre %(choices)s)"
+
+msgid "%(prog)s: error: %(message)s\n"
+msgstr "%(prog)s: error: %(message)s\n"
