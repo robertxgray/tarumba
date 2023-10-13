@@ -18,9 +18,6 @@ def main():
 
     if args.command == 'list':
         manager.list(args)
-    else:
-        log.error(_("error: unknown command: %(command)s") % {'command': args.command})
-        sys.exit(2)
 
 if __name__ == '__main__':
     main()

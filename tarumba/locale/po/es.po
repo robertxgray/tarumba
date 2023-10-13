@@ -23,9 +23,6 @@ msgstr "commando"
 msgid "archive file to process"
 msgstr "archivo a procesar"
 
-msgid "error: unknown command: %(command)s"
-msgstr "error: comando desconocido: %(command)s"
-
 ############
 # argparse #
 ############

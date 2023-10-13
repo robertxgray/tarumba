@@ -4,11 +4,7 @@
 "Tarumba - The universal archive manager"
 
 import gettext
-import logging
 
 # Init locale
 gettext.bindtextdomain('tarumba', 'tarumba/locale')
 gettext.textdomain('tarumba')
-
-# Init logging
-logging.basicConfig(format='tarumba: %(message)s')
