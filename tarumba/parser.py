@@ -15,6 +15,6 @@ def get_arguments():
 
     parser = argparse.ArgumentParser(prog='tarumba',
                                      description=_('The universal archive manager'))
-    parser.add_argument('command', choices=['list','create','add'], help=_('Command'))
-    parser.add_argument('archive', help=_('Archive file to process'))
+    parser.add_argument('command', choices=['list','create','add'], help=_('command'))
+    parser.add_argument('archive', help=_('archive file to process'))
     return parser.parse_args()

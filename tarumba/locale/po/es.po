@@ -17,11 +17,11 @@ msgstr ""
 msgid "The universal archive manager"
 msgstr "El gestor de archivos universal"
 
-msgid "Command"
-msgstr "Commando"
+msgid "command"
+msgstr "commando"
 
-msgid "Archive file to process"
-msgstr "Archivo a procesar"
+msgid "archive file to process"
+msgstr "archivo a procesar"
 
 msgid "error: unknown command: %(command)s"
 msgstr "error: comando desconocido: %(command)s"

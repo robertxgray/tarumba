@@ -26,3 +26,26 @@ class Tar(format.Format):
             #    _(u'Reading contents of the file %s') % basename)]
         else:
             return [(configuration.TAR_BIN, ['--numeric-owner', '-tvf', archive])]
+
+    def parse_listing(self, contents):
+        """
+        Parse the archive contents listing.
+
+        :param contents: Archive contents listing
+        :return: Listing parsed as rows
+        """
+
+        listing = [(self.PERMS, self.USER, self.GROUP, self.SIZE, self.DATE, self.TIME, self.NAME)]
+        for content in contents:
+            columns = content.split(None, 5)
+            user_group = columns[1].split('/')
+            listing.append((
+                columns[0],
+                user_group[0],
+                user_group[1],
+                columns[2],
+                columns[3],
+                columns[4],
+                columns[5]
+            ))
+        return listing
