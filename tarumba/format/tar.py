@@ -1,7 +1,7 @@
 # Copyright: (c) 2023, Félix Medrano
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
-from tarumba import configuration, utils
+from tarumba import config, utils
 from tarumba.format import format
 import os
 
@@ -21,11 +21,11 @@ class Tar(format.Format):
         if volumes:
             pass
             # Numeric owner to avoid problems with odd user and group names
-            #return [('Pipelines.py', ['!', configuration.CAT_BIN] + volumes + 
-            #    ['///', configuration.TAR_BIN, '--numeric-owner', '-tv'],
+            #return [('Pipelines.py', ['!', config.CAT_BIN] + volumes + 
+            #    ['///', config.TAR_BIN, '--numeric-owner', '-tv'],
             #    _(u'Reading contents of the file %s') % basename)]
         else:
-            return [(configuration.TAR_BIN, ['--numeric-owner', '-tvf', archive])]
+            return [(config.TAR_BIN, ['--numeric-owner', '-tvf', archive])]
 
     def parse_listing(self, contents):
         """

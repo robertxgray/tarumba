@@ -1,7 +1,7 @@
 # Copyright: (c) 2023, Félix Medrano
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
-from tarumba import configuration
+from tarumba import config
 
 from rich.console import Console
 
@@ -16,7 +16,7 @@ def log(message):
     :param message: Message to print
     """
 
-    if configuration.DISABLE_COLOR:
+    if config.DISABLE_COLOR:
         sys.stdout.write(message.rstrip()+'\n')
     else:
         console = Console()
@@ -29,7 +29,7 @@ def error(message):
     :param message: Message to print
     """
 
-    if configuration.DISABLE_COLOR:
+    if config.DISABLE_COLOR:
         sys.stderr.write(message.rstrip()+'\n')
     else:
         console = Console(stderr=True, style='bold red')
