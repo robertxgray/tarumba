@@ -18,7 +18,7 @@ class ColouredArgumentParser(argparse.ArgumentParser):
                 if file == sys.stderr:
                     console.error(message)
                 else:
-                    file.write(message)
+                    console.info(message)
             except (AttributeError, OSError):
                 pass
 

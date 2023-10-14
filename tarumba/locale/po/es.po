@@ -23,6 +23,15 @@ msgstr "commando"
 msgid "archive file to process"
 msgstr "archivo a procesar"
 
+msgid "unknown archive format"
+msgstr "formato de archivo desconocido"
+
+msgid "%(prog)s: warning: %(message)s\n"
+msgstr "%(prog)s: aviso: %(message)s\n"
+
+msgid "archive type and extension don't match"
+msgstr "el tipo de archivo y la extensión no coinciden"
+
 ############
 # argparse #
 ############
