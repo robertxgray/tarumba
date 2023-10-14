@@ -4,4 +4,4 @@
 CAT_BIN = 'cat'
 TAR_BIN = 'tar'
 
-DISABLE_COLOR = False
+COLOR = "auto"

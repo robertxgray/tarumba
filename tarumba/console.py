@@ -4,7 +4,10 @@
 from tarumba import config
 
 from rich.console import Console
+from rich.table import Table
 
+from gettext import gettext as _
+import os
 import sys
 
 def info(message):
@@ -14,11 +17,8 @@ def info(message):
     :param message: Message to print
     """
 
-    if config.DISABLE_COLOR:
-        sys.stdout.write(message.rstrip()+'\n')
-    else:
-        console = Console()
-        console.out(message.rstrip())
+    console = Console(color_system=config.COLOR)
+    console.out(message.rstrip())
 
 def warn(message):
     """
@@ -27,11 +27,8 @@ def warn(message):
     :param message: Message to print
     """
 
-    if config.DISABLE_COLOR:
-        sys.stderr.write(message.rstrip()+'\n')
-    else:
-        console = Console(stderr=True, style='bold yellow')
-        console.out(message.rstrip())
+    console = Console(color_system=config.COLOR, stderr=True, style='bold yellow')
+    console.out(message.rstrip())
 
 def error(message):
     """
@@ -40,8 +37,23 @@ def error(message):
     :param message: Message to print
     """
 
-    if config.DISABLE_COLOR:
-        sys.stderr.write(message.rstrip()+'\n')
-    else:
-        console = Console(stderr=True, style='bold red')
-        console.out(message.rstrip())
+    console = Console(color_system=config.COLOR, stderr=True, style='bold red')
+    console.out(message.rstrip())
+
+def print_listing(archive, listing):
+    """
+    Prints an archive contents listing to the console.
+
+    :param listing: Archive listing
+    """
+
+    table = Table(title=os.path.basename(archive))
+
+    for column in listing[0]:
+        table.add_column(_(column))
+
+    for row in listing[1:]:
+        table.add_row(*row)
+
+    console = Console(color_system=config.COLOR)
+    console.print(table)

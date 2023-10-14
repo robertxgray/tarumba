@@ -28,8 +28,7 @@ def _detect_format(archive):
 
         if name_mime[0] != TAR and name_mime[0] != file_mime:
             message = _("archive type and extension don't match")
-            console.warn(_('%(prog)s: warning: %(message)s\n') %
-                          {'prog': 'tarumba', 'message': message})
+            console.warn(_('%(prog)s: warning: %(message)s\n') % {'prog': 'tarumba', 'message': message})
         
         if file_mime == GZIP:
             if name_mime[0] == TAR:
@@ -55,11 +54,14 @@ def list(args):
     List archive contents.
 
     :param args: Input arguments
+    :raises FileNotFoundError: The file 
     """
+
+    if not os.path.isfile(args.archive) or not os.access(args.archive, os.R_OK):
+        raise FileNotFoundError(_("can't read %(filename)s") % {'filename': args.archive})
 
     format = _detect_format(args.archive)
     if format is not None:
         commands = format.list_commands(args.archive)
         contents = executor.execute(commands)
-        columns = format.parse_listing(contents)
-        print(str(columns))
+        return format.parse_listing(contents)

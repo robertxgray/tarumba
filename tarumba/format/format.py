@@ -5,7 +5,7 @@ class Format:
     "Abstract parent class for archive formats."
 
     # Columns in archive contents
-    PERMS = 'PERMS'
+    PERMS = 'PERMISSIONS'
     USER = 'USER'
     GROUP = 'GROUP'
     SIZE = 'SIZE'

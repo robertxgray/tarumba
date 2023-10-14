@@ -32,6 +32,30 @@ msgstr "%(prog)s: aviso: %(message)s\n"
 msgid "archive type and extension don't match"
 msgstr "el tipo de archivo y la extensión no coinciden"
 
+msgid "can't read %(filename)s"
+msgstr "no se puede leer %(filename)s"
+
+msgid "PERMISSIONS"
+msgstr "PERMISOS"
+
+msgid "USER"
+msgstr "USUARIO"
+
+msgid "GROUP"
+msgstr "GRUPO"
+
+msgid "SIZE"
+msgstr "TAMAÑO"
+
+msgid "DATE"
+msgstr "FECHA"
+
+msgid "TIME"
+msgstr "HORA"
+
+msgid "NAME"
+msgstr "NOMBRE"
+
 ############
 # argparse #
 ############

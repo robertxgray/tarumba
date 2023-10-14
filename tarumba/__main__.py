@@ -14,7 +14,8 @@ def main():
         args = parser.get_arguments()
 
         if args.command == 'list':
-            manager.list(args)
+            listing = manager.list(args)
+            console.print_listing(args.archive, listing)
 
     except Exception as e:
         console.error(_('%(prog)s: error: %(message)s\n') % {'prog': 'tarumba', 'message': str(e)})
