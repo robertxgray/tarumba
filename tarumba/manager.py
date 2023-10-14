@@ -3,9 +3,6 @@
 
 from tarumba import executor
 from tarumba.format import tar
-import gettext
-
-_ = gettext.gettext
 
 def list(args):
     """

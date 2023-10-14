@@ -1,13 +1,11 @@
 # Copyright: (c) 2023, Félix Medrano
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
-from tarumba import utils
+from tarumba import console
 
 import argparse
-import gettext
+from gettext import gettext as _
 import sys
-
-_ = gettext.gettext
 
 # Ref: https://github.com/python/cpython/blob/main/Lib/argparse.py
 class ColouredArgumentParser(argparse.ArgumentParser):
@@ -18,7 +16,7 @@ class ColouredArgumentParser(argparse.ArgumentParser):
             file = file or sys.stderr
             try:
                 if file == sys.stderr:
-                    utils.error(message)
+                    console.error(message)
                 else:
                     file.write(message)
             except (AttributeError, OSError):
@@ -32,7 +30,7 @@ def get_arguments():
     """
 
     parser = ColouredArgumentParser(prog='tarumba',
-                                     description=_('The universal archive manager'))
+                                    description=_('The universal archive manager'))
     parser.add_argument('command', choices=['list','create','add'], help=_('command'))
     parser.add_argument('archive', help=_('archive file to process'))
     return parser.parse_args()
