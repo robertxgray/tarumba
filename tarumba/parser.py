@@ -33,4 +33,5 @@ def get_arguments():
                                     description=_('The universal archive manager'))
     parser.add_argument('command', choices=['list','create','add'], help=_('command'))
     parser.add_argument('archive', help=_('archive file to process'))
+    parser.add_argument('-c', '--columns', help=_('comma separated columns to include in the listing'))
     return parser.parse_args()

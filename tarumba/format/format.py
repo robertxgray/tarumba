@@ -1,22 +1,33 @@
 # Copyright: (c) 2023, Félix Medrano
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
-class Format:
+from abc import ABC, abstractmethod
+
+# Columns in archive contents
+NAME = 'NAME'
+SIZE = 'SIZE'
+DATE = 'DATE'
+PERMS = 'PERMISSIONS'
+OWNER = 'OWNER'
+
+# Set to check if a column exists
+COLUMNS_SET = {
+    NAME,
+    SIZE,
+    DATE,
+    PERMS,
+    OWNER
+}
+
+class Format(ABC):
     "Abstract parent class for archive formats."
 
-    # Columns in archive contents
-    PERMS = 'PERMISSIONS'
-    USER = 'USER'
-    GROUP = 'GROUP'
-    SIZE = 'SIZE'
-    DATE = 'DATE'
-    TIME = 'TIME'
-    NAME = 'NAME'
-
+    @abstractmethod
     def list_commands(self, archive):
         "Commands to list the archive contents."
         pass
 
-    def parse_listing(self, contents):
+    @abstractmethod
+    def parse_listing(self, contents, columns):
         "Parse the archive contents listing."
         pass

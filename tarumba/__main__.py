@@ -15,8 +15,11 @@ def main():
 
         if args.command == 'list':
             listing = manager.list(args)
-            console.print_listing(args.archive, listing)
+            console.print_listing(listing)
 
+    # We get BrokenPipeError whenever the output is redirected, just ignore it
+    except BrokenPipeError as e:
+        pass
     except Exception as e:
         console.error(_('%(prog)s: error: %(message)s\n') % {'prog': 'tarumba', 'message': str(e)})
 

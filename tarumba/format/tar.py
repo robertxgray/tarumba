@@ -11,7 +11,7 @@ class Tar(format.Format):
         """
         Commands to list the archive contents.
 
-        :param archive: Archive path
+        :param args: Input arguments
         :return: List of commands
         """
 
@@ -27,25 +27,31 @@ class Tar(format.Format):
         else:
             return [(config.TAR_BIN, ['--numeric-owner', '-tvf', archive])]
 
-    def parse_listing(self, contents):
+    def parse_listing(self, contents, columns):
         """
         Parse the archive contents listing.
 
         :param contents: Archive contents listing
+        :param columns: Requestes columns or None for default
         :return: Listing parsed as rows
         """
 
-        listing = [(self.PERMS, self.USER, self.GROUP, self.SIZE, self.DATE, self.TIME, self.NAME)]
+        if not columns:
+            columns = config.TAR_COLUMNS
+        listing = [columns]
         for content in contents:
-            columns = content.split(None, 5)
-            user_group = columns[1].split('/')
-            listing.append((
-                columns[0],
-                user_group[0],
-                user_group[1],
-                columns[2],
-                columns[3],
-                columns[4],
-                columns[5]
-            ))
+            row = []
+            elements = content.split(None, 5)
+            for column in columns:
+                if column == format.PERMS:
+                    row.append(elements[0])
+                elif column == format.OWNER:
+                    row.append(elements[1])
+                elif column == format.SIZE:
+                    row.append(elements[2])
+                elif column == format.DATE:
+                    row.append('%s %s' % (elements[3], elements[4]))
+                elif column == format.NAME:
+                    row.append(elements[5])
+            listing.append(row)
         return listing

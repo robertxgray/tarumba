@@ -1,7 +1,7 @@
 # Copyright: (c) 2023, Félix Medrano
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
-from tarumba import console, executor
+from tarumba import config, console, executor
 from tarumba.format import tar
 
 from gettext import gettext as _
@@ -60,8 +60,12 @@ def list(args):
     if not os.path.isfile(args.archive) or not os.access(args.archive, os.R_OK):
         raise FileNotFoundError(_("can't read %(filename)s") % {'filename': args.archive})
 
+    columns = None
+    if args.columns:
+        columns = config.parse_columns(args.columns)
+
     format = _detect_format(args.archive)
     if format is not None:
         commands = format.list_commands(args.archive)
         contents = executor.execute(commands)
-        return format.parse_listing(contents)
+        return format.parse_listing(contents, columns)
