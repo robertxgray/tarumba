@@ -26,8 +26,11 @@ def main():
     # We get BrokenPipeError whenever the output is redirected, just ignore it
     except BrokenPipeError as e:
         pass
+    except KeyboardInterrupt as e:
+        sys.exit(130)
     except Exception as e:
         gui.error(_('%(prog)s: error: %(message)s\n') % {'prog': 'tarumba', 'message': str(e)})
+        sys.exit(1)
 
 if __name__ == '__main__':
     main()
