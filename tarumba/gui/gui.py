@@ -7,20 +7,15 @@ class Gui(ABC):
 
     @abstractmethod
     def info(self, message):
-        "Prints a info message to the console."
+        "Prints a info message"
         pass
 
     @abstractmethod
     def warn(self, message):
-        "Prints a warning message to the console."
+        "Prints a warning message"
         pass
 
     @abstractmethod
     def error(self, message):
-        "Prints an error message to the console."
-        pass
-
-    @abstractmethod
-    def print_listing(self, listing):
-        "Prints an archive contents listing to the console."
+        "Prints an error message"
         pass

@@ -5,7 +5,10 @@ from tarumba import config
 from tarumba.format import format
 from tarumba.gui import gui
 
-from rich import box, console, table
+from rich import box as r_box
+from rich import console as r_console
+from rich import progress as r_progress
+from rich import table as r_table
 
 from gettext import gettext as _
 import os
@@ -20,8 +23,8 @@ class Console(gui.Gui):
         :param message: Message to print
         """
 
-        con = console.Console(color_system=config.COLOR_SYSTEM)
-        con.out(message.rstrip())
+        console = r_console.Console(color_system=config.COLOR_SYSTEM)
+        console.out(message.rstrip())
 
     def warn(self, message):
         """
@@ -30,8 +33,8 @@ class Console(gui.Gui):
         :param message: Message to print
         """
 
-        con = console.Console(color_system=config.COLOR_SYSTEM, stderr=True, style='bold yellow')
-        con.out(message.rstrip())
+        console = r_console.Console(color_system=config.COLOR_SYSTEM, stderr=True, style='bold yellow')
+        console.out(message.rstrip())
 
     def error(self, message):
         """
@@ -40,28 +43,36 @@ class Console(gui.Gui):
         :param message: Message to print
         """
 
-        con = console.Console(color_system=config.COLOR_SYSTEM, stderr=True, style='bold red')
-        con.out(message.rstrip())
+        console = r_console.Console(color_system=config.COLOR_SYSTEM, stderr=True, style='bold red')
+        console.out(message.rstrip())
 
-    def print_listing(self, listing):
+    def new_progress(self):
+        """
+        Creates a new progress bar.
+
+        :return: Progress bar
+        """
+        console = r_console.Console(color_system=config.COLOR_SYSTEM)
+        return r_progress.Progress(console=console)
+
+    def print_listing(self, listing, console):
         """
         Prints an archive contents listing to the console.
 
         :param listing: Archive listing
         """
 
-        tab = table.Table(box=box.SIMPLE, header_style=config.LIST_HEADER_COLOR, border_style=config.LIST_BORDER_COLOR)
+        table = r_table.Table(box=r_box.SIMPLE, header_style=config.LIST_HEADER_COLOR, border_style=config.LIST_BORDER_COLOR)
 
         for column in listing[0]:
             if column == format.NAME:
-                tab.add_column(_(column), style=config.LIST_NAME_COLOR)
+                table.add_column(_(column), style=config.LIST_NAME_COLOR)
             elif column == format.SIZE:
-                tab.add_column(_(column), style=config.LIST_DEFAULT_COLOR, justify='right')
+                table.add_column(_(column), style=config.LIST_DEFAULT_COLOR, justify='right')
             else:
-                tab.add_column(_(column), style=config.LIST_DEFAULT_COLOR)
+                table.add_column(_(column), style=config.LIST_DEFAULT_COLOR)
 
         for row in listing[1:]:
-            tab.add_row(*row)
+            table.add_row(*row)
 
-        con = console.Console(color_system=config.COLOR_SYSTEM)
-        con.print(tab)
+        console.print(table)

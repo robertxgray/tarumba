@@ -66,7 +66,6 @@ def list(args):
         columns = config.parse_columns(args.columns)
 
     format = _detect_format(args.archive)
-    if format is not None:
-        commands = format.list_commands(args.archive)
-        contents = executor.execute(commands)
-        return format.parse_listing(contents, columns)
+    commands = format.list_commands(args.archive)
+    contents = executor.execute(commands)
+    return format.parse_listing(contents, columns)

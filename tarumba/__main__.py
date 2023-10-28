@@ -4,6 +4,7 @@
 from tarumba.gui import current as gui
 from tarumba import manager, parser
 from gettext import gettext as _
+
 import sys
 
 def main():
@@ -15,8 +16,12 @@ def main():
         args = parser.get_arguments()
 
         if args.command == 'list':
-            listing = manager.list(args)
-            gui.print_listing(listing)
+            with gui.new_progress() as progress:
+                msg = _('reading %(archive)s') % {'archive': args.archive}
+                task = progress.add_task(msg, total=None, transient=True)  
+                listing = manager.list(args)
+                gui.print_listing(listing, progress.console)
+                progress.update(task, visible=False)
 
     # We get BrokenPipeError whenever the output is redirected, just ignore it
     except BrokenPipeError as e:

@@ -41,6 +41,9 @@ msgstr "no se puede leer %(filename)s"
 msgid "invalid column name: %(column)s"
 msgstr "nombre de columna inválido: %(column)s"
 
+msgid "reading %(archive)s"
+msgstr "leyendo %(archive)s"
+
 msgid "PERMISSIONS"
 msgstr "PERMISOS"
 
