@@ -1,7 +1,7 @@
 # Copyright: (c) 2023, Félix Medrano
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
-from tarumba import console
+from tarumba.gui import current as gui
 
 import argparse
 from gettext import gettext as _
@@ -16,9 +16,9 @@ class ColouredArgumentParser(argparse.ArgumentParser):
             file = file or sys.stderr
             try:
                 if file == sys.stderr:
-                    console.error(message)
+                    gui.error(message)
                 else:
-                    console.info(message)
+                    gui.info(message)
             except (AttributeError, OSError):
                 pass
 

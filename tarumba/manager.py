@@ -1,7 +1,8 @@
 # Copyright: (c) 2023, Félix Medrano
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
-from tarumba import config, console, executor
+from tarumba.gui import current as gui
+from tarumba import config, executor
 from tarumba.format import tar
 
 from gettext import gettext as _
@@ -28,7 +29,7 @@ def _detect_format(archive):
 
         if name_mime[0] != TAR and name_mime[0] != file_mime:
             message = _("archive type and extension don't match")
-            console.warn(_('%(prog)s: warning: %(message)s\n') % {'prog': 'tarumba', 'message': message})
+            gui.warn(_('%(prog)s: warning: %(message)s\n') % {'prog': 'tarumba', 'message': message})
         
         if file_mime == GZIP:
             if name_mime[0] == TAR:
