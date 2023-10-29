@@ -53,8 +53,17 @@ msgstr "nombre de columna inválido: %(column)s"
 msgid "reading %(archive)s"
 msgstr "leyendo %(archive)s"
 
+msgid "compressing into %(archive)s"
+msgstr "comprimiendo en %(archive)s"
+
 msgid "expected a list of files to compress"
 msgstr "se espera una lista de archivos a comprimir"
+
+msgid "a progress bar is already running"
+msgstr "ya se ejecuta una barra de progreso"
+
+msgid "a progress bar is not running"
+msgstr "no se ejecuta ninguna barra de progreso"
 
 msgid "PERMISSIONS"
 msgstr "PERMISOS"

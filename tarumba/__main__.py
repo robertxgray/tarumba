@@ -17,16 +17,18 @@ def main():
 
         # List
         if args.command == 'l' or args.command == 'list':
-            with gui.new_progress() as progress:
-                msg = _('reading %(archive)s') % {'archive': args.archive}
-                task = progress.add_task(msg, total=None, transient=True)  
+            message = _('reading %(archive)s') % {'archive': args.archive}
+            with gui.start_progress(message):
                 listing = manager.list_archive(args)
-                gui.print_listing(listing, progress.console)
-                progress.update(task, visible=False)
+                gui.print_listing(listing)
+                gui.stop_progress()
 
         # Compress
         if args.command == 'c' or args.command == 'compress':
-            manager.compress_archive(args)
+            message = _('compressing into %(archive)s') % {'archive': args.archive}
+            with gui.start_progress(message):
+                manager.compress_archive(args)
+                gui.stop_progress()
 
     # We get BrokenPipeError whenever the output is redirected, just ignore it
     except BrokenPipeError as e:
@@ -35,6 +37,7 @@ def main():
         sys.exit(130)
     except Exception as e:
         gui.error(_('%(prog)s: error: %(message)s\n') % {'prog': 'tarumba', 'message': str(e)})
+        raise e # TODO: Remove this
         sys.exit(1)
 
 if __name__ == '__main__':

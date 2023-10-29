@@ -16,6 +16,12 @@ import sys
 
 class Console(gui.Gui):
 
+    def __init__(self):
+        self.out_c = r_console.Console(color_system=config.COLOR_SYSTEM)
+        self.err_c = r_console.Console(color_system=config.COLOR_SYSTEM, stderr=True)
+        self.progress = None
+        self.task = None
+
     def info(self, message):
         """
         Prints a info message to the console.
@@ -23,8 +29,7 @@ class Console(gui.Gui):
         :param message: Message to print
         """
 
-        console = r_console.Console(color_system=config.COLOR_SYSTEM)
-        console.out(message.rstrip())
+        self.out_c.out(message.rstrip())
 
     def warn(self, message):
         """
@@ -33,8 +38,7 @@ class Console(gui.Gui):
         :param message: Message to print
         """
 
-        console = r_console.Console(color_system=config.COLOR_SYSTEM, stderr=True, style='bold yellow')
-        console.out(message.rstrip())
+        self.err_c.out(message.rstrip(), style='bold yellow')
 
     def error(self, message):
         """
@@ -43,19 +47,32 @@ class Console(gui.Gui):
         :param message: Message to print
         """
 
-        console = r_console.Console(color_system=config.COLOR_SYSTEM, stderr=True, style='bold red')
-        console.out(message.rstrip())
+        self.err_c.out(message.rstrip(), style='bold red')
 
-    def new_progress(self):
+    def start_progress(self, message):
         """
-        Creates a new progress bar.
+        Starts a progress bar.
 
+        :param message: Message to include in the main task
         :return: Progress bar
         """
-        console = r_console.Console(color_system=config.COLOR_SYSTEM)
-        return r_progress.Progress(console=console)
 
-    def print_listing(self, listing, console):
+        assert self.progress is None, _('a progress bar is already running')
+        self.progress =  r_progress.Progress(console=self.out_c)
+        self.task = self.progress.add_task(message, total=None, transient=True)
+        return self.progress
+
+    def stop_progress(self):
+        """
+        Stops a progress bar.
+        """
+
+        assert self.progress is not None, _('a progress bar is not running')
+        self.progress.remove_task(self.task)
+        self.task = None
+        self.progress = None
+
+    def print_listing(self, listing):
         """
         Prints an archive contents listing to the console.
 
@@ -75,4 +92,4 @@ class Console(gui.Gui):
         for row in listing[1:]:
             table.add_row(*row)
 
-        console.print(table)
+        self.out_c.print(table)
