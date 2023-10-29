@@ -11,21 +11,11 @@ class Tar(format.Format):
         """
         Commands to list the archive contents.
 
-        :param args: Input arguments
+        :param archive: Archive name
         :return: List of commands
         """
 
-        basename = os.path.basename(archive)
-        # Check for multivolume
-        volumes = utils.get_volumes(archive)
-        if volumes:
-            pass
-            # Numeric owner to avoid problems with odd user and group names
-            #return [('Pipelines.py', ['!', config.CAT_BIN] + volumes + 
-            #    ['///', config.TAR_BIN, '--numeric-owner', '-tv'],
-            #    _(u'Reading contents of the file %s') % basename)]
-        else:
-            return [(config.TAR_BIN, ['--numeric-owner', '-tvf', archive])]
+        return [(config.TAR_BIN, ['--numeric-owner', '-tvf', archive])]
 
     def parse_listing(self, contents, columns):
         """
@@ -55,3 +45,14 @@ class Tar(format.Format):
                     row.append(elements[5])
             listing.append(row)
         return listing
+
+    def compress_commands(self, archive, files):
+        """
+        Commands to compress files into an archive.
+
+        :param archive: Archive name
+        :param contents: Files root path
+        :return: List of commands
+        """
+
+        return[(config.TAR_BIN, ['-rvf', archive, '--', files])]

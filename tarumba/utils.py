@@ -27,32 +27,64 @@ def decode(text):
 
     return text.decode(sys.getfilesystemencoding(), 'replace')
 
-def is_multivolume(filename):
+def check_read(filename):
+    """
+    Check if a file is readable.
+
+    :param filename: File name to check
+    :raises FileNotFoundError: The file is not readable
+    """
+
+    if os.path.isfile(filename):
+        if not os.access(filename, os.R_OK):
+            raise PermissionError(_("can't read %(filename)s") % {'filename': filename})
+    else:
+        if os.path.exists(filename):
+            raise IsADirectoryError(_("%(filename)s is not a file") % {'filename': filename})
+        else:
+            raise FileNotFoundError(_("%(filename)s doesn't exist") % {'filename': filename})
+
+def check_write(filename):
+    """
+    Check if a file is writable.
+
+    :param filename: File name to check
+    :raises FileNotFoundError: The file is not readable
+    """
+
+    if os.path.isfile(filename):
+        if not os.access(filename, os.W_OK):
+            raise PermissionError(_("can't write %(filename)s") % {'filename': filename})
+    else:
+        if os.path.exists(filename):
+            raise IsADirectoryError(_("%(filename)s is not a file") % {'filename': filename})
+
+def is_multivolume(archive):
     """
     Returns true if the file name matches the multivolume pattern.
 
-    :param filename: File name
+    :param archive: Archive name
     :return: True if it's a multivolume
     """
 
-    if re.match('.*\.[0-9]+$', filename):
+    if re.match('.*\.[0-9]+$', archive):
         return True
     else:
         return False
     
-def get_volumes(filename):
+def get_volumes(archive):
     """
-    Checks if a file is part of a multivolume and returns it's members.
+    Checks if an archive is part of a multivolume and returns it's members.
 
-    :param filename: File name
+    :param archive: Archive name
     :return: List of volumes, or None if not multivolume
     """
 
-    if is_multivolume(filename):
-        dot_position = filename.rfind('.') + 1
-        len_suffix = len(filename[dot_position:])
+    if is_multivolume(archive):
+        dot_position = archive.rfind('.') + 1
+        len_suffix = len(archive[dot_position:])
         suffix_mask = '%0' + str(len_suffix) + 'i'
-        prefix = filename[:dot_position]
+        prefix = archive[:dot_position]
         # Cycle through the existing files
         idx = 0
         volumes = []
@@ -65,3 +97,20 @@ def get_volumes(filename):
     # If not multivolume, return None
     else:
         return None
+
+def get_filesystem_tree(path):
+    """
+    Returns all the files and folders under a filesystem path.
+
+    :param path: Filesystem path to walk
+    :return: List of files and folders
+    """
+
+    tree = [path]
+    if os.path.isdir(path) and not os.path.islink(path):
+        for root, dirs, files in os.walk(path, topdown=True):
+            for name in files:
+                tree.append(os.path.join(root, name))
+            for name in dirs:
+                tree.append(os.path.join(root, name))
+    return tree

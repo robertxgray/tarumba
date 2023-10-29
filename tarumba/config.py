@@ -5,24 +5,27 @@ from tarumba.format import format
 
 from gettext import gettext as _
 
+# Colors
 COLOR_SYSTEM = 'auto'
 LIST_HEADER_COLOR = 'blue'
 LIST_BORDER_COLOR = 'bright_black'
 LIST_NAME_COLOR = 'cyan'
 LIST_DEFAULT_COLOR = 'default'
 
+# Binary paths
 CAT_BIN = 'cat'
 TAR_BIN = 'tar'
 
+# Default lists
 TAR_COLUMNS = [format.NAME, format.SIZE, format.DATE, format.PERMS, format.OWNER]
 
 def parse_columns(col_string):
     """
-        Parse a list of columns.
+    Parse a list of columns.
 
-        :param col_string: Text describing a list of columns
-        :return: List of columns
-        :raises ValueError: 
+    :param col_string: Text describing a list of columns
+    :return: List of columns
+    :raises ValueError: A column name is invalid
     """
 
     output = []

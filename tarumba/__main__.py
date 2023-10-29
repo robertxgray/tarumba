@@ -15,13 +15,18 @@ def main():
     try:
         args = parser.get_arguments()
 
-        if args.command == 'list':
+        # List
+        if args.command == 'l' or args.command == 'list':
             with gui.new_progress() as progress:
                 msg = _('reading %(archive)s') % {'archive': args.archive}
                 task = progress.add_task(msg, total=None, transient=True)  
-                listing = manager.list(args)
+                listing = manager.list_archive(args)
                 gui.print_listing(listing, progress.console)
                 progress.update(task, visible=False)
+
+        # Compress
+        if args.command == 'c' or args.command == 'compress':
+            manager.compress_archive(args)
 
     # We get BrokenPipeError whenever the output is redirected, just ignore it
     except BrokenPipeError as e:

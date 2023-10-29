@@ -38,11 +38,23 @@ msgstr "el tipo de archivo y la extensión no coinciden"
 msgid "can't read %(filename)s"
 msgstr "no se puede leer %(filename)s"
 
+msgid "can't write %(filename)s"
+msgstr "no se puede escribir %(filename)s"
+
+msgid "%(filename)s is not a file"
+msgstr "%(filename)s no es un archivo"
+
+msgid "%(filename)s doesn't exist"
+msgstr "%(filename)s no existe"
+
 msgid "invalid column name: %(column)s"
 msgstr "nombre de columna inválido: %(column)s"
 
 msgid "reading %(archive)s"
 msgstr "leyendo %(archive)s"
+
+msgid "expected a list of files to compress"
+msgstr "se espera una lista de archivos a comprimir"
 
 msgid "PERMISSIONS"
 msgstr "PERMISOS"

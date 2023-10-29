@@ -31,3 +31,8 @@ class Format(ABC):
     def parse_listing(self, contents, columns):
         "Parse the archive contents listing."
         pass
+
+    @abstractmethod
+    def compress_commands(self, archive, files):
+        "Commands to compress into an archive."
+        pass

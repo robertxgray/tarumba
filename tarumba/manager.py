@@ -2,9 +2,10 @@
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
 from tarumba.gui import current as gui
-from tarumba import config, executor
+from tarumba import config, executor, utils
 from tarumba.format import tar
 
+from argparse import ArgumentError
 from gettext import gettext as _
 import magic
 import mimetypes
@@ -50,16 +51,15 @@ def _detect_format(archive):
     message = _('unknown archive format')
     raise TypeError(_('%(prog)s: error: %(message)s\n') % {'prog': 'tarumba', 'message': message})
 
-def list(args):
+def list_archive(args):
     """
     List archive contents.
 
     :param args: Input arguments
-    :raises FileNotFoundError: The file 
+    :raises FileNotFoundError: The archive is not readable
     """
 
-    if not os.path.isfile(args.archive) or not os.access(args.archive, os.R_OK):
-        raise FileNotFoundError(_("can't read %(filename)s") % {'filename': args.archive})
+    utils.check_read(args.archive)
 
     columns = None
     if args.columns:
@@ -69,3 +69,23 @@ def list(args):
     commands = format.list_commands(args.archive)
     contents = executor.execute(commands)
     return format.parse_listing(contents, columns)
+
+def compress_archive(args):
+    """
+    Compress files into an archive.
+
+    :param args: Input arguments
+    """
+
+    if len(args.files) < 1:
+        raise ArgumentError(None, _("expected a list of files to compress"))
+
+    utils.check_write(args.archive)
+
+    format = _detect_format(args.archive)
+
+    for file in args.files:
+        tree = utils.get_filesystem_tree(file)
+        commands = format.compress_commands(args.archive, file)
+        print(str(commands))
+        executor.execute(commands)

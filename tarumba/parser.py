@@ -31,7 +31,8 @@ def get_arguments():
 
     parser = ColouredArgumentParser(prog='tarumba',
                                     description=_('The universal archive manager'))
-    parser.add_argument('command', choices=['list','create','add'], help=_('command'))
+    parser.add_argument('command', choices=['l','list','c','compress','e','extract'], help=_('command'))
     parser.add_argument('archive', help=_('archive file to process'))
+    parser.add_argument('files', help=_('files to compress or extract'), nargs='*')
     parser.add_argument('-c', '--columns', help=_('comma separated columns to include in the listing'))
     return parser.parse_args()
