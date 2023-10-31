@@ -1,7 +1,9 @@
 # Copyright: (c) 2023, Félix Medrano
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
+from tarumba.gui import current as gui
 from tarumba import utils
+
 import os
 import pexpect
 
@@ -35,6 +37,7 @@ def execute(commands):
             if case > 0 or len(subprocess.before):
                 sub_output = utils.decode(subprocess.before)
                 output.append(sub_output)
+                gui.advance_progress()
 
         subprocess.close()
         error = subprocess.status

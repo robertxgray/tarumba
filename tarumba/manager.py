@@ -84,7 +84,12 @@ def compress_archive(args):
 
     format = _detect_format(args.archive)
 
+    total = 0
     for file in args.files:
-        tree = utils.get_filesystem_tree(file)
+        total += utils.count_filesystem_tree(file)
+
+    gui.update_progress_total(total)
+
+    for file in args.files:
         commands = format.compress_commands(args.archive, file)
         executor.execute(commands)

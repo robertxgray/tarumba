@@ -53,12 +53,16 @@ class Console(gui.Gui):
         """
         Starts a progress bar.
 
-        :param message: Message to include in the main task
+        :param message: Message to include in the task
         :return: Progress bar
         """
 
         assert self.progress is None, _('a progress bar is already running')
-        self.progress =  r_progress.Progress(console=self.out_c)
+        self.progress = r_progress.Progress(
+            r_progress.TextColumn("[progress.description]{task.description}"),
+            r_progress.BarColumn(),
+            r_progress.TaskProgressColumn(),
+            console=self.out_c)
         self.task = self.progress.add_task(message, total=None, transient=True)
         return self.progress
 
@@ -71,6 +75,24 @@ class Console(gui.Gui):
         self.progress.remove_task(self.task)
         self.task = None
         self.progress = None
+
+    def update_progress_total(self, total):
+        """
+        Update the progress bar total.
+
+        :param total: Number of files
+        """
+
+        assert self.progress is not None, _('a progress bar is not running')
+        self.progress.update(self.task, total=total)
+
+    def advance_progress(self):
+        """
+        Advance the progress bar.
+        """
+
+        assert self.progress is not None, _('a progress bar is not running')
+        self.progress.advance(self.task)
 
     def print_listing(self, listing):
         """

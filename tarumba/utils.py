@@ -114,3 +114,21 @@ def get_filesystem_tree(path):
             for name in dirs:
                 tree.append(os.path.join(root, name))
     return tree
+
+
+def count_filesystem_tree(path):
+    """
+    Returns the number of files and folders under a filesystem path.
+
+    :param path: Filesystem path to walk
+    :return: Number of files and folders
+    """
+
+    total = 1
+    if os.path.isdir(path) and not os.path.islink(path):
+        for root, dirs, files in os.walk(path, topdown=True):
+            for name in files:
+                total += 1
+            for name in dirs:
+                total += 1
+    return total
