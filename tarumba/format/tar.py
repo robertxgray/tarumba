@@ -55,4 +55,8 @@ class Tar(format.Format):
         :return: List of commands
         """
 
-        return[(config.TAR_BIN, ['-rvf', archive, '--', files])]
+        if config.FOLLOW_LINKS:
+            params = '-rvhf'
+        else:
+            params = '-rvf'
+        return[(config.TAR_BIN, [params, archive, '--', files])]

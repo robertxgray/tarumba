@@ -19,6 +19,19 @@ TAR_BIN = 'tar'
 # Default lists
 TAR_COLUMNS = [format.NAME, format.SIZE, format.DATE, format.PERMS, format.OWNER]
 
+# Compression options
+FOLLOW_LINKS = False
+
+def set_follow_links(follow_links):
+    """
+    Updates the value of FOLLOW_LINKS.
+
+    :param follow_links: New boolean value
+    """
+
+    global FOLLOW_LINKS
+    FOLLOW_LINKS = follow_links
+
 def parse_columns(col_string):
     """
     Parse a list of columns.

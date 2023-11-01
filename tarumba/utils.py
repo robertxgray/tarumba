@@ -1,6 +1,8 @@
 # Copyright: (c) 2023, Félix Medrano
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
+from tarumba import config
+
 import os
 import re
 import sys
@@ -98,6 +100,7 @@ def get_volumes(archive):
     else:
         return None
 
+# TODO: Delete?
 def get_filesystem_tree(path):
     """
     Returns all the files and folders under a filesystem path.
@@ -108,7 +111,7 @@ def get_filesystem_tree(path):
 
     tree = [path]
     if os.path.isdir(path) and not os.path.islink(path):
-        for root, dirs, files in os.walk(path, topdown=True):
+        for root, dirs, files in os.walk(path, topdown=True, followlinks=config.FOLLOW_LINKS):
             for name in files:
                 tree.append(os.path.join(root, name))
             for name in dirs:
@@ -126,7 +129,7 @@ def count_filesystem_tree(path):
 
     total = 1
     if os.path.isdir(path) and not os.path.islink(path):
-        for root, dirs, files in os.walk(path, topdown=True):
+        for root, dirs, files in os.walk(path, topdown=True, followlinks=config.FOLLOW_LINKS):
             for name in files:
                 total += 1
             for name in dirs:

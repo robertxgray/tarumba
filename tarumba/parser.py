@@ -35,4 +35,5 @@ def get_arguments():
     parser.add_argument('archive', help=_('archive file to process'))
     parser.add_argument('files', help=_('files to compress or extract'), nargs='*')
     parser.add_argument('-c', '--columns', help=_('comma separated columns to include in the listing'))
+    parser.add_argument('--follow-links', action='store_true', help=_('follow symbolic links. WARNING: MAY CREATE INIFINITE PATHS'))
     return parser.parse_args()
