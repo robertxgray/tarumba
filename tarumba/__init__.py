@@ -3,8 +3,11 @@
 
 "Tarumba - The universal archive manager"
 
+from tarumba import config
+
 import gettext
+import os
 
 # Init locale
-gettext.bindtextdomain('tarumba', 'tarumba/locale')
+gettext.bindtextdomain('tarumba', os.path.join(config.BASE_PATH, 'locale'))
 gettext.textdomain('tarumba')

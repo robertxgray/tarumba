@@ -4,6 +4,9 @@
 from tarumba.format import format
 
 from gettext import gettext as _
+import os
+
+BASE_PATH = os.path.abspath(os.path.dirname(__file__))
 
 # Colors
 COLOR_SYSTEM = 'auto'
