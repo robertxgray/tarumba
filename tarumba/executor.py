@@ -4,6 +4,7 @@
 from tarumba.gui import current as gui
 from tarumba import utils
 
+from gettext import gettext as _
 import os
 import pexpect
 
@@ -44,7 +45,8 @@ def execute(commands):
 
         # Stop on error
         if error:
-            break
+            message=_('failure in program %(program)s') % {'program': command[0]} + '\n'
+            raise ChildProcessError(message + '\n'.join(output[-3:]))
 
     # Restore the current working directory
     os.chdir(old_cwd)

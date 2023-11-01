@@ -3,6 +3,7 @@
 
 from tarumba import config
 
+from gettext import gettext as _
 import os
 import re
 import sys
