@@ -22,6 +22,8 @@ class Console(gui.Gui):
         self.progress = None
         self.task = None
 
+    # COMMON FUNCTIONS
+
     def info(self, message):
         """
         Prints a info message to the console.
@@ -93,6 +95,8 @@ class Console(gui.Gui):
 
         assert self.progress is not None, _('a progress bar is not running')
         self.progress.advance(self.task)
+
+    # CONSOLE SPECIFIC FUNCTIONS
 
     def print_listing(self, listing):
         """

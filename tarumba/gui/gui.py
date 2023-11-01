@@ -19,3 +19,23 @@ class Gui(ABC):
     def error(self, message):
         "Prints an error message"
         pass
+
+    @abstractmethod
+    def start_progress(self, message):
+        "Starts a progress bar"
+        pass
+
+    @abstractmethod
+    def stop_progress(self):
+        "Stops a progress bar"
+        pass
+
+    @abstractmethod
+    def update_progress_total(self, total):
+        "Update the progress bar total"
+        pass
+
+    @abstractmethod
+    def advance_progress(self):
+        "Advance the progress bar"
+        pass
