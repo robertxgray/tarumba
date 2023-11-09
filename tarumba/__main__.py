@@ -15,6 +15,12 @@ def main():
     try:
         args = parser.get_arguments()
 
+        # Options
+        if args.follow_links:
+            config.set_follow_links(args.follow_links)
+        if args.verbose:
+            config.set_verbose(args.verbose)
+
         # List
         if args.command == 'l' or args.command == 'list':
             message = _('reading %(archive)s') % {'archive': args.archive}
@@ -25,9 +31,6 @@ def main():
 
         # Compress
         if args.command == 'c' or args.command == 'compress':
-
-            if args.follow_links:
-                config.set_follow_links(args.follow_links)
 
             message = _('compressing into %(archive)s') % {'archive': args.archive}
             with gui.start_progress(message):

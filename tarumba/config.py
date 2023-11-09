@@ -24,6 +24,7 @@ TAR_COLUMNS = [format.NAME, format.SIZE, format.DATE, format.PERMS, format.OWNER
 
 # Compression options
 FOLLOW_LINKS = False
+VERBOSE = False
 
 def set_follow_links(follow_links):
     """
@@ -34,6 +35,16 @@ def set_follow_links(follow_links):
 
     global FOLLOW_LINKS
     FOLLOW_LINKS = follow_links
+
+def set_verbose(verbose):
+    """
+    Updates the value of VERBOSE.
+
+    :param verbose: New boolean value
+    """
+
+    global VERBOSE
+    VERBOSE = verbose
 
 def parse_columns(col_string):
     """

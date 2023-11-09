@@ -1,7 +1,6 @@
 # Copyright: (c) 2023, Félix Medrano
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
-from tarumba.gui import current as gui
 from tarumba import utils
 
 from gettext import gettext as _
@@ -11,11 +10,12 @@ import pexpect
 # Pseudo-command to change the working directory
 CHDIR = 'CHDIR'
 
-def execute(commands):
+def execute(commands, parser=None):
     """
     Executes a list of commands via pexpect.
 
     :param commands: List of commands
+    :parser: Optional line parser
     :return: Commands output
     """
 
@@ -27,18 +27,22 @@ def execute(commands):
         # Process directory changes
         if command[0] == CHDIR:
             os.chdir(command[1][0])
+            continue
 
         subprocess = pexpect.spawn(command[0], command[1], timeout=None, echo=False)
 
         # Read the subprocess output
         case = 1
         output = []
+        line = 1
         while case > 0:
             case = subprocess.expect([pexpect.EOF, '\r\n', '\n'])
             if case > 0 or len(subprocess.before):
                 sub_output = utils.decode(subprocess.before)
                 output.append(sub_output)
-                gui.advance_progress()
+                if parser:
+                    parser(line, sub_output)
+                line += 1
 
         subprocess.close()
         error = subprocess.status

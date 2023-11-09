@@ -1,8 +1,10 @@
 # Copyright: (c) 2023, Félix Medrano
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
-from tarumba import config, utils
+from tarumba import config, executor, utils
 from tarumba.format import format
+from tarumba.gui import current as gui
+
 import os
 
 class Tar(format.Format):
@@ -55,8 +57,32 @@ class Tar(format.Format):
         :return: List of commands
         """
 
+        commands = []
+
+        safe_files = files
+        if files.startswith('/'):
+            commands.append((executor.CHDIR, ['/']))
+            safe_files = files[1:]
+
         if config.FOLLOW_LINKS:
             params = '-rvhf'
         else:
             params = '-rvf'
-        return[(config.TAR_BIN, [params, archive, '--', files])]
+        commands.append((config.TAR_BIN, [params, archive, '--', safe_files]))
+
+        return commands
+
+    def parse_compress(self, line_number, line):
+        """
+        Parse the compression output.
+
+        :param line_number: Line number
+        :param line: Line contents
+        """
+
+        if 'tar: ' in line:
+            gui.warn(line)
+        else:
+            if config.VERBOSE:
+                gui.info(line)
+        gui.advance_progress()

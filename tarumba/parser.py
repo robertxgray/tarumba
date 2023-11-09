@@ -5,6 +5,7 @@ from tarumba.gui import current as gui
 
 import argparse
 from gettext import gettext as _
+import os
 import sys
 
 # Ref: https://github.com/python/cpython/blob/main/Lib/argparse.py
@@ -35,5 +36,11 @@ def get_arguments():
     parser.add_argument('archive', help=_('archive file to process'))
     parser.add_argument('files', help=_('files to compress or extract'), nargs='*')
     parser.add_argument('-c', '--columns', help=_('comma separated columns to include in the listing'))
+    parser.add_argument('-v', '--verbose', action='store_true', help=_('verbosely list files processed'))
     parser.add_argument('--follow-links', action='store_true', help=_('follow symbolic links. WARNING: MAY CREATE INIFINITE PATHS'))
-    return parser.parse_args()
+    args = parser.parse_args()
+
+    # Get the absolute archive path
+    args.archive = os.path.abspath(args.archive)
+
+    return args

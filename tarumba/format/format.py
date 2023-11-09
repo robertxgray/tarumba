@@ -36,3 +36,8 @@ class Format(ABC):
     def compress_commands(self, archive, files):
         "Commands to compress into an archive."
         pass
+
+    @abstractmethod
+    def parse_compress(self, line_number, line):
+        "Parse the compression output."
+        pass

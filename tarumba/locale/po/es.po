@@ -26,6 +26,9 @@ msgstr "archivo a procesar"
 msgid "comma separated columns to include in the listing"
 msgstr "columnas separadas por comas a incluir en el listado"
 
+msgid "verbosely list files processed"
+msgstr "listar el detalle de archivos procesados"
+
 msgid "unknown archive format"
 msgstr "formato de archivo desconocido"
 

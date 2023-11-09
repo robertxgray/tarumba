@@ -40,7 +40,7 @@ class Console(gui.Gui):
         :param message: Message to print
         """
 
-        self.err_c.out(message.rstrip(), style='bold yellow')
+        self.out_c.out(message.rstrip(), style='bold yellow')
 
     def error(self, message):
         """
@@ -91,6 +91,8 @@ class Console(gui.Gui):
     def advance_progress(self):
         """
         Advance the progress bar.
+
+        :param file: File being processed
         """
 
         assert self.progress is not None, _('a progress bar is not running')

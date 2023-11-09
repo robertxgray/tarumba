@@ -10,6 +10,7 @@ from gettext import gettext as _
 import magic
 import mimetypes
 import os
+import re
 
 GZIP = 'application/gzip'
 TAR = 'application/x-tar'
@@ -84,12 +85,17 @@ def compress_archive(args):
 
     format = _detect_format(args.archive)
 
-    total = 0
+    # Remove duplicate slashes
+    safe_files = []
     for file in args.files:
+        safe_files.append(re.sub('/+', '/', file))
+
+    total = 0
+    for file in safe_files:
         total += utils.count_filesystem_tree(file)
 
     gui.update_progress_total(total)
 
-    for file in args.files:
+    for file in safe_files:
         commands = format.compress_commands(args.archive, file)
-        executor.execute(commands)
+        executor.execute(commands, format.parse_compress)
