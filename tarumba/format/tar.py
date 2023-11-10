@@ -85,5 +85,5 @@ class Tar(format.Format):
             gui.warn(line)
         else:
             if config.VERBOSE:
-                gui.info(_('adding: %(file)s') % {'file': line})
+                gui.info(_('adding: [cyan]%(file)s[/cyan]') % {'file': line})
         gui.advance_progress()

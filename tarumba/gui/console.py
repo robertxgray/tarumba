@@ -17,8 +17,8 @@ import sys
 class Console(gui.Gui):
 
     def __init__(self):
-        self.out_c = r_console.Console(color_system=config.COLOR_SYSTEM)
-        self.err_c = r_console.Console(color_system=config.COLOR_SYSTEM, stderr=True)
+        self.out_c = r_console.Console(color_system=config.COLOR_SYSTEM, highlight=False)
+        self.err_c = r_console.Console(color_system=config.COLOR_SYSTEM, highlight=False, stderr=True)
         self.progress = None
         self.task = None
 
@@ -31,7 +31,7 @@ class Console(gui.Gui):
         :param message: Message to print
         """
 
-        self.out_c.out(message.rstrip())
+        self.out_c.print(message.rstrip())
 
     def warn(self, message):
         """
@@ -40,7 +40,7 @@ class Console(gui.Gui):
         :param message: Message to print
         """
 
-        self.out_c.out(message.rstrip(), style='bold yellow')
+        self.out_c.print(message.rstrip(), style='bold yellow')
 
     def error(self, message):
         """
@@ -49,7 +49,7 @@ class Console(gui.Gui):
         :param message: Message to print
         """
 
-        self.err_c.out(message.rstrip(), style='bold red')
+        self.err_c.print(message.rstrip(), style='bold red')
 
     def start_progress(self, message):
         """
@@ -99,6 +99,14 @@ class Console(gui.Gui):
         self.progress.advance(self.task)
 
     # CONSOLE SPECIFIC FUNCTIONS
+
+    def disable_color(self):
+        """
+        Disables the colored output.
+        """
+
+        self.out_c = r_console.Console(color_system=None, highlight=False)
+        self.err_c = r_console.Console(color_system=None, highlight=False, stderr=True)
 
     def print_listing(self, listing):
         """

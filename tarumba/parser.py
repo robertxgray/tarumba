@@ -36,8 +36,9 @@ def get_arguments():
     parser.add_argument('archive', help=_('archive file to process'))
     parser.add_argument('files', help=_('files to add or extract'), nargs='*')
     parser.add_argument('-c', '--columns', help=_('comma separated columns to include in the listing'))
+    parser.add_argument('-f', '--follow-links', action='store_true', help=_('follow symbolic links. WARNING: MAY CREATE INIFINITE PATHS'))
+    parser.add_argument('-n', '--no-color', action='store_true', help=_('disable colored output'))
     parser.add_argument('-v', '--verbose', action='store_true', help=_('verbosely list processed files'))
-    parser.add_argument('--follow-links', action='store_true', help=_('follow symbolic links. WARNING: MAY CREATE INIFINITE PATHS'))
     args = parser.parse_args()
 
     # Get the absolute archive path

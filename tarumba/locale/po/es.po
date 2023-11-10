@@ -29,11 +29,14 @@ msgstr "ficheros a añadir o extraer"
 msgid "comma separated columns to include in the listing"
 msgstr "columnas separadas por comas a incluir en el listado"
 
-msgid "verbosely list processed files"
-msgstr "listar el detalle de ficheros procesados"
-
 msgid "follow symbolic links. WARNING: MAY CREATE INIFINITE PATHS"
 msgstr "seguir los enlaces simbólicos. AVISO: PUEDE CREAR RUTAS INFINITAS"
+
+msgid "disable colored output"
+msgstr "deshabilita la salida con color"
+
+msgid "verbosely list processed files"
+msgstr "listar el detalle de ficheros procesados"
 
 msgid "unknown archive format"
 msgstr "formato de archivo desconocido"
@@ -59,14 +62,14 @@ msgstr "%(filename)s no existe"
 msgid "invalid column name: %(column)s"
 msgstr "nombre de columna inválido: %(column)s"
 
-msgid "reading %(archive)s"
-msgstr "leyendo %(archive)s"
+msgid "reading [blue]%(archive)s[/blue]"
+msgstr "leyendo [blue]%(archive)s[/blue]"
 
-msgid "adding files to %(archive)s"
-msgstr "añadiendo ficheros a %(archive)s"
+msgid "adding files to [blue]%(archive)s[/blue]"
+msgstr "añadiendo ficheros a [blue]%(archive)s[/blue]"
 
-msgid "adding: %(file)s"
-msgstr "añadiendo: %(file)s"
+msgid "adding: [cyan]%(file)s[/cyan]"
+msgstr "añadiendo: [cyan]%(file)s[/cyan]"
 
 msgid "expected a list of files to add"
 msgstr "se espera la lista de ficheros a añadir"

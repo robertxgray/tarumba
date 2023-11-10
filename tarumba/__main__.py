@@ -1,10 +1,11 @@
 # Copyright: (c) 2023, Félix Medrano
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
-from tarumba.gui import current as gui
 from tarumba import config, manager, parser
-from gettext import gettext as _
+from tarumba.gui import current as gui
 
+from gettext import gettext as _
+import os
 import sys
 
 def main():
@@ -20,10 +21,14 @@ def main():
             config.set_follow_links(args.follow_links)
         if args.verbose:
             config.set_verbose(args.verbose)
+        if args.no_color:
+            gui.disable_color()
+
+        basename = os.path.basename(args.archive)
 
         # List
         if args.command == 'l' or args.command == 'list':
-            message = _('reading %(archive)s') % {'archive': args.archive}
+            message = _('reading [blue]%(archive)s[/blue]') % {'archive': basename}
             with gui.start_progress(message):
                 listing = manager.list_archive(args)
                 gui.print_listing(listing)
@@ -32,7 +37,7 @@ def main():
         # Compress
         if args.command == 'a' or args.command == 'add':
 
-            message = _('adding files to %(archive)s') % {'archive': args.archive}
+            message = _('adding files to [blue]%(archive)s[/blue]') % {'archive': basename}
             with gui.start_progress(message):
                 manager.add_archive(args)
                 gui.stop_progress()
