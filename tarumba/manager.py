@@ -71,15 +71,15 @@ def list_archive(args):
     contents = executor.execute(commands)
     return format.parse_listing(contents, columns)
 
-def compress_archive(args):
+def add_archive(args):
     """
-    Compress files into an archive.
+    Add files to an archive.
 
     :param args: Input arguments
     """
 
     if len(args.files) < 1:
-        raise ArgumentError(None, _("expected a list of files to compress"))
+        raise ArgumentError(None, _("expected a list of files to add"))
 
     utils.check_write(args.archive)
 
@@ -97,5 +97,5 @@ def compress_archive(args):
     gui.update_progress_total(total)
 
     for file in safe_files:
-        commands = format.compress_commands(args.archive, file)
-        executor.execute(commands, format.parse_compress)
+        commands = format.add_commands(args.archive, file)
+        executor.execute(commands, format.parse_add)

@@ -30,11 +30,11 @@ def main():
                 gui.stop_progress()
 
         # Compress
-        if args.command == 'c' or args.command == 'compress':
+        if args.command == 'a' or args.command == 'add':
 
-            message = _('compressing into %(archive)s') % {'archive': args.archive}
+            message = _('adding files to %(archive)s') % {'archive': args.archive}
             with gui.start_progress(message):
-                manager.compress_archive(args)
+                manager.add_archive(args)
                 gui.stop_progress()
 
     # We get BrokenPipeError whenever the output is redirected, just ignore it

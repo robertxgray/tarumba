@@ -33,11 +33,11 @@ class Format(ABC):
         pass
 
     @abstractmethod
-    def compress_commands(self, archive, files):
-        "Commands to compress into an archive."
+    def add_commands(self, archive, files):
+        "Commands to add files to an archive."
         pass
 
     @abstractmethod
-    def parse_compress(self, line_number, line):
-        "Parse the compression output."
+    def parse_add(self, line_number, line):
+        "Parse the output when adding files."
         pass

@@ -21,13 +21,19 @@ msgid "command"
 msgstr "commando"
 
 msgid "archive file to process"
-msgstr "archivo a procesar"
+msgstr "fichero de archivo a procesar"
+
+msgid "files to add or extract"
+msgstr "ficheros a añadir o extraer"
 
 msgid "comma separated columns to include in the listing"
 msgstr "columnas separadas por comas a incluir en el listado"
 
-msgid "verbosely list files processed"
-msgstr "listar el detalle de archivos procesados"
+msgid "verbosely list processed files"
+msgstr "listar el detalle de ficheros procesados"
+
+msgid "follow symbolic links. WARNING: MAY CREATE INIFINITE PATHS"
+msgstr "seguir los enlaces simbólicos. AVISO: PUEDE CREAR RUTAS INFINITAS"
 
 msgid "unknown archive format"
 msgstr "formato de archivo desconocido"
@@ -45,7 +51,7 @@ msgid "can't write %(filename)s"
 msgstr "no se puede escribir %(filename)s"
 
 msgid "%(filename)s is not a file"
-msgstr "%(filename)s no es un archivo"
+msgstr "%(filename)s no es un fichero"
 
 msgid "%(filename)s doesn't exist"
 msgstr "%(filename)s no existe"
@@ -56,11 +62,14 @@ msgstr "nombre de columna inválido: %(column)s"
 msgid "reading %(archive)s"
 msgstr "leyendo %(archive)s"
 
-msgid "compressing into %(archive)s"
-msgstr "comprimiendo en %(archive)s"
+msgid "adding files to %(archive)s"
+msgstr "añadiendo ficheros a %(archive)s"
 
-msgid "expected a list of files to compress"
-msgstr "se espera una lista de archivos a comprimir"
+msgid "adding: %(file)s"
+msgstr "añadiendo: %(file)s"
+
+msgid "expected a list of files to add"
+msgstr "se espera la lista de ficheros a añadir"
 
 msgid "a progress bar is already running"
 msgstr "ya se ejecuta una barra de progreso"

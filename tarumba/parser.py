@@ -32,11 +32,11 @@ def get_arguments():
 
     parser = ColouredArgumentParser(prog='tarumba',
                                     description=_('The universal archive manager'))
-    parser.add_argument('command', choices=['l','list','c','compress','e','extract'], help=_('command'))
+    parser.add_argument('command', choices=['l','list','a','add','e','extract'], help=_('command'))
     parser.add_argument('archive', help=_('archive file to process'))
-    parser.add_argument('files', help=_('files to compress or extract'), nargs='*')
+    parser.add_argument('files', help=_('files to add or extract'), nargs='*')
     parser.add_argument('-c', '--columns', help=_('comma separated columns to include in the listing'))
-    parser.add_argument('-v', '--verbose', action='store_true', help=_('verbosely list files processed'))
+    parser.add_argument('-v', '--verbose', action='store_true', help=_('verbosely list processed files'))
     parser.add_argument('--follow-links', action='store_true', help=_('follow symbolic links. WARNING: MAY CREATE INIFINITE PATHS'))
     args = parser.parse_args()
 

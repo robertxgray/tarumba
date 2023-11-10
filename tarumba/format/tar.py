@@ -5,6 +5,7 @@ from tarumba import config, executor, utils
 from tarumba.format import format
 from tarumba.gui import current as gui
 
+from gettext import gettext as _
 import os
 
 class Tar(format.Format):
@@ -48,9 +49,9 @@ class Tar(format.Format):
             listing.append(row)
         return listing
 
-    def compress_commands(self, archive, files):
+    def add_commands(self, archive, files):
         """
-        Commands to compress files into an archive.
+        Commands to add files to an archive.
 
         :param archive: Archive name
         :param contents: Files root path
@@ -72,9 +73,9 @@ class Tar(format.Format):
 
         return commands
 
-    def parse_compress(self, line_number, line):
+    def parse_add(self, line_number, line):
         """
-        Parse the compression output.
+        Parse the output when adding files.
 
         :param line_number: Line number
         :param line: Line contents
@@ -84,5 +85,5 @@ class Tar(format.Format):
             gui.warn(line)
         else:
             if config.VERBOSE:
-                gui.info(line)
+                gui.info(_('adding: %(file)s') % {'file': line})
         gui.advance_progress()
