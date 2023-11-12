@@ -1,11 +1,13 @@
 # Copyright: (c) 2023, Félix Medrano
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
-from tarumba import utils
+"Tarumba's programs executor"
 
 from gettext import gettext as _
 import os
 import pexpect
+
+from tarumba import utils as t_utils
 
 # Pseudo-command to change the working directory
 CHDIR = 'CHDIR'
@@ -40,7 +42,7 @@ def execute(commands, parser=None):
             case = subprocess.expect([pexpect.EOF, '\r\n', '\n'])
             if case > 0 or len(subprocess.before):
                 save_line = True
-                sub_output = utils.decode(subprocess.before)
+                sub_output = t_utils.decode(subprocess.before)
                 if parser:
                     if parser(line, sub_output):
                         save_line = False

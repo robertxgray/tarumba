@@ -1,50 +1,58 @@
 # Copyright: (c) 2023, Félix Medrano
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
-from tarumba.format import format
+"Tarumba's global configuration"
 
 from gettext import gettext as _
 import os
 
+from tarumba.format import format as t_format
+
 BASE_PATH = os.path.abspath(os.path.dirname(__file__))
 
-# Colors
-COLOR_SYSTEM = 'auto'
-LIST_HEADER_COLOR = 'blue'
-LIST_BORDER_COLOR = 'bright_black'
-LIST_NAME_COLOR = 'cyan'
-LIST_DEFAULT_COLOR = 'default'
+class Config:
 
-# Binary paths
-CAT_BIN = 'cat'
-TAR_BIN = 'tar'
+    "Global configuration class"
 
-# Default lists
-TAR_COLUMNS = [format.NAME, format.SIZE, format.DATE, format.PERMS, format.OWNER]
+    dictionary = {
+        # Colors
+        'color_system': 'auto',
+        'list_header_color': 'blue',
+        'list_border_color': 'bright_black',
+        'list_name_color': 'cyan',
+        'list_default_color': 'default',
+        # Compression options
+        'follow_links': False,
+        'verbose': False,
+        # Paths
+        'tar_bin': 'tar',
+        'zip_bin': 'zip',
+        'unzip_bin': 'unzip',
+        # Default columns
+        'tar_columns': [t_format.NAME, t_format.SIZE, t_format.DATE, t_format.PERMS, t_format.OWNER]
+    }
 
-# Compression options
-FOLLOW_LINKS = False
-VERBOSE = False
+    def get(self, key):
+        """
+        Returns a configuration value.
 
-def set_follow_links(follow_links):
-    """
-    Updates the value of FOLLOW_LINKS.
+        :param key: Configuration key
+        :return: Configuration value
+        """
 
-    :param follow_links: New boolean value
-    """
+        return self.dictionary.get(key)
 
-    global FOLLOW_LINKS
-    FOLLOW_LINKS = follow_links
+    def set(self, key, value):
+        """
+        Updates a configuration value.
 
-def set_verbose(verbose):
-    """
-    Updates the value of VERBOSE.
+        :param key: Configuration key
+        :param value: Configuration value
+        """
 
-    :param verbose: New boolean value
-    """
+        self.dictionary[key] = value
 
-    global VERBOSE
-    VERBOSE = verbose
+current = Config()
 
 def parse_columns(col_string):
     """
@@ -59,7 +67,7 @@ def parse_columns(col_string):
     columns = col_string.split(',')
     for column in columns:
         formatted = column.strip().upper()
-        if formatted in format.COLUMNS_SET:
+        if formatted in t_format.COLUMNS_SET:
             output.append(formatted)
         else:
             raise ValueError(_('invalid column name: %(column)s') % {'column': column.strip()})

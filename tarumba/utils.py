@@ -1,12 +1,14 @@
 # Copyright: (c) 2023, Félix Medrano
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
-from tarumba import config
+"Tarumba's utilities"
 
 from gettext import gettext as _
 import os
 import re
 import sys
+
+from tarumba.config import current as config
 
 def encode(text):
     """
@@ -44,8 +46,7 @@ def check_read(filename):
     else:
         if os.path.exists(filename):
             raise IsADirectoryError(_("%(filename)s is not a file") % {'filename': filename})
-        else:
-            raise FileNotFoundError(_("%(filename)s doesn't exist") % {'filename': filename})
+        raise FileNotFoundError(_("%(filename)s doesn't exist") % {'filename': filename})
 
 def check_write(filename):
     """
@@ -70,11 +71,10 @@ def is_multivolume(archive):
     :return: True if it's a multivolume
     """
 
-    if re.match('.*\.[0-9]+$', archive):
+    if re.match(r'.*\.[0-9]+$', archive):
         return True
-    else:
-        return False
-    
+    return False
+
 def get_volumes(archive):
     """
     Checks if an archive is part of a multivolume and returns it's members.
@@ -98,8 +98,7 @@ def get_volumes(archive):
             next_vol = prefix + (suffix_mask % idx)
         return volumes
     # If not multivolume, return None
-    else:
-        return None
+    return None
 
 # TODO: Delete?
 def get_filesystem_tree(path):
@@ -112,13 +111,13 @@ def get_filesystem_tree(path):
 
     tree = [path]
     if os.path.isdir(path) and not os.path.islink(path):
-        for root, dirs, files in os.walk(path, topdown=True, followlinks=config.FOLLOW_LINKS):
+        for root, dirs, files in os.walk(path, topdown=True,
+            followlinks=config.get('follow_links')):
             for name in files:
                 tree.append(os.path.join(root, name))
             for name in dirs:
                 tree.append(os.path.join(root, name))
     return tree
-
 
 def count_filesystem_tree(path):
     """
@@ -130,9 +129,10 @@ def count_filesystem_tree(path):
 
     total = 1
     if os.path.isdir(path) and not os.path.islink(path):
-        for root, dirs, files in os.walk(path, topdown=True, followlinks=config.FOLLOW_LINKS):
-            for name in files:
+        for _, dirs, files in os.walk(path, topdown=True,
+            followlinks=config.get('follow_links')):
+            for _ in files:
                 total += 1
-            for name in dirs:
+            for _ in dirs:
                 total += 1
     return total

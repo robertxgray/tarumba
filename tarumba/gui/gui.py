@@ -1,41 +1,38 @@
 # Copyright: (c) 2023, Félix Medrano
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
+"Tarumba's base GUI"
+
 from abc import ABC, abstractmethod
 
 class Gui(ABC):
 
+    "Abstract parent class for GUIs"
+
     @abstractmethod
     def info(self, message):
         "Prints a info message"
-        pass
 
     @abstractmethod
     def warn(self, message):
         "Prints a warning message"
-        pass
 
     @abstractmethod
     def error(self, message):
         "Prints an error message"
-        pass
 
     @abstractmethod
     def start_progress(self, message):
         "Starts a progress bar"
-        pass
 
     @abstractmethod
     def stop_progress(self):
         "Stops a progress bar"
-        pass
 
     @abstractmethod
     def update_progress_total(self, total):
         "Update the progress bar total"
-        pass
 
     @abstractmethod
     def advance_progress(self):
         "Advance the progress bar"
-        pass

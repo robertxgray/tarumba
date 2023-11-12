@@ -1,24 +1,29 @@
 # Copyright: (c) 2023, Félix Medrano
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
-from tarumba import config
-from tarumba.format import format
-from tarumba.gui import gui
+"Tarumba's console interface"
+
+from gettext import gettext as _
 
 from rich import box as r_box
 from rich import console as r_console
 from rich import progress as r_progress
 from rich import table as r_table
 
-from gettext import gettext as _
-import os
-import sys
+from tarumba.config import current as config
+from tarumba.format import format as t_format
+from tarumba.gui import gui as t_gui
 
-class Console(gui.Gui):
+
+class Console(t_gui.Gui):
+
+    "Class implementing the GUI functions on console mode"
 
     def __init__(self):
-        self.out_c = r_console.Console(color_system=config.COLOR_SYSTEM, highlight=False)
-        self.err_c = r_console.Console(color_system=config.COLOR_SYSTEM, highlight=False, stderr=True)
+        self.out_c = r_console.Console(
+            color_system=config.get('color_system'), highlight=False)
+        self.err_c = r_console.Console(
+            color_system=config.get('color_system'), highlight=False, stderr=True)
         self.progress = None
         self.task = None
 
@@ -115,15 +120,17 @@ class Console(gui.Gui):
         :param listing: Archive listing
         """
 
-        table = r_table.Table(box=r_box.SIMPLE, header_style=config.LIST_HEADER_COLOR, border_style=config.LIST_BORDER_COLOR)
+        table = r_table.Table(box=r_box.SIMPLE, header_style=config.get('list_header_color'),
+            border_style=config.get('list_border_color'))
 
         for column in listing[0]:
-            if column == format.NAME:
-                table.add_column(_(column), style=config.LIST_NAME_COLOR)
-            elif column == format.SIZE:
-                table.add_column(_(column), style=config.LIST_DEFAULT_COLOR, justify='right')
+            if column == t_format.NAME:
+                table.add_column(_(column), style=config.get('list_name_color'))
+            elif column == t_format.SIZE:
+                table.add_column(_(column), style=config.get('list_default_color'),
+                justify='right')
             else:
-                table.add_column(_(column), style=config.LIST_DEFAULT_COLOR)
+                table.add_column(_(column), style=config.get('list_default_color'))
 
         for row in listing[1:]:
             table.add_row(*row)

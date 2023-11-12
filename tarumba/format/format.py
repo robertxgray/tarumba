@@ -1,6 +1,8 @@
 # Copyright: (c) 2023, Félix Medrano
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
+"Tarumba's base archive format"
+
 from abc import ABC, abstractmethod
 
 # Columns in archive contents
@@ -20,24 +22,21 @@ COLUMNS_SET = {
 }
 
 class Format(ABC):
-    "Abstract parent class for archive formats."
+
+    "Abstract parent class for archive formats"
 
     @abstractmethod
     def list_commands(self, archive):
-        "Commands to list the archive contents."
-        pass
+        "Commands to list the archive contents"
 
     @abstractmethod
     def parse_listing(self, contents, columns):
-        "Parse the archive contents listing."
-        pass
+        "Parse the archive contents listing"
 
     @abstractmethod
     def add_commands(self, archive, files):
-        "Commands to add files to an archive."
-        pass
+        "Commands to add files to an archive"
 
     @abstractmethod
     def parse_add(self, line_number, line):
-        "Parse the output when adding files."
-        pass
+        "Parse the output when adding files"

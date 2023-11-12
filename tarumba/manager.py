@@ -1,16 +1,21 @@
 # Copyright: (c) 2023, Félix Medrano
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
-from tarumba.gui import current as gui
-from tarumba import config, executor, utils
-from tarumba.format import tar
+"Tarumba's archive manager"
 
 from argparse import ArgumentError
 from gettext import gettext as _
-import magic
 import mimetypes
 import os
 import re
+
+import magic
+
+from tarumba.gui import current as t_gui
+from tarumba import config as t_config
+from tarumba import executor as t_executor
+from tarumba import utils as t_utils
+from tarumba.format import tar as t_tar
 
 GZIP = 'application/gzip'
 TAR = 'application/x-tar'
@@ -23,16 +28,17 @@ def _detect_format(archive):
     :return: Detected format
     :raises TypeError: If the format is unknown
     """
-    
+
     name_mime = mimetypes.guess_type(archive, strict=False)
 
     if os.path.isfile(archive):
-        file_mime = magic.from_file(archive, mime=True)
+        file_mime = magic.from_file(archive, mime=True) # pylint: disable=no-member
 
         if name_mime[0] != TAR and name_mime[0] != file_mime:
             message = _("archive type and extension don't match")
-            gui.warn(_('%(prog)s: warning: %(message)s\n') % {'prog': 'tarumba', 'message': message})
-        
+            t_gui.warn(_('%(prog)s: warning: %(message)s\n') %
+                {'prog': 'tarumba', 'message': message})
+
         if file_mime == GZIP:
             if name_mime[0] == TAR:
                 pass #return targzip.TarGzip()
@@ -40,14 +46,14 @@ def _detect_format(archive):
                 pass #return gzip.Gzip()
 
         if file_mime == TAR:
-            return tar.Tar()
+            return t_tar.Tar()
 
     else:
         if name_mime[0] == TAR and name_mime[1] == 'gzip':
             pass #return targzip.TarGzip()
 
         if name_mime[0] == TAR and name_mime[1] is None:
-            return tar.Tar()
+            return t_tar.Tar()
 
     message = _('unknown archive format')
     raise TypeError(_('%(prog)s: error: %(message)s\n') % {'prog': 'tarumba', 'message': message})
@@ -60,16 +66,16 @@ def list_archive(args):
     :raises FileNotFoundError: The archive is not readable
     """
 
-    utils.check_read(args.archive)
+    t_utils.check_read(args.archive)
 
     columns = None
     if args.columns:
-        columns = config.parse_columns(args.columns)
+        columns = t_config.parse_columns(args.columns)
 
-    format = _detect_format(args.archive)
-    commands = format.list_commands(args.archive)
-    contents = executor.execute(commands)
-    return format.parse_listing(contents, columns)
+    form = _detect_format(args.archive)
+    commands = form.list_commands(args.archive)
+    contents = t_executor.execute(commands)
+    return form.parse_listing(contents, columns)
 
 def add_archive(args):
     """
@@ -81,9 +87,9 @@ def add_archive(args):
     if len(args.files) < 1:
         raise ArgumentError(None, _("expected a list of files to add"))
 
-    utils.check_write(args.archive)
+    t_utils.check_write(args.archive)
 
-    format = _detect_format(args.archive)
+    form = _detect_format(args.archive)
 
     # Remove duplicate slashes
     safe_files = []
@@ -92,10 +98,10 @@ def add_archive(args):
 
     total = 0
     for file in safe_files:
-        total += utils.count_filesystem_tree(file)
+        total += t_utils.count_filesystem_tree(file)
 
-    gui.update_progress_total(total)
+    t_gui.update_progress_total(total)
 
     for file in safe_files:
-        commands = format.add_commands(args.archive, file)
-        executor.execute(commands, format.parse_add)
+        commands = form.add_commands(args.archive, file)
+        t_executor.execute(commands, form.parse_add)
