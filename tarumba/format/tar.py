@@ -79,6 +79,7 @@ class Tar(format.Format):
 
         :param line_number: Line number
         :param line: Line contents
+        :return: True if the line has been successfully parsed
         """
 
         if 'tar: ' in line:
@@ -87,3 +88,4 @@ class Tar(format.Format):
             if config.VERBOSE:
                 gui.info(_('adding: [cyan]%(file)s[/cyan]') % {'file': line})
         gui.advance_progress()
+        return True

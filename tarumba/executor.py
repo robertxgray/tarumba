@@ -16,7 +16,7 @@ def execute(commands, parser=None):
 
     :param commands: List of commands
     :parser: Optional line parser
-    :return: Commands output
+    :return: Unparsed commands output
     """
 
     # Save the current working directory
@@ -33,15 +33,19 @@ def execute(commands, parser=None):
 
         # Read the subprocess output
         case = 1
+        sub_output = None
         output = []
         line = 1
         while case > 0:
             case = subprocess.expect([pexpect.EOF, '\r\n', '\n'])
             if case > 0 or len(subprocess.before):
+                save_line = True
                 sub_output = utils.decode(subprocess.before)
-                output.append(sub_output)
                 if parser:
-                    parser(line, sub_output)
+                    if parser(line, sub_output):
+                        save_line = False
+                if save_line:
+                    output.append(sub_output)
                 line += 1
 
         subprocess.close()
@@ -50,7 +54,9 @@ def execute(commands, parser=None):
         # Stop on error
         if error:
             message=_('failure in program %(program)s') % {'program': command[0]} + '\n'
-            raise ChildProcessError(message + '\n'.join(output[-3:]))
+            if sub_output:
+                message += sub_output
+            raise ChildProcessError(message)
 
     # Restore the current working directory
     os.chdir(old_cwd)
