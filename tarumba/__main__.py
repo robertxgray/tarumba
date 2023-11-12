@@ -1,7 +1,7 @@
 # Copyright: (c) 2023, Félix Medrano
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
-from tarumba import config, manager, parser
+from tarumba import config, manager, cmd_parser
 from tarumba.gui import current as gui
 
 from gettext import gettext as _
@@ -14,7 +14,7 @@ def main():
     """
 
     try:
-        args = parser.get_arguments()
+        args = cmd_parser.get_arguments()
 
         # Options
         if args.follow_links:
