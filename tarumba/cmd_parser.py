@@ -12,7 +12,7 @@ from tarumba.gui import current as t_gui
 
 # Ref: https://github.com/python/cpython/blob/main/Lib/argparse.py
 class ColouredArgumentParser(argparse.ArgumentParser):
-    "Custom argument parser with coloured output."
+    "Custom argument parser with coloured output"
 
     def _print_message(self, message, file=None):
         if message:

@@ -11,7 +11,6 @@ from tarumba.format import format as t_format
 BASE_PATH = os.path.abspath(os.path.dirname(__file__))
 
 class Config:
-
     "Global configuration class"
 
     dictionary = {

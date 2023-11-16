@@ -22,7 +22,6 @@ COLUMNS_SET = {
 }
 
 class Format(ABC):
-
     "Abstract parent class for archive formats"
 
     @abstractmethod

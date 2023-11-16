@@ -16,7 +16,6 @@ from tarumba.gui import gui as t_gui
 
 
 class Console(t_gui.Gui):
-
     "Class implementing the GUI functions on console mode"
 
     def __init__(self):

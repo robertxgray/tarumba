@@ -11,7 +11,6 @@ from tarumba.format import format as t_format
 from tarumba.gui import current as t_gui
 
 class Tar(t_format.Format):
-
     "Tar archive support functions"
 
     def list_commands(self, archive):
