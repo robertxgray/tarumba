@@ -1,7 +1,7 @@
 # Copyright: (c) 2023, Félix Medrano
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
-"Tarumba's tar archive support"
+"Tarumba's zip archive support"
 
 from gettext import gettext as _
 
@@ -9,17 +9,17 @@ from tarumba.config import current as config
 from tarumba.format import format as t_format
 from tarumba.gui import current as t_gui
 
-class Tar(t_format.Format):
-    "Tar archive support functions"
+class Zip(t_format.Format):
+    "Zip archive support functions"
 
-    NAME = 'tar'
+    NAME = 'zip'
 
     # The format can store duplicates
-    CAN_DUPLICATE = True
+    CAN_DUPLICATE = False
     # The format can store multiple files
     CAN_PACK = True
     # The format can store special files
-    CAN_SPECIAL = True
+    CAN_SPECIAL = False
 
     def list_commands(self, archive):
         """
@@ -29,7 +29,7 @@ class Tar(t_format.Format):
         :return: List of commands
         """
 
-        return [(config.get('tar_bin'), ['--numeric-owner', '-tvf', archive])]
+        return [(config.get('unzip_bin'), ['-Z', '-l', '--h-t', archive])]
 
     def parse_listing(self, contents, columns):
         """
@@ -41,22 +41,24 @@ class Tar(t_format.Format):
         """
 
         if not columns:
-            columns = config.get('tar_columns')
+            columns = config.get('zip_columns')
         listing = [columns]
         for content in contents:
             row = []
-            elements = content.split(None, 5)
+            elements = content.split(None, 9)
             for column in columns:
+                # We are ignoring the zip version and other metadata
+                # They may be added in the future by popular demand
                 if column == t_format.PERMS:
                     row.append(elements[0])
-                elif column == t_format.OWNER:
-                    row.append(elements[1])
                 elif column == t_format.SIZE:
-                    row.append(elements[2])
-                elif column == t_format.DATE:
-                    row.append(f'{elements[3]} {elements[4]}')
-                elif column == t_format.NAME:
+                    row.append(elements[3])
+                elif column == t_format.PACKED:
                     row.append(elements[5])
+                elif column == t_format.DATE:
+                    row.append(f'{elements[7]} {elements[8]}')
+                elif column == t_format.NAME:
+                    row.append(elements[9])
             listing.append(row)
         return listing
 
@@ -72,10 +74,10 @@ class Tar(t_format.Format):
         commands = []
 
         if config.get('follow_links'):
-            params = '-rvhf'
+            params = '-r'
         else:
-            params = '-rvf'
-        commands.append((config.get('tar_bin'), [params, archive, '--', files]))
+            params = '-ry'
+        commands.append((config.get('zip_bin'), [params, archive, '--', files]))
 
         return commands
 
@@ -88,10 +90,11 @@ class Tar(t_format.Format):
         :return: True if the line has been successfully parsed
         """
 
-        if 'tar: ' in line:
-            t_gui.warn(line)
-        else:
+        if line.startswith('  adding:') or line.startswith('updating:'):
             if config.get('verbose'):
-                t_gui.info(_('adding: [cyan]%(file)s[/cyan]') % {'file': line})
+                end = line.find(' (stored ')
+                t_gui.info(_('adding: [cyan]%(file)s[/cyan]') % {'file': line[10:end]})
+        else:
+            t_gui.warn(line)
         t_gui.advance_progress()
         return True

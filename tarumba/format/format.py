@@ -6,23 +6,34 @@
 from abc import ABC, abstractmethod
 
 # Columns in archive contents
-NAME = 'NAME'
-SIZE = 'SIZE'
 DATE = 'DATE'
-PERMS = 'PERMISSIONS'
+NAME = 'NAME'
 OWNER = 'OWNER'
+PACKED = 'PACKED'
+PERMS = 'PERMISSIONS'
+SIZE = 'SIZE'
 
 # Set to check if a column exists
 COLUMNS_SET = {
-    NAME,
-    SIZE,
     DATE,
+    NAME,
+    OWNER,
+    PACKED,
     PERMS,
-    OWNER
+    SIZE
 }
 
 class Format(ABC):
     "Abstract parent class for archive formats"
+
+    NAME = None
+
+    # The format can store duplicates
+    CAN_DUPLICATE = False
+    # The format can store multiple files
+    CAN_PACK = False
+    # The format can store special files
+    CAN_SPECIAL = False
 
     @abstractmethod
     def list_commands(self, archive):

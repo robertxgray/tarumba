@@ -59,6 +59,9 @@ msgstr "%(filename)s no es un fichero"
 msgid "%(filename)s doesn't exist"
 msgstr "%(filename)s no existe"
 
+msgid "%(format)s archive format can't store the special file %(filename)s"
+msgstr "el formato %(format)s no puede almacenar el fichero especial %(filename)s"
+
 msgid "invalid column name: %(column)s"
 msgstr "nombre de columna inválido: %(column)s"
 
@@ -74,6 +77,9 @@ msgstr "añadiendo: [cyan]%(file)s[/cyan]"
 msgid "expected a list of files to add"
 msgstr "se espera la lista de ficheros a añadir"
 
+msgid "the archive can't store more than one file"
+msgstr "el archivo no puede almacenar más de un fichero"
+
 msgid "a progress bar is already running"
 msgstr "ya se ejecuta una barra de progreso"
 
@@ -83,20 +89,23 @@ msgstr "no se ejecuta ninguna barra de progreso"
 msgid "failure in program %(program)s"
 msgstr "fallo en el programa %(program)s"
 
-msgid "PERMISSIONS"
-msgstr "PERMISOS"
-
-msgid "OWNER"
-msgstr "PROPIETARIO"
-
-msgid "SIZE"
-msgstr "TAMAÑO"
-
 msgid "DATE"
 msgstr "FECHA"
 
 msgid "NAME"
 msgstr "NOMBRE"
+
+msgid "OWNER"
+msgstr "PROPIETARIO"
+
+msgid "PACKED"
+msgstr "COMPRIMIDO"
+
+msgid "PERMISSIONS"
+msgstr "PERMISOS"
+
+msgid "SIZE"
+msgstr "TAMAÑO"
 
 ############
 # argparse #

@@ -28,7 +28,8 @@ class Config:
         'zip_bin': 'zip',
         'unzip_bin': 'unzip',
         # Default columns
-        'tar_columns': [t_format.NAME, t_format.SIZE, t_format.DATE, t_format.PERMS, t_format.OWNER]
+        'tar_columns': [t_format.PERMS, t_format.SIZE, t_format.DATE, t_format.NAME],
+        'zip_columns': [t_format.PERMS, t_format.SIZE, t_format.DATE, t_format.NAME]
     }
 
     def get(self, key):
