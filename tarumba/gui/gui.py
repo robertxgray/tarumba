@@ -8,6 +8,12 @@ from abc import ABC, abstractmethod
 class Gui(ABC):
     "Abstract parent class for GUIs"
 
+    # Answers
+    YES = 'YES'
+    NO = 'NO'
+    ALL = 'ALL'
+    NONE = 'NONE'
+
     @abstractmethod
     def info(self, message):
         "Prints a info message"

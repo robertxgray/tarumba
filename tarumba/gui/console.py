@@ -8,6 +8,7 @@ from gettext import gettext as _
 from rich import box as r_box
 from rich import console as r_console
 from rich import progress as r_progress
+from rich import prompt as r_prompt
 from rich import table as r_table
 
 from tarumba.config import current as config
@@ -102,7 +103,41 @@ class Console(t_gui.Gui):
         assert self.progress is not None, _('a progress bar is not running')
         self.progress.advance(self.task)
 
+    def prompt_ynan(self, message):
+        """
+        Prompts the user a yes/no/all/none question.
+
+        :param message: Question message
+        :return: 
+        """
+
+        # Stop progress
+        if self.progress is not None:
+            self.progress.stop()
+            self._clear_line()
+
+        choices = [_('yes'), _('no'), _('all'), _('none')]
+        answer = r_prompt.Prompt.ask(message, console=self.out_c, choices=choices, default=_('no'))
+
+        # Resume progress
+        if self.progress is not None:
+            self.progress.start()
+
+        if answer == _('yes'):
+            return self.YES
+        elif answer == _('no'):
+            return self.NO
+        elif answer == _('all'):
+            return self.ALL
+        else:
+            return self.NONE
+
     # CONSOLE SPECIFIC FUNCTIONS
+
+    def _clear_line(self):
+        UP = "\x1b[1A"
+        CLEAR = "\x1b[2K"
+        print(UP + CLEAR + UP)
 
     def disable_color(self):
         """

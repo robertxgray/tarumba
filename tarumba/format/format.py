@@ -44,6 +44,10 @@ class Format(ABC):
         "Parse the archive contents listing"
 
     @abstractmethod
+    def parse_listing_2set(self, contents):
+        "Parse the archive contents into a set"
+
+    @abstractmethod
     def add_commands(self, archive, files):
         "Commands to add files to an archive"
 

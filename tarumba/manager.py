@@ -66,6 +66,19 @@ def _detect_format(archive):
     message = _('unknown archive format')
     raise TypeError(_('%(prog)s: error: %(message)s\n') % {'prog': 'tarumba', 'message': message})
 
+def _list_archive_2set(form, archive):
+    """
+    Returns the set of archive contents.
+
+    :param form: Archive format
+    :param archive: Archive path
+    :return: Set of archive contents
+    """
+
+    commands = form.list_commands(archive)
+    contents = t_executor.execute(commands)
+    return form.parse_listing_2set(contents)
+
 def list_archive(args):
     """
     List archive contents.
@@ -109,10 +122,15 @@ def add_archive(args):
     for file in args.files:
         safe_files.append(re.sub('/+', '/', file))
 
+    # Do we need to warn before overwrite?
+    contents = None
+    if not form.CAN_DUPLICATE and os.path.isfile(args.archive):
+        contents = _list_archive_2set(form, args.archive)
+
     # Check the files to add
     total = 0
     for file in safe_files:
-        total += t_file_utils.check_filesystem_tree(file, form)
+        total += t_file_utils.check_add_filesystem_tree(form, args.archive, file, contents)
 
     t_gui.update_progress_total(total)
 

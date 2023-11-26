@@ -7,6 +7,7 @@ from gettext import gettext as _
 import os
 
 from tarumba.config import current as config
+from tarumba.gui import current as t_gui
 
 def check_read(filename):
     """
@@ -29,7 +30,8 @@ def check_write(filename):
     Check if a file is writable.
 
     :param filename: File name to check
-    :raises FileNotFoundError: The file is not readable
+    :raises PermissionError: The file is not readable
+    :raises IsADirectoryError: Element in path is not a file
     """
 
     if os.path.isfile(filename):
@@ -39,23 +41,46 @@ def check_write(filename):
         if os.path.exists(filename):
             raise IsADirectoryError(_("%(filename)s is not a file") % {'filename': filename})
 
-def check_filesystem_tree(path, form):
+def _check_add_file(form, archive, path, contents, overwrite):
     """
-    Returns all the files and folders under a filesystem path.
+    Checks if a file can be archived.
 
-    :param path: Filesystem path to walk
     :param form: Archive format
-    :return: List of files and folders
+    :param archive: Archive path
+    :param path: Filesystem path to walk
+    :param contents: Archive contents
+    :param overwrite: Overwrite control
+    :raises FileNotFoundError: The file doesn't exist
+    :raises IsADirectoryError: Element in path is not a file
+    :raises PermissionError: The file is not readable
     """
-
     if not os.path.exists(path):
         raise FileNotFoundError(_("%(filename)s doesn't exist") % {'filename': path})
     if not form.CAN_SPECIAL and not os.path.isfile(path) and not os.path.isdir(path):
-        raise FileNotFoundError(
+        raise IsADirectoryError(
             _("%(format)s archive format can't store the special file %(filename)s") %
             {'format': form.NAME, 'filename': path})
     if not os.access(path, os.R_OK):
         raise PermissionError(_("can't read %(filename)s") % {'filename': path})
+    if contents is not None and path in contents:
+        overwrite = t_gui.prompt_ynan(
+            _('%(filename)s already exists in %(archive)s. Do you want to overwrite?') %
+            {'filename': path, 'archive': os.path.basename(archive)})
+    return overwrite
+
+def check_add_filesystem_tree(form, archive, path, contents):
+    """
+    Returns all the files and folders under a filesystem path.
+
+    :param form: Archive format
+    :param archive: Archive path
+    :param path: Filesystem path to walk
+    :param contents: Archive contents
+    :return: Number of files and folders
+    """
+
+    overwrite = _check_add_file(form, archive, path, contents, None)
+    print(overwrite)
 
     total = 1
     if os.path.isdir(path) and not os.path.islink(path):
@@ -63,12 +88,7 @@ def check_filesystem_tree(path, form):
             followlinks=config.get('follow_links')):
             for name in files:
                 filepath = os.path.join(root, name)
-                if not form.CAN_SPECIAL and not os.path.isfile(filepath):
-                    raise FileNotFoundError(
-                        _("%(format)s archive format can't store the special file %(filename)s") %
-                        {'format': form.NAME, 'filename': path})
-                if not os.access(filepath, os.R_OK):
-                    raise PermissionError(_("can't read %(filename)s") % {'filename': filepath})
+                overwrite = _check_add_file(form, archive, filepath, contents, overwrite)
                 total += 1
             for name in dirs:
                 total += 1

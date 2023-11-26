@@ -36,7 +36,7 @@ class Zip(t_format.Format):
         Parse the archive contents listing.
 
         :param contents: Archive contents listing
-        :param columns: Requestes columns or None for default
+        :param columns: Requested columns or None for default
         :return: Listing parsed as rows
         """
 
@@ -60,6 +60,20 @@ class Zip(t_format.Format):
                 elif column == t_format.NAME:
                     row.append(elements[9])
             listing.append(row)
+        return listing
+
+    def parse_listing_2set(self, contents):
+        """
+        Parse the archive contents into a set.
+
+        :param contents: Archive contents listing
+        :return: Set of filenames
+        """
+
+        listing = set()
+        for content in contents:
+            elements = content.split(None, 9)
+            listing.add(elements[9])
         return listing
 
     def add_commands(self, archive, files):
