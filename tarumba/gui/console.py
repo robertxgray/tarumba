@@ -19,6 +19,10 @@ from tarumba.gui import gui as t_gui
 class Console(t_gui.Gui):
     "Class implementing the GUI functions on console mode"
 
+    # Special chars
+    UP = "\x1b[1A"
+    CLEAR = "\x1b[2K"
+
     def __init__(self):
         self.out_c = r_console.Console(
             color_system=config.get('color_system'), highlight=False)
@@ -125,19 +129,16 @@ class Console(t_gui.Gui):
 
         if answer == _('yes'):
             return self.YES
-        elif answer == _('no'):
+        if answer == _('no'):
             return self.NO
-        elif answer == _('all'):
+        if answer == _('all'):
             return self.ALL
-        else:
-            return self.NONE
+        return self.NONE
 
     # CONSOLE SPECIFIC FUNCTIONS
 
     def _clear_line(self):
-        UP = "\x1b[1A"
-        CLEAR = "\x1b[2K"
-        print(UP + CLEAR + UP)
+        print(self.UP + self.CLEAR + self.UP)
 
     def disable_color(self):
         """

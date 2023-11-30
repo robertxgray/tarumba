@@ -89,6 +89,9 @@ msgstr "no se ejecuta ninguna barra de progreso"
 msgid "failure in program %(program)s"
 msgstr "fallo en el programa %(program)s"
 
+msgid "invalid configuration key: %(key)s"
+msgstr "clave de configuración inválida: %(key)s"
+
 msgid "DATE"
 msgstr "FECHA"
 

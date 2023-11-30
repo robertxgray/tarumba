@@ -24,6 +24,7 @@ class Config:
         'follow_links': False,
         'verbose': False,
         # Paths
+        'tmp': '/tmp',
         'tar_bin': 'tar',
         'zip_bin': 'zip',
         'unzip_bin': 'unzip',
@@ -40,6 +41,7 @@ class Config:
         :return: Configuration value
         """
 
+        assert key in self.dictionary, _('invalid configuration key: %(key)s')
         return self.dictionary.get(key)
 
     def set(self, key, value):
@@ -50,6 +52,7 @@ class Config:
         :param value: Configuration value
         """
 
+        assert key in self.dictionary, _('invalid configuration key: %(key)s')
         self.dictionary[key] = value
 
 current = Config()

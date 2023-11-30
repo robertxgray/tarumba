@@ -6,6 +6,7 @@
 from gettext import gettext as _
 import os
 
+from tarumba import utils as t_utils
 from tarumba.config import current as config
 from tarumba.gui import current as t_gui
 
@@ -68,7 +69,33 @@ def _check_add_file(form, archive, path, contents, overwrite):
             {'filename': path, 'archive': os.path.basename(archive)})
     return overwrite
 
-def check_add_filesystem_tree(form, archive, path, contents):
+def _check_add_file_copy(path, tmp_dir, overwrite):
+    """
+    Copies a file if a temporary path is given.
+
+    :param path: File path
+    :param tmp_dir: Tuple with temporary path and same FS flag
+    :param overwrite: Overwrite control
+    :return: Number of files processed: 0 or 1
+    """
+
+    print(str(path) + " => " + str(tmp_dir))
+
+def _check_add_folder_copy(path, tmp_dir):
+    """
+    Copies a folder if a temporary path is given.
+
+    :param path: Folder path
+    :param tmp_dir: Tuple with temporary path and same FS flag
+    :return: Number of folders, always 1
+    """
+
+    if tmp_dir:
+        dest_path = os.path.join(tmp_dir, path)
+        os.mkdir(dest_path)
+    return 1
+
+def check_add_filesystem_tree(form, archive, path, contents, tmp_dir):
     """
     Returns all the files and folders under a filesystem path.
 
@@ -76,11 +103,11 @@ def check_add_filesystem_tree(form, archive, path, contents):
     :param archive: Archive path
     :param path: Filesystem path to walk
     :param contents: Archive contents
+    :param tmp_dir: Tuple with temporary path and same FS flag
     :return: Number of files and folders
     """
 
     overwrite = _check_add_file(form, archive, path, contents, None)
-    print(overwrite)
 
     total = 1
     if os.path.isdir(path) and not os.path.islink(path):
@@ -89,7 +116,76 @@ def check_add_filesystem_tree(form, archive, path, contents):
             for name in files:
                 filepath = os.path.join(root, name)
                 overwrite = _check_add_file(form, archive, filepath, contents, overwrite)
-                total += 1
+                total += _check_add_file_copy(filepath, tmp_dir, overwrite)
             for name in dirs:
-                total += 1
+                dirpath = os.path.join(root, name)
+                total += _check_add_folder_copy(dirpath, tmp_dir)
+    else:
+        _check_add_file_copy(path, tmp_dir, overwrite)
     return total
+
+def get_filesystem(path):
+    """
+    Returns the file system of a given path.
+
+    :param path: Path
+    :return: Filesystem
+    """
+
+    file = os.open(path,os.O_RDONLY)
+    file_system = os.fstat(file)[2]
+    os.close(file)
+    return file_system
+
+def delete_folder(path):
+    """
+    Deletes a folder and it's contents.
+
+    :param path: Folder path
+    """
+
+    for root, dirs, files in os.walk(path, topdown=False):
+        for name in files:
+            os.remove(os.path.join(root, name))
+        for name in dirs:
+            os.rmdir(os.path.join(root, name))
+    os.rmdir(path)
+
+def tmp_folder(path):
+    """
+    Creates and returns a temporary folder in the requested root path.
+
+    :param path: Root path
+    :return: Temporary folder path
+    """
+
+    while True:
+        name = os.path.join(path, '.tar' + t_utils.random_name())
+        if not os.path.lexists(name):
+            os.mkdir(name)
+            return name
+
+def tmp_folder_same_fs(path):
+    """
+    Creates a temporary folder in the same file system (when possible) as the requested path.
+    Returns a tuple with the path and a flag indicating if using the same FS was viable.
+
+    :param path: Reference path
+    :return: Tuple with temporary path and flag
+    """
+
+    base_path = os.path.abspath(path)
+    if not os.path.isdir(path):
+        base_path = os.path.dirname(base_path)
+    path_fs = get_filesystem(base_path)
+
+    default_tmp = config.get('tmp')
+    default_tmp_fs = get_filesystem(default_tmp)
+    # Prefer the default tmp
+    if config.get('follow_links') or path_fs == default_tmp_fs:
+        return (tmp_folder(default_tmp), True)
+    # Use a hidden folder in the same path as an alternative
+    if os.access(base_path, os.W_OK):
+        return (tmp_folder(base_path), True)
+    # The path is not writable, using the default tmp in another FS as last resort
+    return (tmp_folder(default_tmp), False)

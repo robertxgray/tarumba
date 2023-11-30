@@ -4,6 +4,7 @@
 "Tarumba's utilities"
 
 import os
+import random
 import re
 import sys
 
@@ -65,3 +66,36 @@ def get_volumes(archive):
         return volumes
     # If not multivolume, return None
     return None
+
+def safe_filelist(files):
+    """
+    Sanitizes a list of files.
+
+    :param files: List of files
+    :return: Sanitized list
+    """
+
+    safe_list = []
+    for file in files:
+        # Remove duplicate and trailing slashes
+        safe_file = re.sub('/+', '/', file).rstrip('/')
+        if safe_file not in safe_list:
+            safe_list.append(safe_file)
+    return safe_list
+
+def random_name():
+    """
+    Returns a random-generated string.
+
+    :return: Random name
+    """
+
+    characters = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n',
+                    'o','p','q','r','s','t','u','v','w','x','y','z',
+                    'A','B','C','D','E','F','G','H','I','J','K','L','M','N',
+                    'O','P','Q','R','S','T','U','V','W','X','Y','Z',
+                    '1','2','3','4','5','6','7','8','9','0','_']
+    name = ''
+    for _ in range(10):
+        name += random.choice(characters)
+    return name

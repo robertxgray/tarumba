@@ -7,13 +7,13 @@ from argparse import ArgumentError
 from gettext import gettext as _
 import mimetypes
 import os
-import re
 
 import magic
 
 from tarumba import config as t_config
 from tarumba import executor as t_executor
 from tarumba import file_utils as t_file_utils
+from tarumba import utils as t_utils
 from tarumba.gui import current as t_gui
 from tarumba.format import tar as t_tar
 from tarumba.format import zip as t_zip
@@ -117,33 +117,46 @@ def add_archive(args):
         if os.path.isfile(args.archive) or len(args.files) > 1:
             raise ArgumentError(None, _("the archive can't store more than one file"))
 
-    # Remove duplicate slashes
-    safe_files = []
-    for file in args.files:
-        safe_files.append(re.sub('/+', '/', file))
-
     # Do we need to warn before overwrite?
     contents = None
     if not form.CAN_DUPLICATE and os.path.isfile(args.archive):
         contents = _list_archive_2set(form, args.archive)
 
-    # Check the files to add
-    total = 0
-    for file in safe_files:
-        total += t_file_utils.check_add_filesystem_tree(form, args.archive, file, contents)
+    # Copy is required for custom paths and exclusions
+    copy = contents is not None
+    tmp_dirs = []
 
-    t_gui.update_progress_total(total)
+    try:
+        # Check the files to add and copy if needed
+        total = 0
+        safe_files = t_utils.safe_filelist(args.files)
+        for file in safe_files:
+            tmp_dir = None
+            if copy:
+                tmp_dir = t_file_utils.tmp_folder_same_fs(file)
+                tmp_dirs.append(tmp_dir)
 
-    cwd = os.getcwd()
-    commands = []
-    for file in safe_files:
-        # Force relative paths to avoid some warnings an other problems
-        if file.startswith('/'):
-            commands.append((t_executor.CHDIR, ['/']))
-            commands += form.add_commands(args.archive, file[1:])
-            commands.append((t_executor.CHDIR, [cwd]))
-        else:
-            commands += form.add_commands(args.archive, file)
+            total += t_file_utils.check_add_filesystem_tree(
+                form, args.archive, file, contents, tmp_dir)
 
-    # Run the add commands
-    t_executor.execute(commands, form.parse_add)
+        t_gui.update_progress_total(total)
+
+        cwd = os.getcwd()
+        commands = []
+        for file in safe_files:
+
+            # Force relative paths to avoid some warnings an other problems
+            if file.startswith('/'):
+                commands.append((t_executor.CHDIR, ['/']))
+                commands += form.add_commands(args.archive, file[1:])
+                commands.append((t_executor.CHDIR, [cwd]))
+            else:
+                commands += form.add_commands(args.archive, file)
+
+        # Run the add commands
+        t_executor.execute(commands, form.parse_add)
+
+    # Temporary folders must be deleted
+    finally:
+        for tmp_dir in tmp_dirs:
+            t_file_utils.delete_folder(tmp_dir[0])
