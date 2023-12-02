@@ -5,6 +5,7 @@
 
 from gettext import gettext as _
 import os
+import shutil
 
 from tarumba import utils as t_utils
 from tarumba.config import current as config
@@ -55,31 +56,49 @@ def _check_add_file(form, archive, path, contents, overwrite):
     :raises IsADirectoryError: Element in path is not a file
     :raises PermissionError: The file is not readable
     """
-    if not os.path.exists(path):
+
+    follow_links = config.get('follow_links')
+    if not os.path.lexists(path):
         raise FileNotFoundError(_("%(filename)s doesn't exist") % {'filename': path})
-    if not form.CAN_SPECIAL and not os.path.isfile(path) and not os.path.isdir(path):
+    if (not form.CAN_SPECIAL and not os.path.isfile(path) and not os.path.isdir(path) and
+        not os.path.islink(path)):
         raise IsADirectoryError(
             _("%(format)s archive format can't store the special file %(filename)s") %
             {'format': form.NAME, 'filename': path})
-    if not os.access(path, os.R_OK):
+    if not os.access(path, os.R_OK, follow_symlinks=follow_links):
         raise PermissionError(_("can't read %(filename)s") % {'filename': path})
-    if contents is not None and path in contents:
-        overwrite = t_gui.prompt_ynan(
-            _('%(filename)s already exists in %(archive)s. Do you want to overwrite?') %
-            {'filename': path, 'archive': os.path.basename(archive)})
-    return overwrite
 
-def _check_add_file_copy(path, tmp_dir, overwrite):
+    copy = True
+    if contents is not None and path.lstrip('/') in contents:
+        if overwrite not in (t_gui.ALL, t_gui.NONE):
+            overwrite = t_gui.prompt_ynan(
+                _('%(filename)s already exists in %(archive)s. Do you want to overwrite?') %
+                {'filename': path, 'archive': os.path.basename(archive)})
+        copy = overwrite in (t_gui.YES, t_gui.ALL)
+    return (overwrite, copy)
+
+def _check_add_file_copy(path, tmp_dir, copy):
     """
     Copies a file if a temporary path is given.
 
     :param path: File path
     :param tmp_dir: Tuple with temporary path and same FS flag
-    :param overwrite: Overwrite control
+    :param copy: If false, skip this file
     :return: Number of files processed: 0 or 1
     """
 
-    print(str(path) + " => " + str(tmp_dir))
+    if tmp_dir and copy:
+        follow_links = config.get('follow_links')
+        dest_path = os.path.join(tmp_dir[0], path.lstrip('/'))
+
+        if follow_links:
+            os.symlink(path, dest_path)
+        elif tmp_dir[1]:
+            os.link(path, dest_path)
+        else:
+            shutil.copy2(path, dest_path, follow_symlinks=False)
+
+    return 1 if copy else 0
 
 def _check_add_folder_copy(path, tmp_dir):
     """
@@ -91,8 +110,8 @@ def _check_add_folder_copy(path, tmp_dir):
     """
 
     if tmp_dir:
-        dest_path = os.path.join(tmp_dir, path)
-        os.mkdir(dest_path)
+        dest_path = os.path.join(tmp_dir[0], path.lstrip('/'))
+        os.makedirs(dest_path, exist_ok=True)
     return 1
 
 def check_add_filesystem_tree(form, archive, path, contents, tmp_dir):
@@ -107,21 +126,21 @@ def check_add_filesystem_tree(form, archive, path, contents, tmp_dir):
     :return: Number of files and folders
     """
 
-    overwrite = _check_add_file(form, archive, path, contents, None)
-
-    total = 1
-    if os.path.isdir(path) and not os.path.islink(path):
-        for root, dirs, files in os.walk(path, topdown=True,
-            followlinks=config.get('follow_links')):
-            for name in files:
-                filepath = os.path.join(root, name)
-                overwrite = _check_add_file(form, archive, filepath, contents, overwrite)
-                total += _check_add_file_copy(filepath, tmp_dir, overwrite)
+    follow_links = config.get('follow_links')
+    if os.path.isdir(path) and (follow_links or not os.path.islink(path)):
+        total = 1
+        overwrite = None
+        for root, dirs, files in os.walk(path, topdown=True, followlinks=follow_links):
             for name in dirs:
                 dirpath = os.path.join(root, name)
                 total += _check_add_folder_copy(dirpath, tmp_dir)
+            for name in files:
+                filepath = os.path.join(root, name)
+                overwrite, copy = _check_add_file(form, archive, filepath, contents, overwrite)
+                total += _check_add_file_copy(filepath, tmp_dir, copy)
     else:
-        _check_add_file_copy(path, tmp_dir, overwrite)
+        overwrite, copy = _check_add_file(form, archive, path, contents, None)
+        total = _check_add_file_copy(path, tmp_dir, copy)
     return total
 
 def get_filesystem(path):
@@ -144,12 +163,7 @@ def delete_folder(path):
     :param path: Folder path
     """
 
-    for root, dirs, files in os.walk(path, topdown=False):
-        for name in files:
-            os.remove(os.path.join(root, name))
-        for name in dirs:
-            os.rmdir(os.path.join(root, name))
-    os.rmdir(path)
+    shutil.rmtree(path)
 
 def tmp_folder(path):
     """
@@ -169,14 +183,13 @@ def tmp_folder_same_fs(path):
     """
     Creates a temporary folder in the same file system (when possible) as the requested path.
     Returns a tuple with the path and a flag indicating if using the same FS was viable.
+    When follow_links is enabled, we can always pretend to be in the same FS.
 
     :param path: Reference path
     :return: Tuple with temporary path and flag
     """
 
-    base_path = os.path.abspath(path)
-    if not os.path.isdir(path):
-        base_path = os.path.dirname(base_path)
+    base_path = os.path.dirname(os.path.abspath(path))
     path_fs = get_filesystem(base_path)
 
     default_tmp = config.get('tmp')

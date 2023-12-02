@@ -98,6 +98,65 @@ def list_archive(args):
     contents = t_executor.execute(commands)
     return form.parse_listing(contents, columns)
 
+def _add_archive_check(form, archive, files, tmp_dirs, contents):
+    """
+    Check the files to add and copy if needed. Updates the list of temporary folders. Existing
+    files will be prompted to overrite if the format cannot store multiple files with the same
+    path.
+
+    :param form: Archive format
+    :param archive: Archive path
+    :param files: List of files
+    :param tmp_dirs: List of temporary folders
+    :param contents: Current archive contents
+    :return: Tuple with target files and total
+    """
+    target_files = []
+    total = 0
+
+    # Copy is required for custom paths and exclusions
+    copy = contents is not None
+    safe_files = t_utils.safe_filelist(files)
+    for file in safe_files:
+        tmp_dir = None
+        if copy:
+            tmp_dir = t_file_utils.tmp_folder_same_fs(file)
+            tmp_dirs.append(tmp_dir[0])
+        numfiles = t_file_utils.check_add_filesystem_tree(
+            form, archive, file, contents, tmp_dir)
+        if numfiles > 0:
+            target_files.append(file)
+            total += numfiles
+    return (target_files, total)
+
+def _add_archive_commands(form, archive, files, tmp_dirs):
+    """
+    Generates the commands to add the files.
+
+    :param form: Archive format
+    :param archive: Archive path
+    :param files: List of files
+    :param tmp_dirs: List of temporary folders
+    :return: List of commands
+    """
+    cwd = os.getcwd()
+    commands = []
+    index = 0
+    for file in files:
+        if tmp_dirs:
+            commands.append((t_executor.CHDIR, [tmp_dirs[index]]))
+            commands += form.add_commands(archive, file)
+            commands.append((t_executor.CHDIR, [cwd]))
+        # Force relative paths to avoid some warnings an other problems
+        elif file.startswith('/'):
+            commands.append((t_executor.CHDIR, ['/']))
+            commands += form.add_commands(archive, file[1:])
+            commands.append((t_executor.CHDIR, [cwd]))
+        else:
+            commands += form.add_commands(archive, file)
+        index += 1
+    return commands
+
 def add_archive(args):
     """
     Add files to an archive.
@@ -122,41 +181,16 @@ def add_archive(args):
     if not form.CAN_DUPLICATE and os.path.isfile(args.archive):
         contents = _list_archive_2set(form, args.archive)
 
-    # Copy is required for custom paths and exclusions
-    copy = contents is not None
     tmp_dirs = []
-
     try:
-        # Check the files to add and copy if needed
-        total = 0
-        safe_files = t_utils.safe_filelist(args.files)
-        for file in safe_files:
-            tmp_dir = None
-            if copy:
-                tmp_dir = t_file_utils.tmp_folder_same_fs(file)
-                tmp_dirs.append(tmp_dir)
-
-            total += t_file_utils.check_add_filesystem_tree(
-                form, args.archive, file, contents, tmp_dir)
-
+        # Process the files to add
+        target_files, total = _add_archive_check(form, args.archive, args.files, tmp_dirs, contents)
         t_gui.update_progress_total(total)
-
-        cwd = os.getcwd()
-        commands = []
-        for file in safe_files:
-
-            # Force relative paths to avoid some warnings an other problems
-            if file.startswith('/'):
-                commands.append((t_executor.CHDIR, ['/']))
-                commands += form.add_commands(args.archive, file[1:])
-                commands.append((t_executor.CHDIR, [cwd]))
-            else:
-                commands += form.add_commands(args.archive, file)
-
-        # Run the add commands
-        t_executor.execute(commands, form.parse_add)
+        commands = _add_archive_commands(form, args.archive, target_files, tmp_dirs)
+        if commands:
+            t_executor.execute(commands, form.parse_add)
 
     # Temporary folders must be deleted
     finally:
         for tmp_dir in tmp_dirs:
-            t_file_utils.delete_folder(tmp_dir[0])
+            t_file_utils.delete_folder(tmp_dir)
