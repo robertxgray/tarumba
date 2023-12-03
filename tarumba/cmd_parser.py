@@ -46,6 +46,8 @@ def get_arguments():
         help=_('follow symbolic links. WARNING: MAY CREATE INIFINITE PATHS'))
     parser.add_argument('-n', '--no-color', action='store_true',
         help=_('disable colored output'))
+    parser.add_argument('-p', '--path',
+        help=_('use this path in the archive'))
     parser.add_argument('-v', '--verbose', action='store_true',
         help=_('verbosely list processed files'))
     args = parser.parse_args()

@@ -30,13 +30,16 @@ msgid "comma separated columns to include in the listing"
 msgstr "columnas separadas por comas a incluir en el listado"
 
 msgid "follow symbolic links. WARNING: MAY CREATE INIFINITE PATHS"
-msgstr "seguir los enlaces simbólicos. AVISO: PUEDE CREAR RUTAS INFINITAS"
+msgstr "sigue los enlaces simbólicos. AVISO: PUEDE CREAR RUTAS INFINITAS"
 
 msgid "disable colored output"
 msgstr "deshabilita la salida con color"
 
+msgid "use this path in the archive"
+msgstr "utiliza esta ruta en el archivo"
+
 msgid "verbosely list processed files"
-msgstr "listar el detalle de ficheros procesados"
+msgstr "lista el detalle de ficheros procesados"
 
 msgid "unknown archive format"
 msgstr "formato de archivo desconocido"

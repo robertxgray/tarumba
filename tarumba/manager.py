@@ -11,12 +11,14 @@ import os
 import magic
 
 from tarumba import config as t_config
+from tarumba import data_classes as t_data_classes
 from tarumba import executor as t_executor
 from tarumba import file_utils as t_file_utils
 from tarumba import utils as t_utils
-from tarumba.gui import current as t_gui
+from tarumba.config import current as config
 from tarumba.format import tar as t_tar
 from tarumba.format import zip as t_zip
+from tarumba.gui import current as t_gui
 
 GZIP = 'application/gzip'
 TAR = 'application/x-tar'
@@ -98,62 +100,61 @@ def list_archive(args):
     contents = t_executor.execute(commands)
     return form.parse_listing(contents, columns)
 
-def _add_archive_check(form, archive, files, tmp_dirs, contents):
+def _add_archive_check(add_args):
     """
     Check the files to add and copy if needed. Updates the list of temporary folders. Existing
     files will be prompted to overrite if the format cannot store multiple files with the same
     path.
 
-    :param form: Archive format
-    :param archive: Archive path
-    :param files: List of files
-    :param tmp_dirs: List of temporary folders
-    :param contents: Current archive contents
+    :param add_args: AddArgs object
     :return: Tuple with target files and total
     """
+
     target_files = []
     total = 0
-
     # Copy is required for custom paths and exclusions
-    copy = contents is not None
-    safe_files = t_utils.safe_filelist(files)
+    copy = add_args.path or add_args.contents is not None
+    safe_files = t_utils.safe_filelist(add_args.files)
     for file in safe_files:
         tmp_dir = None
         if copy:
             tmp_dir = t_file_utils.tmp_folder_same_fs(file)
-            tmp_dirs.append(tmp_dir[0])
-        numfiles = t_file_utils.check_add_filesystem_tree(
-            form, archive, file, contents, tmp_dir)
+            add_args.tmp_dirs.append(tmp_dir[0])
+        numfiles = t_file_utils.check_add_filesystem_tree(add_args, file, tmp_dir)
         if numfiles > 0:
             target_files.append(file)
             total += numfiles
     return (target_files, total)
 
-def _add_archive_commands(form, archive, files, tmp_dirs):
+def _add_archive_commands(add_args, files):
     """
     Generates the commands to add the files.
 
-    :param form: Archive format
-    :param archive: Archive path
+    :param add_args: AddArgs object
     :param files: List of files
-    :param tmp_dirs: List of temporary folders
     :return: List of commands
     """
+
     cwd = os.getcwd()
     commands = []
     index = 0
     for file in files:
-        if tmp_dirs:
-            commands.append((t_executor.CHDIR, [tmp_dirs[index]]))
-            commands += form.add_commands(archive, file)
+        safe_file = file.lstrip('/')
+        # Add the extra path
+        if add_args.path:
+            safe_file = os.path.join(add_args.path, safe_file)
+        # Move to the temporary folders
+        if add_args.tmp_dirs:
+            commands.append((t_executor.CHDIR, [add_args.tmp_dirs[index]]))
+            commands += add_args.form.add_commands(add_args.archive, safe_file)
             commands.append((t_executor.CHDIR, [cwd]))
-        # Force relative paths to avoid some warnings an other problems
+        # Move to the root when dealing with absolute paths
         elif file.startswith('/'):
             commands.append((t_executor.CHDIR, ['/']))
-            commands += form.add_commands(archive, file[1:])
+            commands += add_args.form.add_commands(add_args.archive, safe_file)
             commands.append((t_executor.CHDIR, [cwd]))
         else:
-            commands += form.add_commands(archive, file)
+            commands += add_args.form.add_commands(add_args.archive, safe_file)
         index += 1
     return commands
 
@@ -169,28 +170,34 @@ def add_archive(args):
 
     t_file_utils.check_write(args.archive)
 
-    form = _detect_format(args.archive)
+    add_args = t_data_classes.AddArgs(
+        archive = args.archive,
+        contents = None,
+        files = args.files,
+        follow_links = config.get('follow_links'),
+        form = _detect_format(args.archive),
+        path = args.path.strip('/') if args.path else None,
+        tmp_dirs = []
+    )
 
     # Can we store multiple files?
-    if not form.CAN_PACK:
-        if os.path.isfile(args.archive) or len(args.files) > 1:
+    if not add_args.form.CAN_PACK:
+        if os.path.isfile(add_args.archive) or len(add_args.files) > 1:
             raise ArgumentError(None, _("the archive can't store more than one file"))
 
     # Do we need to warn before overwrite?
-    contents = None
-    if not form.CAN_DUPLICATE and os.path.isfile(args.archive):
-        contents = _list_archive_2set(form, args.archive)
+    if not add_args.form.CAN_DUPLICATE and os.path.isfile(add_args.archive):
+        add_args.contents = _list_archive_2set(add_args.form, add_args.archive)
 
-    tmp_dirs = []
     try:
         # Process the files to add
-        target_files, total = _add_archive_check(form, args.archive, args.files, tmp_dirs, contents)
+        target_files, total = _add_archive_check(add_args)
         t_gui.update_progress_total(total)
-        commands = _add_archive_commands(form, args.archive, target_files, tmp_dirs)
+        commands = _add_archive_commands(add_args, target_files)
         if commands:
-            t_executor.execute(commands, form.parse_add)
+            t_executor.execute(commands, add_args.form.parse_add)
 
     # Temporary folders must be deleted
     finally:
-        for tmp_dir in tmp_dirs:
+        for tmp_dir in add_args.tmp_dirs:
             t_file_utils.delete_folder(tmp_dir)
