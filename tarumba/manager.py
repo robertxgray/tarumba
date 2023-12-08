@@ -96,6 +96,7 @@ def list_archive(args):
         columns = t_config.parse_columns(args.columns)
 
     form = _detect_format(args.archive)
+    t_gui.debug('format',  form)
     commands = form.list_commands(args.archive)
     contents = t_executor.execute(commands)
     return form.parse_listing(contents, columns)
@@ -116,9 +117,11 @@ def _add_archive_check(add_args):
     copy = add_args.get('path') or add_args.get('contents') is not None
     safe_files = t_utils.safe_filelist(add_args.get('files'))
     for file in safe_files:
+        t_gui.debug('file', file)
         tmp_dir = None
         if copy:
             tmp_dir = t_file_utils.tmp_folder_same_fs(file)
+            t_gui.debug('mkdir', tmp_dir)
             add_args.get('tmp_dirs').append(tmp_dir[0])
         numfiles = t_file_utils.check_add_filesystem_tree(add_args, file, tmp_dir)
         if numfiles > 0:
@@ -177,6 +180,7 @@ def add_archive(args):
     add_args.set('form', _detect_format(args.archive))
     add_args.set('level', args.level)
     add_args.set('path', args.path.strip('/') if args.path else None)
+    t_gui.debug('add_args', add_args)
 
     # Can we store multiple files?
     if not add_args.get('form').CAN_PACK:
@@ -190,6 +194,7 @@ def add_archive(args):
     try:
         # Process the files to add
         target_files, total = _add_archive_check(add_args)
+        t_gui.debug('total', total)
         t_gui.update_progress_total(total)
         commands = _add_archive_commands(add_args, target_files)
         if commands:
@@ -198,4 +203,5 @@ def add_archive(args):
     # Temporary folders must be deleted
     finally:
         for tmp_dir in add_args.get('tmp_dirs'):
+            t_gui.debug('rmdir', tmp_dir)
             t_file_utils.delete_folder(tmp_dir)

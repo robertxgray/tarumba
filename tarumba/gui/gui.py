@@ -15,6 +15,10 @@ class Gui(ABC):
     NONE = 'NONE'
 
     @abstractmethod
+    def debug(self, key, value):
+        "Prints debugging information"
+
+    @abstractmethod
     def info(self, message):
         "Prints a info message"
 

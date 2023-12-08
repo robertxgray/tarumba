@@ -42,6 +42,8 @@ def get_arguments():
         help=_('files to add or extract'))
     parser.add_argument('-c', '--columns',
         help=_('comma separated columns to include in the listing'))
+    parser.add_argument('-d', '--debug', action='store_true',
+        help=_('print debugging information'))
     parser.add_argument('-f', '--follow-links', action='store_true',
         help=_('follow symbolic links. WARNING: MAY CREATE INIFINITE PATHS'))
     parser.add_argument('-l', '--level',

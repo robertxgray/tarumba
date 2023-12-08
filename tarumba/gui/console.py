@@ -33,6 +33,16 @@ class Console(t_gui.Gui):
 
     # COMMON FUNCTIONS
 
+    def debug(self, key, value):
+        """
+        Prints a debugging information.
+
+        :param message: Message to print
+        """
+
+        if config.get('debug'):
+            self.out_c.print((f'{key.upper()}: {value}').rstrip(), style='bright_black')
+
     def info(self, message):
         """
         Prints a info message to the console.
@@ -138,6 +148,10 @@ class Console(t_gui.Gui):
     # CONSOLE SPECIFIC FUNCTIONS
 
     def _clear_line(self):
+        """
+        Clears the last line.
+        """
+
         print(self.UP + self.CLEAR + self.UP)
 
     def disable_color(self):
@@ -147,6 +161,14 @@ class Console(t_gui.Gui):
 
         self.out_c = r_console.Console(color_system=None, highlight=False)
         self.err_c = r_console.Console(color_system=None, highlight=False, stderr=True)
+
+    def print_exception(self):
+        """
+        Prints a traceback for the current exception.
+        """
+
+        if config.get('debug'):
+            self.err_c.print_exception(show_locals=True)
 
     def print_listing(self, listing):
         """

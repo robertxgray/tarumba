@@ -7,10 +7,10 @@ from gettext import gettext as _
 import os
 import sys
 
-from tarumba.config import current as config
-from tarumba.gui import current as t_gui
 from tarumba import manager as t_manager
 from tarumba import cmd_parser as t_cmd_parser
+from tarumba.config import current as config
+from tarumba.gui import current as t_gui
 
 def main():
     """
@@ -21,6 +21,9 @@ def main():
         args = t_cmd_parser.get_arguments()
 
         # Options
+        if args.debug:
+            config.set('debug', args.debug)
+            t_gui.debug('args', args)
         if args.follow_links:
             config.set('follow_links', args.follow_links)
         if args.verbose:
@@ -53,7 +56,7 @@ def main():
         sys.exit(130)
     except Exception as ex: # pylint: disable=broad-except
         t_gui.error(_('%(prog)s: error: %(message)s\n') % {'prog': 'tarumba', 'message': str(ex)})
-        raise ex # TODO: Remove this
+        t_gui.print_exception()
         sys.exit(1)
 
 if __name__ == '__main__':

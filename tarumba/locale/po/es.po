@@ -29,6 +29,9 @@ msgstr "ficheros a añadir o extraer"
 msgid "comma separated columns to include in the listing"
 msgstr "columnas separadas por comas a incluir en el listado"
 
+msgid "print debugging information"
+msgstr "mostrar información de depuración"
+
 msgid "follow symbolic links. WARNING: MAY CREATE INIFINITE PATHS"
 msgstr "sigue los enlaces simbólicos. AVISO: PUEDE CREAR RUTAS INFINITAS"
 

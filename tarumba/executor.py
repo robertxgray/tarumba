@@ -8,6 +8,7 @@ import os
 import pexpect
 
 from tarumba import utils as t_utils
+from tarumba.gui import current as t_gui
 
 # Pseudo-command to change the working directory
 CHDIR = 'CHDIR'
@@ -25,6 +26,7 @@ def execute(commands, parser=None):
     old_cwd = os.getcwd()
 
     for command in commands:
+        t_gui.debug('command', command)
 
         # Process directory changes
         if command[0] == CHDIR:

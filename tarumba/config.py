@@ -15,6 +15,7 @@ class Config(t_data_classes.Base):
     "Global configuration class"
 
     dictionary = {
+        'debug': False,
         # Colors
         'color_system': 'auto',
         'list_header_color': 'blue',
