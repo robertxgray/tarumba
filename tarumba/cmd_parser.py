@@ -44,6 +44,8 @@ def get_arguments():
         help=_('comma separated columns to include in the listing'))
     parser.add_argument('-f', '--follow-links', action='store_true',
         help=_('follow symbolic links. WARNING: MAY CREATE INIFINITE PATHS'))
+    parser.add_argument('-l', '--level',
+        help=_('compression level [0-9]'))
     parser.add_argument('-n', '--no-color', action='store_true',
         help=_('disable colored output'))
     parser.add_argument('-p', '--path',

@@ -16,5 +16,6 @@ class AddArgs:
     files: list[str]
     follow_links: bool
     form: t_format.Format
+    level: int
     path: str
     tmp_dirs: list[(str, bool)]

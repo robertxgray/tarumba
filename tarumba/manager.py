@@ -176,6 +176,7 @@ def add_archive(args):
         files = args.files,
         follow_links = config.get('follow_links'),
         form = _detect_format(args.archive),
+        level = args.level,
         path = args.path.strip('/') if args.path else None,
         tmp_dirs = []
     )

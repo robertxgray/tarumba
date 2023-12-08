@@ -32,6 +32,9 @@ msgstr "columnas separadas por comas a incluir en el listado"
 msgid "follow symbolic links. WARNING: MAY CREATE INIFINITE PATHS"
 msgstr "sigue los enlaces simbólicos. AVISO: PUEDE CREAR RUTAS INFINITAS"
 
+msgid "compression level [0-9]"
+msgstr "nivel de compresión [0-9]"
+
 msgid "disable colored output"
 msgstr "deshabilita la salida con color"
 
