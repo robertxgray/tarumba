@@ -6,11 +6,12 @@
 from gettext import gettext as _
 import os
 
+import tarumba.data_classes as t_data_classes
 from tarumba.format import format as t_format
 
 BASE_PATH = os.path.abspath(os.path.dirname(__file__))
 
-class Config:
+class Config(t_data_classes.Base):
     "Global configuration class"
 
     dictionary = {
@@ -32,28 +33,6 @@ class Config:
         'tar_columns': [t_format.PERMS, t_format.SIZE, t_format.DATE, t_format.NAME],
         'zip_columns': [t_format.PERMS, t_format.SIZE, t_format.DATE, t_format.NAME]
     }
-
-    def get(self, key):
-        """
-        Returns a configuration value.
-
-        :param key: Configuration key
-        :return: Configuration value
-        """
-
-        assert key in self.dictionary, _('invalid configuration key: %(key)s')
-        return self.dictionary.get(key)
-
-    def set(self, key, value):
-        """
-        Updates a configuration value.
-
-        :param key: Configuration key
-        :param value: Configuration value
-        """
-
-        assert key in self.dictionary, _('invalid configuration key: %(key)s')
-        self.dictionary[key] = value
 
 current = Config()
 

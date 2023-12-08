@@ -57,20 +57,20 @@ def _check_add_file(add_args, path, overwrite):
 
     if not os.path.lexists(path):
         raise FileNotFoundError(_("%(filename)s doesn't exist") % {'filename': path})
-    if (not add_args.form.CAN_SPECIAL and not os.path.isfile(path) and not os.path.isdir(path) and
-        not os.path.islink(path)):
+    if (not add_args.get('form').CAN_SPECIAL and not os.path.isfile(path) and
+        not os.path.isdir(path) and not os.path.islink(path)):
         raise IsADirectoryError(
             _("%(format)s archive format can't store the special file %(filename)s") %
-            {'format': add_args.form.NAME, 'filename': path})
-    if not os.access(path, os.R_OK, follow_symlinks=add_args.follow_links):
+            {'format': add_args.get('form').NAME, 'filename': path})
+    if not os.access(path, os.R_OK, follow_symlinks=add_args.get('follow_links')):
         raise PermissionError(_("can't read %(filename)s") % {'filename': path})
 
     copy = True
-    if add_args.contents is not None and path.lstrip('/') in add_args.contents:
+    if add_args.get('contents') is not None and path.lstrip('/') in add_args.get('contents'):
         if overwrite not in (t_gui.ALL, t_gui.NONE):
             overwrite = t_gui.prompt_ynan(
                 _('%(filename)s already exists in %(archive)s. Do you want to overwrite?') %
-                {'filename': path, 'archive': os.path.basename(add_args.archive)})
+                {'filename': path, 'archive': os.path.basename(add_args.get('archive'))})
         copy = overwrite in (t_gui.YES, t_gui.ALL)
     return (overwrite, copy)
 
@@ -88,12 +88,12 @@ def _check_add_file_copy(add_args, path, tmp_dir, copy):
     if tmp_dir and copy:
         file_path = path.lstrip('/')
         # Add the extra path
-        if add_args.path:
-            file_path = os.path.join(add_args.path, file_path)
+        if add_args.get('path'):
+            file_path = os.path.join(add_args.get('path'), file_path)
         dest_path = os.path.join(tmp_dir[0], file_path)
 
         os.makedirs(os.path.dirname(dest_path), exist_ok=True)
-        if add_args.follow_links:
+        if add_args.get('follow_links'):
             os.symlink(path, dest_path)
         elif tmp_dir[1]:
             os.link(path, dest_path)
@@ -115,8 +115,8 @@ def _check_add_folder_copy(add_args, path, tmp_dir):
     if tmp_dir:
         dir_path = path.lstrip('/')
         # Add the extra path
-        if add_args.path:
-            dir_path = os.path.join(add_args.path, dir_path)
+        if add_args.get('path'):
+            dir_path = os.path.join(add_args.get('path'), dir_path)
         dest_path = os.path.join(tmp_dir[0], dir_path)
         os.makedirs(dest_path, exist_ok=True)
     return 1
@@ -131,10 +131,11 @@ def check_add_filesystem_tree(add_args, path, tmp_dir):
     :return: Number of files and folders
     """
 
-    if os.path.isdir(path) and (add_args.follow_links or not os.path.islink(path)):
+    if os.path.isdir(path) and (add_args.get('follow_links') or not os.path.islink(path)):
         total = _check_add_folder_copy(add_args, path, tmp_dir)
         overwrite = None
-        for root, dirs, files in os.walk(path, topdown=True, followlinks=add_args.follow_links):
+        for root, dirs, files in os.walk(path, topdown=True,
+            followlinks=add_args.get('follow_links')):
             for name in dirs:
                 dirpath = os.path.join(root, name)
                 total += _check_add_folder_copy(add_args, dirpath, tmp_dir)

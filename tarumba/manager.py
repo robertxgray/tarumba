@@ -113,13 +113,13 @@ def _add_archive_check(add_args):
     target_files = []
     total = 0
     # Copy is required for custom paths and exclusions
-    copy = add_args.path or add_args.contents is not None
-    safe_files = t_utils.safe_filelist(add_args.files)
+    copy = add_args.get('path') or add_args.get('contents') is not None
+    safe_files = t_utils.safe_filelist(add_args.get('files'))
     for file in safe_files:
         tmp_dir = None
         if copy:
             tmp_dir = t_file_utils.tmp_folder_same_fs(file)
-            add_args.tmp_dirs.append(tmp_dir[0])
+            add_args.get('tmp_dirs').append(tmp_dir[0])
         numfiles = t_file_utils.check_add_filesystem_tree(add_args, file, tmp_dir)
         if numfiles > 0:
             target_files.append(file)
@@ -141,20 +141,20 @@ def _add_archive_commands(add_args, files):
     for file in files:
         safe_file = file.lstrip('/')
         # Add the extra path
-        if add_args.path:
-            safe_file = os.path.join(add_args.path, safe_file)
+        if add_args.get('path'):
+            safe_file = os.path.join(add_args.get('path'), safe_file)
         # Move to the temporary folders
-        if add_args.tmp_dirs:
-            commands.append((t_executor.CHDIR, [add_args.tmp_dirs[index]]))
-            commands += add_args.form.add_commands(add_args.archive, safe_file)
+        if add_args.get('tmp_dirs'):
+            commands.append((t_executor.CHDIR, [add_args.get('tmp_dirs')[index]]))
+            commands += add_args.get('form').add_commands(add_args.get('archive'), safe_file)
             commands.append((t_executor.CHDIR, [cwd]))
         # Move to the root when dealing with absolute paths
         elif file.startswith('/'):
             commands.append((t_executor.CHDIR, ['/']))
-            commands += add_args.form.add_commands(add_args.archive, safe_file)
+            commands += add_args.get('form').add_commands(add_args.get('archive'), safe_file)
             commands.append((t_executor.CHDIR, [cwd]))
         else:
-            commands += add_args.form.add_commands(add_args.archive, safe_file)
+            commands += add_args.get('form').add_commands(add_args.get('archive'), safe_file)
         index += 1
     return commands
 
@@ -170,25 +170,22 @@ def add_archive(args):
 
     t_file_utils.check_write(args.archive)
 
-    add_args = t_data_classes.AddArgs(
-        archive = args.archive,
-        contents = None,
-        files = args.files,
-        follow_links = config.get('follow_links'),
-        form = _detect_format(args.archive),
-        level = args.level,
-        path = args.path.strip('/') if args.path else None,
-        tmp_dirs = []
-    )
+    add_args = t_data_classes.AddArgs()
+    add_args.set('archive', args.archive)
+    add_args.set('files', args.files)
+    add_args.set('follow_links', config.get('follow_links'))
+    add_args.set('form', _detect_format(args.archive))
+    add_args.set('level', args.level)
+    add_args.set('path', args.path.strip('/') if args.path else None)
 
     # Can we store multiple files?
-    if not add_args.form.CAN_PACK:
-        if os.path.isfile(add_args.archive) or len(add_args.files) > 1:
+    if not add_args.get('form').CAN_PACK:
+        if os.path.isfile(add_args.get('archive')) or len(add_args.get('files')) > 1:
             raise ArgumentError(None, _("the archive can't store more than one file"))
 
     # Do we need to warn before overwrite?
-    if not add_args.form.CAN_DUPLICATE and os.path.isfile(add_args.archive):
-        add_args.contents = _list_archive_2set(add_args.form, add_args.archive)
+    if not add_args.get('form').CAN_DUPLICATE and os.path.isfile(add_args.get('archive')):
+        add_args.set('contents', _list_archive_2set(add_args.get('form'), add_args.get('archive')))
 
     try:
         # Process the files to add
@@ -196,9 +193,9 @@ def add_archive(args):
         t_gui.update_progress_total(total)
         commands = _add_archive_commands(add_args, target_files)
         if commands:
-            t_executor.execute(commands, add_args.form.parse_add)
+            t_executor.execute(commands, add_args.get('form').parse_add)
 
     # Temporary folders must be deleted
     finally:
-        for tmp_dir in add_args.tmp_dirs:
+        for tmp_dir in add_args.get('tmp_dirs'):
             t_file_utils.delete_folder(tmp_dir)

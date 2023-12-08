@@ -3,19 +3,45 @@
 
 "Tarumba's data classes"
 
-from dataclasses import dataclass
+from gettext import gettext as _
 
-from tarumba.format import format as t_format
+class Base:
+    "Base data class"
 
-@dataclass
-class AddArgs:
+    dictionary = {}
+
+    def get(self, key):
+        """
+        Returns a configuration value.
+
+        :param key: Configuration key
+        :return: Configuration value
+        """
+
+        assert key in self.dictionary, _('invalid configuration key: %(key)s')
+        return self.dictionary.get(key)
+
+    def set(self, key, value):
+        """
+        Updates a configuration value.
+
+        :param key: Configuration key
+        :param value: Configuration value
+        """
+
+        assert key in self.dictionary, _('invalid configuration key: %(key)s')
+        self.dictionary[key] = value
+
+class AddArgs(Base):
     "Arguments used when adding files"
 
-    archive: str
-    contents: set
-    files: list[str]
-    follow_links: bool
-    form: t_format.Format
-    level: int
-    path: str
-    tmp_dirs: list[(str, bool)]
+    dictionary = {
+        'archive': None,
+        'contents': None,
+        'files': None,
+        'follow_links': None,
+        'form': None,
+        'level': None,
+        'path': None,
+        'tmp_dirs': []
+    }
