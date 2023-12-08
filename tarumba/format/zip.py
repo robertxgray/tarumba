@@ -76,22 +76,23 @@ class Zip(t_format.Format):
             listing.add(elements[9])
         return listing
 
-    def add_commands(self, archive, files):
+    def add_commands(self, add_args, files):
         """
         Commands to add files to an archive.
 
-        :param archive: Archive name
+        :param add_args: AddArgs object
         :param contents: Files root path
         :return: List of commands
         """
 
         commands = []
 
-        if config.get('follow_links'):
-            params = '-r'
-        else:
-            params = '-ry'
-        commands.append((config.get('zip_bin'), [params, archive, '--', files]))
+        params = '-r'
+        if add_args.get('follow_links'):
+            params += 'y'
+        if add_args.get('level'):
+            params += add_args.get('level')
+        commands.append((config.get('zip_bin'), [params, add_args.get('archive'), '--', files]))
 
         return commands
 

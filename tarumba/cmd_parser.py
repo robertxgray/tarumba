@@ -57,4 +57,16 @@ def get_arguments():
     # Get the absolute archive path
     args.archive = os.path.abspath(args.archive)
 
+    _check_arguments(args)
     return args
+
+def _check_arguments(args):
+    """
+    Check the command line arguments.
+
+    :param args: Arguments
+    :raise ValueError: An argument has an invalid value
+    """
+
+    if args.level and (len(args.level)>1 or not args.level.isdigit()):
+        raise ValueError(_('invalid compression level: %(level)s') % {'level': args.level})

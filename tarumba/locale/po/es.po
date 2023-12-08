@@ -71,6 +71,9 @@ msgstr "el formato %(format)s no puede almacenar el fichero especial %(filename)
 msgid "invalid column name: %(column)s"
 msgstr "nombre de columna inválido: %(column)s"
 
+msgid "invalid compression level: %(level)s"
+msgstr "nivel de compresión inválido: %(level)s"
+
 msgid "reading [blue]%(archive)s[/blue]"
 msgstr "leyendo [blue]%(archive)s[/blue]"
 

@@ -146,15 +146,15 @@ def _add_archive_commands(add_args, files):
         # Move to the temporary folders
         if add_args.get('tmp_dirs'):
             commands.append((t_executor.CHDIR, [add_args.get('tmp_dirs')[index]]))
-            commands += add_args.get('form').add_commands(add_args.get('archive'), safe_file)
+            commands += add_args.get('form').add_commands(add_args, safe_file)
             commands.append((t_executor.CHDIR, [cwd]))
         # Move to the root when dealing with absolute paths
         elif file.startswith('/'):
             commands.append((t_executor.CHDIR, ['/']))
-            commands += add_args.get('form').add_commands(add_args.get('archive'), safe_file)
+            commands += add_args.get('form').add_commands(add_args, safe_file)
             commands.append((t_executor.CHDIR, [cwd]))
         else:
-            commands += add_args.get('form').add_commands(add_args.get('archive'), safe_file)
+            commands += add_args.get('form').add_commands(add_args, safe_file)
         index += 1
     return commands
 

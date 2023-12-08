@@ -74,22 +74,22 @@ class Tar(t_format.Format):
             listing.add(elements[5])
         return listing
 
-    def add_commands(self, archive, files):
+    def add_commands(self, add_args, files):
         """
         Commands to add files to an archive.
 
-        :param archive: Archive name
+        :param add_args: AddArgs object
         :param contents: Files root path
         :return: List of commands
         """
 
         commands = []
 
-        if config.get('follow_links'):
+        if add_args.get('follow_links'):
             params = '-rvhf'
         else:
             params = '-rvf'
-        commands.append((config.get('tar_bin'), [params, archive, '--', files]))
+        commands.append((config.get('tar_bin'), [params, add_args.get('archive'), '--', files]))
 
         return commands
 
