@@ -43,10 +43,16 @@ def main():
 
         # Compress
         if args.command in ('a', 'add'):
-
             message = _('adding files to [blue]%(archive)s[/blue]') % {'archive': basename}
             with t_gui.start_progress(message):
                 t_manager.add_archive(args)
+                t_gui.stop_progress()
+
+        # Extract
+        if args.command in ('e', 'extract'):
+            message = _('extracting files from [blue]%(archive)s[/blue]') % {'archive': basename}
+            with t_gui.start_progress(message):
+                t_manager.extract_archive(args)
                 t_gui.stop_progress()
 
     # We get BrokenPipeError whenever the output is redirected, just ignore it

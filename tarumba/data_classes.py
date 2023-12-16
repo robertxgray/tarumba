@@ -32,6 +32,14 @@ class Base:
         assert key in self.dictionary, _('invalid configuration key: %(key)s')
         self.dictionary[key] = value
 
+    def __str__(self):
+        """
+        Returns a string representation of the data.
+
+        :return: String
+        """
+        return str(self.dictionary)
+
 class AddArgs(Base):
     "Arguments used when adding files"
 
@@ -42,6 +50,17 @@ class AddArgs(Base):
         'follow_links': None,
         'form': None,
         'level': None,
+        'path': None,
+        'tmp_dirs': []
+    }
+
+class ExtractArgs(Base):
+    "Arguments used when extracting files"
+
+    dictionary = {
+        'archive': None,
+        'files': None,
+        'form': None,
         'path': None,
         'tmp_dirs': []
     }

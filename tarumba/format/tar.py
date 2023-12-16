@@ -79,7 +79,7 @@ class Tar(t_format.Format):
         Commands to add files to an archive.
 
         :param add_args: AddArgs object
-        :param contents: Files root path
+        :param files: List of files
         :return: List of commands
         """
 
@@ -107,5 +107,37 @@ class Tar(t_format.Format):
         else:
             if config.get('verbose'):
                 t_gui.info(_('adding: [cyan]%(file)s[/cyan]') % {'file': line})
+        t_gui.advance_progress()
+        return True
+
+    def extract_commands(self, extract_args):
+        """
+        Commands to extract files from an archive.
+
+        :param extract_args: ExtractArgs object
+        :return: List of commands
+        """
+
+        commands = []
+
+        commands.append((config.get('tar_bin'),
+            ['-xvf', extract_args.get('archive'), '--'] + extract_args.get('files')))
+
+        return commands
+
+    def parse_extract(self, line_number, line):
+        """
+        Parse the output when extracting files.
+
+        :param line_number: Line number
+        :param line: Line contents
+        :return: True if the line has been successfully parsed
+        """
+
+        if 'tar: ' in line:
+            t_gui.warn(line)
+        else:
+            if config.get('verbose'):
+                t_gui.info(_('extracting: [cyan]%(file)s[/cyan]') % {'file': line})
         t_gui.advance_progress()
         return True

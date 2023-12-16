@@ -54,3 +54,11 @@ class Format(ABC):
     @abstractmethod
     def parse_add(self, line_number, line):
         "Parse the output when adding files"
+
+    @abstractmethod
+    def extract_commands(self, extract_args):
+        "Commands to extract files from an archive"
+
+    @abstractmethod
+    def parse_extract(self, line_number, line):
+        "Parse the output when extracting files"

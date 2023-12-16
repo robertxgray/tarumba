@@ -205,3 +205,31 @@ def add_archive(args):
         for tmp_dir in add_args.get('tmp_dirs'):
             t_gui.debug('rmdir', tmp_dir)
             t_file_utils.delete_folder(tmp_dir)
+
+def extract_archive(args):
+    """
+    Extract files from an archive.
+
+    :param args: Input arguments
+    """
+
+    t_file_utils.check_read(args.archive)
+
+    extract_args = t_data_classes.ExtractArgs()
+    extract_args.set('archive', args.archive)
+    extract_args.set('files', args.files)
+    extract_args.set('form', _detect_format(args.archive))
+    extract_args.set('path', args.path.strip('/') if args.path else None)
+    t_gui.debug('extract_args', extract_args)
+
+    try:
+        # Process the files to extract
+        commands = extract_args.get('form').extract_commands(extract_args)
+        if commands:
+            t_executor.execute(commands, extract_args.get('form').parse_extract)
+
+    # Temporary folders must be deleted
+    finally:
+        for tmp_dir in extract_args.get('tmp_dirs'):
+            t_gui.debug('rmdir', tmp_dir)
+            t_file_utils.delete_folder(tmp_dir)
