@@ -6,6 +6,7 @@
 from gettext import gettext as _
 
 from tarumba.config import current as config
+import tarumba.file_utils as t_file_utils
 from tarumba.format import format as t_format
 from tarumba.gui import current as t_gui
 
@@ -93,12 +94,13 @@ class Tar(t_format.Format):
 
         return commands
 
-    def parse_add(self, line_number, line):
+    def parse_add(self, line_number, line, extra):
         """
         Parse the output when adding files.
 
         :param line_number: Line number
         :param line: Line contents
+        :param extra: Extra data
         :return: True if the line has been successfully parsed
         """
 
@@ -125,19 +127,18 @@ class Tar(t_format.Format):
 
         return commands
 
-    def parse_extract(self, line_number, line):
+    def parse_extract(self, line_number, line, extra):
         """
         Parse the output when extracting files.
 
         :param line_number: Line number
         :param line: Line contents
+        :param extra: Extra data
         :return: True if the line has been successfully parsed
         """
 
-        if 'tar: ' in line:
-            t_gui.warn(line)
-        else:
-            if config.get('verbose'):
-                t_gui.info(_('extracting: [cyan]%(file)s[/cyan]') % {'file': line})
+        moved = t_file_utils.move_extracted(line, extra)
+        if moved and config.get('verbose'):
+            t_gui.info(_('extracting: [cyan]%(file)s[/cyan]') % {'file': line})
         t_gui.advance_progress()
         return True

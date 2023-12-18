@@ -68,8 +68,29 @@ msgstr "%(filename)s no es un fichero"
 msgid "%(filename)s doesn't exist"
 msgstr "%(filename)s no existe"
 
+msgid "%(filename)s is not a folder"
+msgstr "%(filename)s no es una carpeta"
+
 msgid "%(format)s archive format can't store the special file %(filename)s"
 msgstr "el formato %(format)s no puede almacenar el fichero especial %(filename)s"
+
+msgid "%(filename)s already exists. Do you want to overwrite?"
+msgstr "%(filename)s ya existe. Quiere sobrescribirlo?"
+
+msgid "%(filename)s already exists in %(archive)s. Do you want to overwrite?"
+msgstr "%(filename)s ya existe en %(archive)s. Quiere sobrescribirlo?"
+
+msgid "yes"
+msgstr "sí"
+
+msgid "no"
+msgstr "no"
+
+msgid "all"
+msgstr "todos"
+
+msgid "none"
+msgstr "ninguno"
 
 msgid "invalid column name: %(column)s"
 msgstr "nombre de columna inválido: %(column)s"

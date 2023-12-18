@@ -13,12 +13,13 @@ from tarumba.gui import current as t_gui
 # Pseudo-command to change the working directory
 CHDIR = 'CHDIR'
 
-def execute(commands, parser=None):
+def execute(commands, parser=None, extra=None):
     """
     Executes a list of commands via pexpect.
 
     :param commands: List of commands
     :parser: Optional line parser
+    :extra: Optional extra data
     :return: Unparsed commands output
     """
 
@@ -46,7 +47,7 @@ def execute(commands, parser=None):
                 save_line = True
                 sub_output = t_utils.decode(subprocess.before)
                 if parser:
-                    if parser(line, sub_output):
+                    if parser(line, sub_output, extra):
                         save_line = False
                 if save_line:
                     output.append(sub_output)

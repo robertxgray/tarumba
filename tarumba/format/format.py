@@ -52,7 +52,7 @@ class Format(ABC):
         "Commands to add files to an archive"
 
     @abstractmethod
-    def parse_add(self, line_number, line):
+    def parse_add(self, line_number, line, extra):
         "Parse the output when adding files"
 
     @abstractmethod
@@ -60,5 +60,5 @@ class Format(ABC):
         "Commands to extract files from an archive"
 
     @abstractmethod
-    def parse_extract(self, line_number, line):
+    def parse_extract(self, line_number, line, extra):
         "Parse the output when extracting files"

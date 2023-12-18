@@ -96,12 +96,13 @@ class Zip(t_format.Format):
 
         return commands
 
-    def parse_add(self, line_number, line):
+    def parse_add(self, line_number, line, extra):
         """
         Parse the output when adding files.
 
         :param line_number: Line number
         :param line: Line contents
+        :param extra: Extra data
         :return: True if the line has been successfully parsed
         """
 

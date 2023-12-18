@@ -89,7 +89,7 @@ def list_archive(args):
     :raises FileNotFoundError: The archive is not readable
     """
 
-    t_file_utils.check_read(args.archive)
+    t_file_utils.check_read_file(args.archive)
 
     columns = None
     if args.columns:
@@ -171,7 +171,7 @@ def add_archive(args):
     if len(args.files) < 1:
         raise ArgumentError(None, _("expected a list of files to add"))
 
-    t_file_utils.check_write(args.archive)
+    t_file_utils.check_write_file(args.archive)
 
     add_args = t_data_classes.AddArgs()
     add_args.set('archive', args.archive)
@@ -198,13 +198,27 @@ def add_archive(args):
         t_gui.update_progress_total(total)
         commands = _add_archive_commands(add_args, target_files)
         if commands:
-            t_executor.execute(commands, add_args.get('form').parse_add)
+            t_executor.execute(commands, add_args.get('form').parse_add, add_args)
 
     # Temporary folders must be deleted
     finally:
         for tmp_dir in add_args.get('tmp_dirs'):
             t_gui.debug('rmdir', tmp_dir)
             t_file_utils.delete_folder(tmp_dir)
+
+def _extract_archive_commands(extract_args):
+    """
+    Generates the commands to extract the files.
+
+    :param add_args: ExtractArgs object
+    :return: List of commands
+    """
+
+    commands = []
+    commands.append((t_executor.CHDIR, [extract_args.get('tmp_dir')]))
+    commands += extract_args.get('form').extract_commands(extract_args)
+    commands.append((t_executor.CHDIR, [extract_args.get('cwd')]))
+    return commands
 
 def extract_archive(args):
     """
@@ -213,23 +227,26 @@ def extract_archive(args):
     :param args: Input arguments
     """
 
-    t_file_utils.check_read(args.archive)
+    t_file_utils.check_read_file(args.archive)
 
     extract_args = t_data_classes.ExtractArgs()
     extract_args.set('archive', args.archive)
+    extract_args.set('cwd', os.getcwd())
     extract_args.set('files', args.files)
     extract_args.set('form', _detect_format(args.archive))
     extract_args.set('path', args.path.strip('/') if args.path else None)
     t_gui.debug('extract_args', extract_args)
 
     try:
+        extract_args.set('tmp_dir', t_file_utils.tmp_folder(os.getcwd()))
+        t_gui.debug('mkdir', extract_args.get('tmp_dir'))
         # Process the files to extract
-        commands = extract_args.get('form').extract_commands(extract_args)
+        commands = _extract_archive_commands(extract_args)
         if commands:
-            t_executor.execute(commands, extract_args.get('form').parse_extract)
+            t_executor.execute(commands, extract_args.get('form').parse_extract, extract_args)
 
     # Temporary folders must be deleted
     finally:
-        for tmp_dir in extract_args.get('tmp_dirs'):
-            t_gui.debug('rmdir', tmp_dir)
-            t_file_utils.delete_folder(tmp_dir)
+        if extract_args.get('tmp_dir'):
+            t_gui.debug('rmdir', extract_args.get('tmp_dir'))
+            t_file_utils.delete_folder(extract_args.get('tmp_dir'))

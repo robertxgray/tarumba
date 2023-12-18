@@ -11,12 +11,14 @@ from tarumba import utils as t_utils
 from tarumba.config import current as config
 from tarumba.gui import current as t_gui
 
-def check_read(filename):
+def check_read_file(filename):
     """
     Check if a file is readable.
 
     :param filename: File name to check
-    :raises FileNotFoundError: The file is not readable
+    :raises PermissionError: The file is not readable
+    :raises IsADirectoryError: Non-file element in the path
+    :raises FileNotFoundError: No element in the path
     """
 
     if os.path.isfile(filename):
@@ -27,12 +29,12 @@ def check_read(filename):
             raise IsADirectoryError(_("%(filename)s is not a file") % {'filename': filename})
         raise FileNotFoundError(_("%(filename)s doesn't exist") % {'filename': filename})
 
-def check_write(filename):
+def check_write_file(filename):
     """
     Check if a file is writable.
 
     :param filename: File name to check
-    :raises PermissionError: The file is not readable
+    :raises PermissionError: The file is not writable
     :raises IsADirectoryError: Element in path is not a file
     """
 
@@ -42,111 +44,23 @@ def check_write(filename):
     else:
         if os.path.exists(filename):
             raise IsADirectoryError(_("%(filename)s is not a file") % {'filename': filename})
+        if not os.access(os.path.dirname(filename), os.W_OK):
+            raise PermissionError(_("can't write %(filename)s") % {'filename': filename})
 
-def _check_add_file(add_args, path, overwrite):
+def check_write_folder(filename):
     """
-    Checks if a file can be archived.
+    Check if a folder is writable.
 
-    :param add_args: AddArgs object
-    :param path: Filesystem path to walk
-    :param overwrite: Overwrite control
-    :raises FileNotFoundError: The file doesn't exist
-    :raises IsADirectoryError: Element in path is not a file
-    :raises PermissionError: The file is not readable
-    """
-
-    if not os.path.lexists(path):
-        raise FileNotFoundError(_("%(filename)s doesn't exist") % {'filename': path})
-    if (not add_args.get('form').CAN_SPECIAL and not os.path.isfile(path) and
-        not os.path.isdir(path) and not os.path.islink(path)):
-        raise IsADirectoryError(
-            _("%(format)s archive format can't store the special file %(filename)s") %
-            {'format': add_args.get('form').NAME, 'filename': path})
-    if not os.access(path, os.R_OK, follow_symlinks=add_args.get('follow_links')):
-        raise PermissionError(_("can't read %(filename)s") % {'filename': path})
-
-    copy = True
-    if add_args.get('contents') is not None and path.lstrip('/') in add_args.get('contents'):
-        if overwrite not in (t_gui.ALL, t_gui.NONE):
-            overwrite = t_gui.prompt_ynan(
-                _('%(filename)s already exists in %(archive)s. Do you want to overwrite?') %
-                {'filename': path, 'archive': os.path.basename(add_args.get('archive'))})
-        copy = overwrite in (t_gui.YES, t_gui.ALL)
-    return (overwrite, copy)
-
-def _check_add_file_copy(add_args, path, tmp_dir, copy):
-    """
-    Copies a file if a temporary path is given.
-
-    :param add_args: AddArgs object
-    :param path: File path
-    :param tmp_dir: Tuple with temporary path and same FS flag
-    :param copy: If false, skip this file
-    :return: Number of files processed: 0 or 1
+    :param filename: Folder name to check
+    :raises PermissionError: The folder is not writable
+    :raises NotADirectoryError: Element in path is not a folder
     """
 
-    if tmp_dir and copy:
-        file_path = path.lstrip('/')
-        # Add the extra path
-        if add_args.get('path'):
-            file_path = os.path.join(add_args.get('path'), file_path)
-        dest_path = os.path.join(tmp_dir[0], file_path)
-
-        os.makedirs(os.path.dirname(dest_path), exist_ok=True)
-        if add_args.get('follow_links'):
-            os.symlink(path, dest_path)
-        elif tmp_dir[1]:
-            os.link(path, dest_path)
-        else:
-            shutil.copy2(path, dest_path, follow_symlinks=False)
-
-    return 1 if copy else 0
-
-def _check_add_folder_copy(add_args, path, tmp_dir):
-    """
-    Copies a folder if a temporary path is given.
-
-    :param add_args: AddArgs object
-    :param path: Folder path
-    :param tmp_dir: Tuple with temporary path and same FS flag
-    :return: Number of folders, always 1
-    """
-
-    if tmp_dir:
-        dir_path = path.lstrip('/')
-        # Add the extra path
-        if add_args.get('path'):
-            dir_path = os.path.join(add_args.get('path'), dir_path)
-        dest_path = os.path.join(tmp_dir[0], dir_path)
-        os.makedirs(dest_path, exist_ok=True)
-    return 1
-
-def check_add_filesystem_tree(add_args, path, tmp_dir):
-    """
-    Returns all the files and folders under a filesystem path.
-
-    :param add_args: AddArgs object
-    :param path: Filesystem path to walk
-    :param tmp_dir: Tuple with temporary path and same FS flag
-    :return: Number of files and folders
-    """
-
-    if os.path.isdir(path) and (add_args.get('follow_links') or not os.path.islink(path)):
-        total = _check_add_folder_copy(add_args, path, tmp_dir)
-        overwrite = None
-        for root, dirs, files in os.walk(path, topdown=True,
-            followlinks=add_args.get('follow_links')):
-            for name in dirs:
-                dirpath = os.path.join(root, name)
-                total += _check_add_folder_copy(add_args, dirpath, tmp_dir)
-            for name in files:
-                filepath = os.path.join(root, name)
-                overwrite, copy = _check_add_file(add_args, filepath, overwrite)
-                total += _check_add_file_copy(add_args, filepath, tmp_dir, copy)
+    if os.path.isdir(filename):
+        if not os.access(filename, os.W_OK):
+            raise PermissionError(_("can't write %(filename)s") % {'filename': filename})
     else:
-        overwrite, copy = _check_add_file(add_args, path, None)
-        total = _check_add_file_copy(add_args, path, tmp_dir, copy)
-    return total
+        raise NotADirectoryError(_("%(filename)s is not a folder") % {'filename': filename})
 
 def get_filesystem(path):
     """
@@ -207,3 +121,153 @@ def tmp_folder_same_fs(path):
         return (tmp_folder(base_path), True)
     # The path is not writable, using the default tmp in another FS as last resort
     return (tmp_folder(default_tmp), False)
+
+def _check_add_file(add_args, path):
+    """
+    Checks if a file can be archived.
+
+    :param add_args: AddArgs object
+    :param path: Filesystem path to walk
+    :raises FileNotFoundError: The file doesn't exist
+    :raises IsADirectoryError: Element in path is not a file
+    :raises PermissionError: The file is not readable
+    :return: True if the file can be archived
+    """
+
+    if not os.path.lexists(path):
+        raise FileNotFoundError(_("%(filename)s doesn't exist") % {'filename': path})
+    if (not add_args.get('form').CAN_SPECIAL and not os.path.isfile(path) and
+        not os.path.isdir(path) and not os.path.islink(path)):
+        raise IsADirectoryError(
+            _("%(format)s archive format can't store the special file %(filename)s") %
+            {'format': add_args.get('form').NAME, 'filename': path})
+    if not os.access(path, os.R_OK, follow_symlinks=add_args.get('follow_links')):
+        raise PermissionError(_("can't read %(filename)s") % {'filename': path})
+
+    copy = True
+    if add_args.get('contents') is not None and path.lstrip('/') in add_args.get('contents'):
+        if add_args.get('overwrite') not in (t_gui.ALL, t_gui.NONE):
+            add_args.set('overwrite', t_gui.prompt_ynan(
+                _('%(filename)s already exists in %(archive)s. Do you want to overwrite?') %
+                {'filename': path, 'archive': os.path.basename(add_args.get('archive'))}))
+        copy = add_args.get('overwrite') in (t_gui.YES, t_gui.ALL)
+    return copy
+
+def _check_add_file_copy(add_args, path, tmp_dir, copy):
+    """
+    Copies a file if a temporary path is given.
+
+    :param add_args: AddArgs object
+    :param path: File path
+    :param tmp_dir: Tuple with temporary path and same FS flag
+    :param copy: If false, skip this file
+    :return: Number of files processed: 0 or 1
+    """
+
+    if tmp_dir and copy:
+        file_path = path.lstrip('/')
+        # Add the extra path
+        if add_args.get('path'):
+            file_path = os.path.join(add_args.get('path'), file_path)
+        dest_path = os.path.join(tmp_dir[0], file_path)
+
+        os.makedirs(os.path.dirname(dest_path), exist_ok=True)
+        if add_args.get('follow_links'):
+            os.symlink(path, dest_path)
+        elif tmp_dir[1]:
+            os.link(path, dest_path)
+        else:
+            shutil.copy2(path, dest_path, follow_symlinks=False)
+
+    return 1 if copy else 0
+
+def _check_add_folder_copy(add_args, path, tmp_dir):
+    """
+    Copies a folder if a temporary path is given.
+
+    :param add_args: AddArgs object
+    :param path: Folder path
+    :param tmp_dir: Tuple with temporary path and same FS flag
+    :return: Number of folders, always 1
+    """
+
+    if tmp_dir:
+        dir_path = path.lstrip('/')
+        # Add the extra path
+        if add_args.get('path'):
+            dir_path = os.path.join(add_args.get('path'), dir_path)
+        dest_path = os.path.join(tmp_dir[0], dir_path)
+        os.makedirs(dest_path, exist_ok=True)
+    return 1
+
+def check_add_filesystem_tree(add_args, path, tmp_dir):
+    """
+    Returns all the files and folders under a filesystem path.
+
+    :param add_args: AddArgs object
+    :param path: Filesystem path to walk
+    :param tmp_dir: Tuple with temporary path and same FS flag
+    :return: Number of files and folders
+    """
+
+    if os.path.isdir(path) and (add_args.get('follow_links') or not os.path.islink(path)):
+        total = _check_add_folder_copy(add_args, path, tmp_dir)
+        for root, dirs, files in os.walk(path, topdown=True,
+            followlinks=add_args.get('follow_links')):
+            for name in dirs:
+                dirpath = os.path.join(root, name)
+                total += _check_add_folder_copy(add_args, dirpath, tmp_dir)
+            for name in files:
+                filepath = os.path.join(root, name)
+                copy = _check_add_file(add_args, filepath)
+                total += _check_add_file_copy(add_args, filepath, tmp_dir, copy)
+    else:
+        copy = _check_add_file(add_args, path)
+        total = _check_add_file_copy(add_args, path, tmp_dir, copy)
+    return total
+
+def _move_extracted_link(file, dest_path):
+    """
+    Links extracted files to the destination path.
+
+    :param file: Extracted file
+    :param dest_path: Destination path
+    """
+
+    if os.path.isdir(file):
+        os.makedirs(dest_path, exist_ok=True)
+    else:
+        os.link(file, dest_path)
+
+def move_extracted(file, extract_args):
+    """
+    Move the extracted files to the destination path.
+
+    :param file: Extracted file
+    :param extract_args: ExtractArgs object
+    :return: True if the file has been moved
+    """
+
+    dest_path = os.path.join(extract_args.get('cwd'), file)
+    os.makedirs(os.path.dirname(dest_path), exist_ok=True)
+    # Destination doesn't exist
+    if not os.path.exists(dest_path):
+        _move_extracted_link(file, dest_path)
+        return True
+    # Destination is an existing folder
+    if os.path.isdir(file) and os.path.isdir(dest_path):
+        return True
+
+    if extract_args.get('overwrite') not in (t_gui.ALL, t_gui.NONE):
+        extract_args.set('overwrite', t_gui.prompt_ynan(
+            _('%(filename)s already exists. Do you want to overwrite?') %
+            {'filename': dest_path}))
+    # Overwrite destination
+    if extract_args.get('overwrite') in (t_gui.YES, t_gui.ALL):
+        if os.path.isdir(dest_path):
+            delete_folder(dest_path)
+        else:
+            os.remove(dest_path)
+        _move_extracted_link(file, dest_path)
+        return True
+    return False

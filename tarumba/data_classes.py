@@ -50,6 +50,7 @@ class AddArgs(Base):
         'follow_links': None,
         'form': None,
         'level': None,
+        'overwrite': None,
         'path': None,
         'tmp_dirs': []
     }
@@ -59,8 +60,10 @@ class ExtractArgs(Base):
 
     dictionary = {
         'archive': None,
+        'cwd': None,
         'files': None,
         'form': None,
+        'overwrite': None,
         'path': None,
-        'tmp_dirs': []
+        'tmp_dir': None
     }
