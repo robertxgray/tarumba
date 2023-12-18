@@ -4,6 +4,7 @@
 "Tarumba's tar archive support"
 
 from gettext import gettext as _
+import shlex
 
 from tarumba.config import current as config
 import tarumba.file_utils as t_file_utils
@@ -30,7 +31,7 @@ class Tar(t_format.Format):
         :return: List of commands
         """
 
-        return [(config.get('tar_bin'), ['--numeric-owner', '-tvf', archive])]
+        return [(config.get('tar_bin'), ['--numeric-owner', '--quoting-style=shell-always', '-tvf', archive])]
 
     def parse_listing(self, contents, columns):
         """
@@ -57,7 +58,7 @@ class Tar(t_format.Format):
                 elif column == t_format.DATE:
                     row.append(f'{elements[3]} {elements[4]}')
                 elif column == t_format.NAME:
-                    row.append(elements[5])
+                    row.append(shlex.split(elements[5])[0])
             listing.append(row)
         return listing
 
@@ -72,7 +73,7 @@ class Tar(t_format.Format):
         listing = set()
         for content in contents:
             elements = content.split(None, 5)
-            listing.add(elements[5])
+            listing.add(shlex.split(elements[5])[0])
         return listing
 
     def add_commands(self, add_args, files):
