@@ -77,7 +77,7 @@ def _list_archive_2set(form, archive):
     :return: Set of archive contents
     """
 
-    commands = form.list_commands(archive)
+    commands = form.list_commands(archive, [])
     contents = t_executor.execute(commands)
     return form.parse_listing_2set(contents)
 
@@ -97,7 +97,7 @@ def list_archive(args):
 
     form = _detect_format(args.archive)
     t_gui.debug('format',  form)
-    commands = form.list_commands(args.archive)
+    commands = form.list_commands(args.archive, args.files)
     contents = t_executor.execute(commands)
     return form.parse_listing(contents, columns)
 

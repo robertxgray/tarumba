@@ -23,16 +23,17 @@ class Tar(t_format.Format):
     # The format can store special files
     CAN_SPECIAL = True
 
-    def list_commands(self, archive):
+    def list_commands(self, archive, files):
         """
         Commands to list the archive contents.
 
         :param archive: Archive name
+        :param files: List of files
         :return: List of commands
         """
 
         return [(config.get('tar_bin'),
-            ['--numeric-owner', '--quoting-style=shell-always', '-tvf', archive])]
+            ['--numeric-owner', '--quoting-style=shell-always', '-tvf', archive, '--'] + files)]
 
     def parse_listing(self, contents, columns):
         """

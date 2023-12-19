@@ -22,15 +22,19 @@ class Zip(t_format.Format):
     # The format can store special files
     CAN_SPECIAL = False
 
-    def list_commands(self, archive):
+    def list_commands(self, archive, files):
         """
         Commands to list the archive contents.
 
         :param archive: Archive name
+        :param files: List of files
         :return: List of commands
         """
 
-        return [(config.get('unzip_bin'), ['-Z', '-lT', '--h-t', archive])]
+        safe_files = []
+        for file in files:
+            safe_files.append(file+'*')
+        return [(config.get('unzip_bin'), ['-Z', '-lT', '--h-t', '--', archive] + safe_files)]
 
     def parse_listing(self, contents, columns):
         """
