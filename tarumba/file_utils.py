@@ -25,7 +25,7 @@ def check_read_file(filename):
         if not os.access(filename, os.R_OK):
             raise PermissionError(_("can't read %(filename)s") % {'filename': filename})
     else:
-        if os.path.exists(filename):
+        if os.path.lexists(filename):
             raise IsADirectoryError(_("%(filename)s is not a file") % {'filename': filename})
         raise FileNotFoundError(_("%(filename)s doesn't exist") % {'filename': filename})
 
@@ -42,7 +42,7 @@ def check_write_file(filename):
         if not os.access(filename, os.W_OK):
             raise PermissionError(_("can't write %(filename)s") % {'filename': filename})
     else:
-        if os.path.exists(filename):
+        if os.path.lexists(filename):
             raise IsADirectoryError(_("%(filename)s is not a file") % {'filename': filename})
         if not os.access(os.path.dirname(filename), os.W_OK):
             raise PermissionError(_("can't write %(filename)s") % {'filename': filename})
@@ -251,7 +251,7 @@ def move_extracted(file, extract_args):
     dest_path = os.path.join(extract_args.get('cwd'), file)
     os.makedirs(os.path.dirname(dest_path), exist_ok=True)
     # Destination doesn't exist
-    if not os.path.exists(dest_path):
+    if not os.path.lexists(dest_path):
         _move_extracted_link(file, dest_path)
         return True
     # Destination is an existing folder

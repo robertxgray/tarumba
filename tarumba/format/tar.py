@@ -31,7 +31,8 @@ class Tar(t_format.Format):
         :return: List of commands
         """
 
-        return [(config.get('tar_bin'), ['--numeric-owner', '--quoting-style=shell-always', '-tvf', archive])]
+        return [(config.get('tar_bin'),
+            ['--numeric-owner', '--quoting-style=shell-always', '-tvf', archive])]
 
     def parse_listing(self, contents, columns):
         """
@@ -85,15 +86,11 @@ class Tar(t_format.Format):
         :return: List of commands
         """
 
-        commands = []
-
         if add_args.get('follow_links'):
             params = '-rvhf'
         else:
             params = '-rvf'
-        commands.append((config.get('tar_bin'), [params, add_args.get('archive'), '--', files]))
-
-        return commands
+        return [(config.get('tar_bin'), [params, add_args.get('archive'), '--', files])]
 
     def parse_add(self, line_number, line, extra):
         """
@@ -105,12 +102,13 @@ class Tar(t_format.Format):
         :return: True if the line has been successfully parsed
         """
 
-        if 'tar: ' in line:
+        if line.startswith('tar: '):
             t_gui.warn(line)
-        else:
+            return False
+        if len(line) > 0:
             if config.get('verbose'):
                 t_gui.info(_('adding: [cyan]%(file)s[/cyan]') % {'file': line})
-        t_gui.advance_progress()
+            t_gui.advance_progress()
         return True
 
     def extract_commands(self, extract_args):
@@ -121,12 +119,8 @@ class Tar(t_format.Format):
         :return: List of commands
         """
 
-        commands = []
-
-        commands.append((config.get('tar_bin'),
-            ['-xvf', extract_args.get('archive'), '--'] + extract_args.get('files')))
-
-        return commands
+        return [(config.get('tar_bin'),
+            ['-xvf', extract_args.get('archive'), '--'] + extract_args.get('files'))]
 
     def parse_extract(self, line_number, line, extra):
         """
@@ -138,8 +132,12 @@ class Tar(t_format.Format):
         :return: True if the line has been successfully parsed
         """
 
-        moved = t_file_utils.move_extracted(line, extra)
-        if moved and config.get('verbose'):
-            t_gui.info(_('extracting: [cyan]%(file)s[/cyan]') % {'file': line})
-        t_gui.advance_progress()
+        if line.startswith('tar: '):
+            t_gui.warn(line)
+            return False
+        if len(line) > 0:
+            moved = t_file_utils.move_extracted(line, extra)
+            if moved and config.get('verbose'):
+                t_gui.info(_('extracting: [cyan]%(file)s[/cyan]') % {'file': line})
+            t_gui.advance_progress()
         return True

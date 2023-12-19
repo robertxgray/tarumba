@@ -63,6 +63,7 @@ class ExtractArgs(Base):
         'cwd': None,
         'files': None,
         'form': None,
+        'last_file': None,
         'overwrite': None,
         'path': None,
         'tmp_dir': None

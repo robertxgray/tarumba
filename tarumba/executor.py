@@ -52,6 +52,9 @@ def execute(commands, parser=None, extra=None):
                 if save_line:
                     output.append(sub_output)
                 line += 1
+        # Some parsers need this
+        if parser:
+            parser(line, '', extra)
 
         subprocess.close()
         error = subprocess.status

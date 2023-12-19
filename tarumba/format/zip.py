@@ -6,6 +6,7 @@
 from gettext import gettext as _
 
 from tarumba.config import current as config
+import tarumba.file_utils as t_file_utils
 from tarumba.format import format as t_format
 from tarumba.gui import current as t_gui
 
@@ -29,7 +30,7 @@ class Zip(t_format.Format):
         :return: List of commands
         """
 
-        return [(config.get('unzip_bin'), ['-Z', '-l', '--h-t', archive])]
+        return [(config.get('unzip_bin'), ['-Z', '-lT', '--h-t', archive])]
 
     def parse_listing(self, contents, columns):
         """
@@ -45,7 +46,7 @@ class Zip(t_format.Format):
         listing = [columns]
         for content in contents:
             row = []
-            elements = content.split(None, 9)
+            elements = content.split(None, 8)
             for column in columns:
                 # We are ignoring the zip version and other metadata
                 # They may be added in the future by popular demand
@@ -56,9 +57,14 @@ class Zip(t_format.Format):
                 elif column == t_format.PACKED:
                     row.append(elements[5])
                 elif column == t_format.DATE:
-                    row.append(f'{elements[7]} {elements[8]}')
+                    yea = elements[7][0:4]
+                    mon = elements[7][4:6]
+                    day = elements[7][6:8]
+                    hou = elements[7][9:11]
+                    mit = elements[7][11:13]
+                    row.append(f'{yea}-{mon}-{day} {hou}:{mit}')
                 elif column == t_format.NAME:
-                    row.append(elements[9])
+                    row.append(elements[8])
             listing.append(row)
         return listing
 
@@ -72,8 +78,8 @@ class Zip(t_format.Format):
 
         listing = set()
         for content in contents:
-            elements = content.split(None, 9)
-            listing.add(elements[9])
+            elements = content.split(None, 8)
+            listing.add(elements[8])
         return listing
 
     def add_commands(self, add_args, files):
@@ -85,16 +91,12 @@ class Zip(t_format.Format):
         :return: List of commands
         """
 
-        commands = []
-
         params = '-r'
-        if add_args.get('follow_links'):
+        if not add_args.get('follow_links'):
             params += 'y'
         if add_args.get('level'):
             params += add_args.get('level')
-        commands.append((config.get('zip_bin'), [params, add_args.get('archive'), '--', files]))
-
-        return commands
+        return [(config.get('zip_bin'), [params, add_args.get('archive'), '--', files])]
 
     def parse_add(self, line_number, line, extra):
         """
@@ -110,7 +112,48 @@ class Zip(t_format.Format):
             if config.get('verbose'):
                 end = line.find(' (stored ')
                 t_gui.info(_('adding: [cyan]%(file)s[/cyan]') % {'file': line[10:end]})
-        else:
+            t_gui.advance_progress()
+            return True
+        if len(line) > 0:
             t_gui.warn(line)
-        t_gui.advance_progress()
+            return False
+        return True
+
+    def extract_commands(self, extract_args):
+        """
+        Commands to extract files from an archive.
+
+        :param extract_args: ExtractArgs object
+        :return: List of commands
+        """
+
+        return [(config.get('unzip_bin'),
+            ['-o', '--', extract_args.get('archive')] + extract_args.get('files'))]
+
+    def parse_extract(self, line_number, line, extra):
+        """
+        Parse the output when extracting files.
+
+        :param line_number: Line number
+        :param line: Line contents
+        :param extra: Extra data
+        :return: True if the line has been successfully parsed
+        """
+
+        file = extra.get('last_file')
+        if file:
+            moved = t_file_utils.move_extracted(file, extra)
+            if moved and config.get('verbose'):
+                t_gui.info(_('extracting: [cyan]%(file)s[/cyan]') % {'file': file})
+            t_gui.advance_progress()
+
+        if line.startswith('   creating:'):
+            extra.set('last_file', line[13:])
+        elif line.startswith('  inflating:') or line.startswith(' extracting:'):
+            extra.set('last_file', line[13:-2]) # Zip adds 2 spaces at the end
+        elif line.startswith('    linking:'):
+            extra.set('last_file', line[13:line.find('  -> ')])
+        else:
+            extra.set('last_file', None)
+            return False
         return True
