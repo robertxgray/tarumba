@@ -4,6 +4,7 @@
 "Tarumba's console interface"
 
 from gettext import gettext as _
+import shlex
 
 from rich import box as r_box
 from rich import console as r_console
@@ -180,9 +181,13 @@ class Console(t_gui.Gui):
         table = r_table.Table(box=r_box.SIMPLE, header_style=config.get('list_header_color'),
             border_style=config.get('list_border_color'))
 
-        for column in listing[0]:
+        col_name = None
+        idx = 0
+        for idx in range(len(listing[0])):
+            column = listing[0][idx]
             if column == t_format.NAME:
                 table.add_column(_(column), style=config.get('list_name_color'))
+                col_name = idx
             elif column == t_format.SIZE:
                 table.add_column(_(column), style=config.get('list_default_color'),
                 justify='right')
@@ -190,6 +195,9 @@ class Console(t_gui.Gui):
                 table.add_column(_(column), style=config.get('list_default_color'))
 
         for row in listing[1:]:
+            if col_name is not None:
+                # Quote filenames when needed
+                row[col_name] = shlex.quote(row[col_name])
             table.add_row(*row)
 
         self.out_c.print(table)

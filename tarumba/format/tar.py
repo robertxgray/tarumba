@@ -49,7 +49,7 @@ class Tar(t_format.Format):
         listing = [columns]
         for content in contents:
             row = []
-            elements = content.split(None, 5)
+            elements = content.split(None, 4)
             for column in columns:
                 if column == t_format.PERMS:
                     row.append(elements[0])
@@ -58,9 +58,9 @@ class Tar(t_format.Format):
                 elif column == t_format.SIZE:
                     row.append(elements[2])
                 elif column == t_format.DATE:
-                    row.append(f'{elements[3]} {elements[4]}')
+                    row.append(f'{elements[3]} {elements[4][:5]}')
                 elif column == t_format.NAME:
-                    row.append(shlex.split(elements[5])[0])
+                    row.append(shlex.split(elements[4][6:])[0])
             listing.append(row)
         return listing
 
@@ -74,8 +74,8 @@ class Tar(t_format.Format):
 
         listing = set()
         for content in contents:
-            elements = content.split(None, 5)
-            listing.add(shlex.split(elements[5])[0])
+            elements = content.split(None, 4)
+            listing.add(shlex.split(elements[4][6:])[0])
         return listing
 
     def add_commands(self, add_args, files):

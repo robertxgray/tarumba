@@ -50,7 +50,7 @@ class Zip(t_format.Format):
         listing = [columns]
         for content in contents:
             row = []
-            elements = content.split(None, 8)
+            elements = content.split(None, 7)
             for column in columns:
                 # We are ignoring the zip version and other metadata
                 # They may be added in the future by popular demand
@@ -68,7 +68,7 @@ class Zip(t_format.Format):
                     mit = elements[7][11:13]
                     row.append(f'{yea}-{mon}-{day} {hou}:{mit}')
                 elif column == t_format.NAME:
-                    row.append(elements[8])
+                    row.append(elements[7][16:])
             listing.append(row)
         return listing
 
@@ -82,8 +82,8 @@ class Zip(t_format.Format):
 
         listing = set()
         for content in contents:
-            elements = content.split(None, 8)
-            listing.add(elements[8])
+            elements = content.split(None, 7)
+            listing.add(elements[7][16:])
         return listing
 
     def add_commands(self, add_args, files):
