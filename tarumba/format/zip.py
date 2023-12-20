@@ -33,7 +33,13 @@ class Zip(t_format.Format):
 
         safe_files = []
         for file in files:
-            safe_files.append(file+'*')
+            # We're trying to mimic the behaviour of tar
+            # If the filename matches a directory, the contents are also included
+            safe_files.append(file)
+            if file.endswith('/'):
+                safe_files.append(file+'*')
+            elif not file.endswith('*'):
+                safe_files.append(file+'/*')
         return [(config.get('unzip_bin'), ['-Z', '-lT', '--h-t', '--', archive] + safe_files)]
 
     def parse_listing(self, contents, columns):
@@ -49,6 +55,11 @@ class Zip(t_format.Format):
             columns = config.get('zip_columns')
         listing = [columns]
         for content in contents:
+
+            # Ignore warnings
+            if content.startswith('caution:'):
+                continue
+
             row = []
             elements = content.split(None, 7)
             for column in columns:
@@ -82,6 +93,9 @@ class Zip(t_format.Format):
 
         listing = set()
         for content in contents:
+            # Ignore warnings
+            if content.startswith('caution:'):
+                continue
             elements = content.split(None, 7)
             listing.add(elements[7][16:])
         return listing
