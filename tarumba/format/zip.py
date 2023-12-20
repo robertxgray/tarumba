@@ -22,6 +22,23 @@ class Zip(t_format.Format):
     # The format can store special files
     CAN_SPECIAL = False
 
+    def _expand_patterns(self, files):
+        """
+        Expand file name patterns trying to imitate the behaviour of tar.
+
+        :param files: List of files
+        :return: Expanded list of files
+        """
+
+        expanded_files = []
+        for file in files:
+            # Include directory contents
+            if file.endswith('/'):
+                expanded_files.append(file + '*')
+            else:
+                expanded_files.append(file)
+        return expanded_files
+
     def list_commands(self, archive, files):
         """
         Commands to list the archive contents.
@@ -31,16 +48,8 @@ class Zip(t_format.Format):
         :return: List of commands
         """
 
-        safe_files = []
-        for file in files:
-            # We're trying to mimic the behaviour of tar
-            # If the filename matches a directory, the contents are also included
-            safe_files.append(file)
-            if file.endswith('/'):
-                safe_files.append(file+'*')
-            elif not file.endswith('*'):
-                safe_files.append(file+'/*')
-        return [(config.get('unzip_bin'), ['-Z', '-lT', '--h-t', '--', archive] + safe_files)]
+        expanded_files = self._expand_patterns(files)
+        return [(config.get('unzip_bin'), ['-Z', '-lT', '--h-t', '--', archive] + expanded_files)]
 
     def parse_listing(self, contents, columns):
         """
@@ -145,8 +154,9 @@ class Zip(t_format.Format):
         :return: List of commands
         """
 
+        expanded_files = self._expand_patterns(extract_args.get('files'))
         return [(config.get('unzip_bin'),
-            ['-o', '--', extract_args.get('archive')] + extract_args.get('files'))]
+            ['-o', '--', extract_args.get('archive')] + expanded_files)]
 
     def parse_extract(self, line_number, line, extra):
         """
@@ -165,13 +175,8 @@ class Zip(t_format.Format):
                 t_gui.info(_('extracting: [cyan]%(file)s[/cyan]') % {'file': file})
             t_gui.advance_progress()
 
-        if line.startswith('   creating:'):
-            extra.set('last_file', line[13:])
-        elif line.startswith('  inflating:') or line.startswith(' extracting:'):
-            extra.set('last_file', line[13:-2]) # Zip adds 2 spaces at the end
-        elif line.startswith('    linking:'):
-            extra.set('last_file', line[13:line.find('  -> ')])
-        else:
-            extra.set('last_file', None)
-            return False
-        return True
+        if (line.startswith('   creating:') or line.startswith('  inflating:') or
+            line.startswith(' extracting:') or line.startswith('    linking')):
+            extra.set('last_file', extra.get('contents').pop(0)[0])
+            return True
+        return False

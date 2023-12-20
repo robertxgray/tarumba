@@ -60,6 +60,7 @@ class ExtractArgs(Base):
 
     dictionary = {
         'archive': None,
+        'contents': None,
         'cwd': None,
         'files': None,
         'form': None,

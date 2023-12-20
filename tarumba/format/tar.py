@@ -137,8 +137,9 @@ class Tar(t_format.Format):
             t_gui.warn(line)
             return False
         if len(line) > 0:
-            moved = t_file_utils.move_extracted(line, extra)
+            file = extra.get('contents').pop(0)[0]
+            moved = t_file_utils.move_extracted(file, extra)
             if moved and config.get('verbose'):
-                t_gui.info(_('extracting: [cyan]%(file)s[/cyan]') % {'file': line})
+                t_gui.info(_('extracting: [cyan]%(file)s[/cyan]') % {'file': file})
             t_gui.advance_progress()
         return True

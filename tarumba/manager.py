@@ -16,6 +16,7 @@ from tarumba import executor as t_executor
 from tarumba import file_utils as t_file_utils
 from tarumba import utils as t_utils
 from tarumba.config import current as config
+from tarumba.format import format as t_format
 from tarumba.format import tar as t_tar
 from tarumba.format import zip as t_zip
 from tarumba.gui import current as t_gui
@@ -78,8 +79,8 @@ def _list_archive_2set(form, archive):
     """
 
     commands = form.list_commands(archive, [])
-    contents = t_executor.execute(commands)
-    return form.parse_listing_2set(contents)
+    listing = t_executor.execute(commands)
+    return form.parse_listing_2set(listing)
 
 def list_archive(args):
     """
@@ -98,8 +99,8 @@ def list_archive(args):
     form = _detect_format(args.archive)
     t_gui.debug('format',  form)
     commands = form.list_commands(args.archive, args.files)
-    contents = t_executor.execute(commands)
-    return form.parse_listing(contents, columns)
+    listing = t_executor.execute(commands)
+    return form.parse_listing(listing, columns)
 
 def _add_archive_check(add_args):
     """
@@ -238,12 +239,23 @@ def extract_archive(args):
     t_gui.debug('extract_args', extract_args)
 
     try:
+        # Get the archive contents
+        list_commands = extract_args.get('form').list_commands(extract_args.get('archive'),
+            extract_args.get('files'))
+        listing = t_executor.execute(list_commands)
+        extract_args.set('contents', extract_args.get('form').parse_listing(listing,
+            [t_format.NAME])[1:])
+        total = len(extract_args.get('contents'))
+        t_gui.debug('total', total)
+        t_gui.update_progress_total(total)
+        # Use a temporary folder
         extract_args.set('tmp_dir', t_file_utils.tmp_folder(os.getcwd()))
         t_gui.debug('mkdir', extract_args.get('tmp_dir'))
         # Process the files to extract
-        commands = _extract_archive_commands(extract_args)
-        if commands:
-            t_executor.execute(commands, extract_args.get('form').parse_extract, extract_args)
+        extract_commands = _extract_archive_commands(extract_args)
+        if extract_commands:
+            t_executor.execute(extract_commands, extract_args.get('form').parse_extract,
+                extract_args)
 
     # Temporary folders must be deleted
     finally:
