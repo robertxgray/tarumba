@@ -36,7 +36,7 @@ class Format(ABC):
     CAN_SPECIAL = False
 
     @abstractmethod
-    def list_commands(self, archive, files):
+    def list_commands(self, list_args):
         "Commands to list the archive contents"
 
     @abstractmethod

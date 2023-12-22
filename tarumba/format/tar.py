@@ -23,17 +23,21 @@ class Tar(t_format.Format):
     # The format can store special files
     CAN_SPECIAL = True
 
-    def list_commands(self, archive, files):
+    def list_commands(self, list_args):
         """
         Commands to list the archive contents.
 
-        :param archive: Archive name
-        :param files: List of files
+        :param list_args: ListArgs object
         :return: List of commands
         """
 
+        params = []
+        params.append('--numeric-owner')
+        params.append('--quoting-style=shell-always')
+        if list_args.get('occurrence'):
+            params.append('--occurrence='+list_args.get('occurrence'))
         return [(config.get('tar_bin'),
-            ['--numeric-owner', '--quoting-style=shell-always', '-tvf', archive, '--'] + files)]
+            params + ['-tvf', list_args.get('archive'), '--'] + list_args.get('files'))]
 
     def parse_listing(self, contents, columns):
         """
@@ -120,8 +124,11 @@ class Tar(t_format.Format):
         :return: List of commands
         """
 
+        params = []
+        if extract_args.get('occurrence'):
+            params.append('--occurrence='+extract_args.get('occurrence'))
         return [(config.get('tar_bin'),
-            ['-xvf', extract_args.get('archive'), '--'] + extract_args.get('files'))]
+            params + ['-xvf', extract_args.get('archive'), '--'] + extract_args.get('files'))]
 
     def parse_extract(self, line_number, line, extra):
         """

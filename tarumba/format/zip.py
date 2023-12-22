@@ -39,17 +39,17 @@ class Zip(t_format.Format):
                 expanded_files.append(file)
         return expanded_files
 
-    def list_commands(self, archive, files):
+    def list_commands(self, list_args):
         """
         Commands to list the archive contents.
 
-        :param archive: Archive name
-        :param files: List of files
+        :param list_args: ListArgs object
         :return: List of commands
         """
 
-        expanded_files = self._expand_patterns(files)
-        return [(config.get('unzip_bin'), ['-Z', '-lT', '--h-t', '--', archive] + expanded_files)]
+        expanded_files = self._expand_patterns(list_args.get('files'))
+        return [(config.get('unzip_bin'), ['-Z', '-lT', '--h-t', '--',
+            list_args.get('archive')] + expanded_files)]
 
     def parse_listing(self, contents, columns):
         """

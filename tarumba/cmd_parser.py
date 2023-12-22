@@ -39,19 +39,21 @@ def get_arguments():
     parser.add_argument('archive',
         help=_('archive file to process'))
     parser.add_argument('files', nargs='*',
-        help=_('files to add or extract'))
+        help=_('list of files to list, add or extract'))
     parser.add_argument('-c', '--columns',
         help=_('comma separated columns to include in the listing'))
     parser.add_argument('-d', '--debug', action='store_true',
-        help=_('print debugging information'))
+        help=_('show debugging information'))
     parser.add_argument('-f', '--follow-links', action='store_true',
         help=_('follow symbolic links. WARNING: MAY CREATE INIFINITE PATHS'))
     parser.add_argument('-l', '--level',
         help=_('compression level [0-9]'))
     parser.add_argument('-n', '--no-color', action='store_true',
         help=_('disable colored output'))
+    parser.add_argument('-o', '--occurrence',
+        help=_('process only the Nth occurrence of each file in the archive'))
     parser.add_argument('-p', '--path',
-        help=_('use this path in the archive'))
+        help=_('modify the file paths in the archive using this reference'))
     parser.add_argument('-v', '--verbose', action='store_true',
         help=_('verbosely list processed files'))
     args = parser.parse_args()
@@ -72,3 +74,11 @@ def _check_arguments(args):
 
     if args.level and (len(args.level)>1 or not args.level.isdigit()):
         raise ValueError(_('invalid compression level: %(level)s') % {'level': args.level})
+
+    if args.occurrence and not args.occurrence.isdigit():
+        raise ValueError(_('invalid occurrence value: %(occurrence)s') %
+            {'occurrence': args.occurrence})
+
+    if args.occurrence and not args.files:
+        raise ValueError(_('the occurrence argument can only be used with a list of files') %
+            {'occurrence': args.occurrence})

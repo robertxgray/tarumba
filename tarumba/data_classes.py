@@ -40,6 +40,16 @@ class Base:
         """
         return str(self.dictionary)
 
+class ListArgs(Base):
+    "Arguments used when listing files"
+
+    dictionary = {
+        'archive': None,
+        'files': None,
+        'form': None,
+        'occurrence': None
+    }
+
 class AddArgs(Base):
     "Arguments used when adding files"
 
@@ -65,6 +75,7 @@ class ExtractArgs(Base):
         'files': None,
         'form': None,
         'last_file': None,
+        'occurrence': None,
         'overwrite': None,
         'path': None,
         'tmp_dir': None

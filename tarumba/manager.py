@@ -78,7 +78,11 @@ def _list_archive_2set(form, archive):
     :return: Set of archive contents
     """
 
-    commands = form.list_commands(archive, [])
+    list_args = t_data_classes.ListArgs()
+    list_args.set('archive', archive)
+    list_args.set('form', form)
+
+    commands = form.list_commands(list_args)
     listing = t_executor.execute(commands)
     return form.parse_listing_2set(listing)
 
@@ -96,11 +100,16 @@ def list_archive(args):
     if args.columns:
         columns = t_config.parse_columns(args.columns)
 
-    form = _detect_format(args.archive)
-    t_gui.debug('format',  form)
-    commands = form.list_commands(args.archive, args.files)
+    list_args = t_data_classes.ListArgs()
+    list_args.set('archive', args.archive)
+    list_args.set('files', args.files)
+    list_args.set('form', _detect_format(args.archive))
+    list_args.set('occurrence', args.occurrence)
+    t_gui.debug('list_args', list_args)
+
+    commands = list_args.get('form').list_commands(list_args)
     listing = t_executor.execute(commands)
-    return form.parse_listing(listing, columns)
+    return list_args.get('form').parse_listing(listing, columns)
 
 def _add_archive_check(add_args):
     """
@@ -230,18 +239,26 @@ def extract_archive(args):
 
     t_file_utils.check_read_file(args.archive)
 
+    form = _detect_format(args.archive)
+
+    list_args = t_data_classes.ListArgs()
+    list_args.set('archive', args.archive)
+    list_args.set('files', args.files)
+    list_args.set('form', form)
+    t_gui.debug('list_args', list_args)
+
     extract_args = t_data_classes.ExtractArgs()
     extract_args.set('archive', args.archive)
     extract_args.set('cwd', os.getcwd())
     extract_args.set('files', args.files)
-    extract_args.set('form', _detect_format(args.archive))
+    extract_args.set('form', form)
+    extract_args.set('occurrence', args.occurrence)
     extract_args.set('path', args.path.strip('/') if args.path else None)
     t_gui.debug('extract_args', extract_args)
 
     try:
         # Get the archive contents
-        list_commands = extract_args.get('form').list_commands(extract_args.get('archive'),
-            extract_args.get('files'))
+        list_commands = extract_args.get('form').list_commands(list_args)
         listing = t_executor.execute(list_commands)
         extract_args.set('contents', extract_args.get('form').parse_listing(listing,
             [t_format.NAME])[1:])

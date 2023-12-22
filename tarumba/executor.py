@@ -62,8 +62,9 @@ def execute(commands, parser=None, extra=None):
         # Stop on error
         if error:
             message=_('failure in program %(program)s') % {'program': command[0]} + '\n'
-            if sub_output:
-                message += sub_output
+            print(str(output))
+            if output:
+                message += '\n'.join(output[-3:])
             raise ChildProcessError(message)
 
     # Restore the current working directory

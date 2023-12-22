@@ -248,7 +248,18 @@ def move_extracted(file, extract_args):
     :return: True if the file has been moved
     """
 
-    dest_path = os.path.join(extract_args.get('cwd'), file)
+    # Calculate the destination path
+    mod_file = file
+    extra_path = extract_args.get('path')
+    if extra_path:
+        extra_path += '/'
+        if file.startswith(extra_path):
+            mod_file = mod_file[len(extra_path):]
+        else:
+            t_gui.warn(_("path modification %(path)s can't be applied to %(filename)s") %
+                {'path': extra_path, 'filename': file})
+    dest_path = os.path.join(extract_args.get('cwd'), mod_file)
+
     os.makedirs(os.path.dirname(dest_path), exist_ok=True)
     # Destination doesn't exist
     if not os.path.lexists(dest_path):

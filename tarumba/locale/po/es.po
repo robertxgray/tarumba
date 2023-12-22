@@ -23,26 +23,29 @@ msgstr "commando"
 msgid "archive file to process"
 msgstr "fichero de archivo a procesar"
 
-msgid "files to add or extract"
-msgstr "ficheros a añadir o extraer"
+msgid "list of files to list, add or extract"
+msgstr "lista de ficheros a listar, añadir o extraer"
 
 msgid "comma separated columns to include in the listing"
 msgstr "columnas separadas por comas a incluir en el listado"
 
-msgid "print debugging information"
-msgstr "mostrar información de depuración"
+msgid "show debugging information"
+msgstr "mostrar la información de depuración"
 
 msgid "follow symbolic links. WARNING: MAY CREATE INIFINITE PATHS"
-msgstr "sigue los enlaces simbólicos. AVISO: PUEDE CREAR RUTAS INFINITAS"
+msgstr "seguir los enlaces simbólicos. AVISO: PUEDE CREAR RUTAS INFINITAS"
 
 msgid "compression level [0-9]"
 msgstr "nivel de compresión [0-9]"
 
 msgid "disable colored output"
-msgstr "deshabilita la salida con color"
+msgstr "desactivar la salida en color"
 
-msgid "use this path in the archive"
-msgstr "utiliza esta ruta en el archivo"
+msgid "process only the Nth occurrence of each file in the archive"
+msgstr "procesa solo la enésima ocurrencia de cada fichero en el archivo"
+
+msgid "modify the file paths in the archive using this reference"
+msgstr "modifica las rutas de ficheros en el archivo utilizando esta referencia"
 
 msgid "verbosely list processed files"
 msgstr "lista el detalle de ficheros procesados"
@@ -80,6 +83,9 @@ msgstr "%(filename)s ya existe. Quiere sobrescribirlo?"
 msgid "%(filename)s already exists in %(archive)s. Do you want to overwrite?"
 msgstr "%(filename)s ya existe en %(archive)s. Quiere sobrescribirlo?"
 
+msgid "path modification %(path)s can't be applied to %(filename)s"
+msgstr "la modificación de ruta %(path)s no se puede aplicar a %(filename)s"
+
 msgid "yes"
 msgstr "sí"
 
@@ -97,6 +103,12 @@ msgstr "nombre de columna inválido: %(column)s"
 
 msgid "invalid compression level: %(level)s"
 msgstr "nivel de compresión inválido: %(level)s"
+
+msgid "invalid occurrence value: %(occurrence)s"
+msgstr "valor de ocurrencia inválido: %(occurrence)s"
+
+msgid "the occurrence argument can only be used with a list of files"
+msgstr "el argumento ocurrencia solo se puede usar con una lista de archivos"
 
 msgid "reading [blue]%(archive)s[/blue]"
 msgstr "leyendo [blue]%(archive)s[/blue]"
