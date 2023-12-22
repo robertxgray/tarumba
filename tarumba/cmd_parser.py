@@ -56,6 +56,8 @@ def get_arguments():
         help=_('modify the file paths in the archive using this reference'))
     parser.add_argument('-v', '--verbose', action='store_true',
         help=_('verbosely list processed files'))
+    parser.add_argument('-w', '--owner', action='store_true',
+        help=_('preserve the owner user and group when possible'))
     args = parser.parse_args()
 
     # Get the absolute archive path

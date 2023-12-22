@@ -175,7 +175,10 @@ def _check_add_file_copy(add_args, path, tmp_dir, copy):
         if add_args.get('follow_links'):
             os.symlink(path, dest_path)
         elif tmp_dir[1]:
-            os.link(path, dest_path)
+            try:
+                os.link(path, dest_path)
+            except PermissionError:
+                shutil.copy2(path, dest_path, follow_symlinks=False)
         else:
             shutil.copy2(path, dest_path, follow_symlinks=False)
 
@@ -198,6 +201,7 @@ def _check_add_folder_copy(add_args, path, tmp_dir):
             dir_path = os.path.join(add_args.get('path'), dir_path)
         dest_path = os.path.join(tmp_dir[0], dir_path)
         os.makedirs(dest_path, exist_ok=True)
+        shutil.copystat(path, dest_path)
     return 1
 
 def check_add_filesystem_tree(add_args, path, tmp_dir):
@@ -235,7 +239,8 @@ def _move_extracted_link(file, dest_path):
     """
 
     if os.path.isdir(file):
-        os.makedirs(dest_path, exist_ok=True)
+        os.mkdir(dest_path)
+        shutil.copystat(file, dest_path)
     else:
         os.link(file, dest_path)
 

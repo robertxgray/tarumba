@@ -91,11 +91,13 @@ class Tar(t_format.Format):
         :return: List of commands
         """
 
+        params = []
         if add_args.get('follow_links'):
-            params = '-rvhf'
-        else:
-            params = '-rvf'
-        return [(config.get('tar_bin'), [params, add_args.get('archive'), '--', files])]
+            params.append('-h')
+        if not add_args.get('owner'):
+            params.append('--owner=0')
+            params.append('--group=0')
+        return [(config.get('tar_bin'), params + ['-rvf', add_args.get('archive'), '--', files])]
 
     def parse_add(self, line_number, line, extra):
         """

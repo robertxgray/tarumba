@@ -189,6 +189,7 @@ def add_archive(args):
     add_args.set('follow_links', config.get('follow_links'))
     add_args.set('form', _detect_format(args.archive))
     add_args.set('level', args.level)
+    add_args.set('owner', args.owner)
     add_args.set('path', args.path.strip('/') if args.path else None)
     t_gui.debug('add_args', add_args)
 

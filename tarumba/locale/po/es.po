@@ -50,6 +50,9 @@ msgstr "modifica las rutas de ficheros en el archivo utilizando esta referencia"
 msgid "verbosely list processed files"
 msgstr "lista el detalle de ficheros procesados"
 
+msgid "preserve the owner user and group when possible"
+msgstr "conservar el usuario y grupo propietario cuando sea posible"
+
 msgid "unknown archive format"
 msgstr "formato de archivo desconocido"
 

@@ -61,6 +61,7 @@ class AddArgs(Base):
         'form': None,
         'level': None,
         'overwrite': None,
+        'owner': None,
         'path': None,
         'tmp_dirs': []
     }
