@@ -31,6 +31,10 @@ class Gui(ABC):
         "Prints an error message"
 
     @abstractmethod
+    def prompt_password(self, message):
+        "Prompts for a password"
+
+    @abstractmethod
     def start_progress(self, message):
         "Starts a progress bar"
 

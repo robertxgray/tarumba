@@ -18,6 +18,8 @@ class Tar(t_format.Format):
 
     # The format can store duplicates
     CAN_DUPLICATE = True
+    # The format can encrypt it's contents
+    CAN_ENCRYPT = False
     # The format can store multiple files
     CAN_PACK = True
     # The format can store special files
@@ -110,7 +112,8 @@ class Tar(t_format.Format):
         """
 
         if line.startswith('tar: '):
-            t_gui.warn(line)
+            t_gui.warn(_('%(prog)s: warning: %(message)s\n') %
+                {'prog': 'tarumba', 'message': line})
             return False
         if len(line) > 0:
             if config.get('verbose'):
@@ -143,7 +146,8 @@ class Tar(t_format.Format):
         """
 
         if line.startswith('tar: '):
-            t_gui.warn(line)
+            t_gui.warn(_('%(prog)s: warning: %(message)s\n') %
+                {'prog': 'tarumba', 'message': line})
             return False
         if len(line) > 0:
             file = extra.get('contents').pop(0)[0]

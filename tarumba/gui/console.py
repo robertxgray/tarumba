@@ -71,6 +71,19 @@ class Console(t_gui.Gui):
 
         self.err_c.print(message.rstrip(), style='bold red')
 
+    def prompt_password(self, message):
+        """
+        Prompts for a password.
+
+        :param message: Message to print
+        :return: Password
+        """
+
+        self._pause_progress()
+        password = r_prompt.Prompt.ask(message, console=self.out_c, password=True)
+        self._resume_progress()
+        return password
+
     def start_progress(self, message):
         """
         Starts a progress bar.
@@ -126,17 +139,10 @@ class Console(t_gui.Gui):
         :return: 
         """
 
-        # Stop progress
-        if self.progress is not None:
-            self.progress.stop()
-            self._clear_line()
-
+        self._pause_progress()
         choices = [_('yes'), _('no'), _('all'), _('none')]
         answer = r_prompt.Prompt.ask(message, console=self.out_c, choices=choices, default=_('no'))
-
-        # Resume progress
-        if self.progress is not None:
-            self.progress.start()
+        self._resume_progress()
 
         if answer == _('yes'):
             return self.YES
@@ -147,6 +153,23 @@ class Console(t_gui.Gui):
         return self.NONE
 
     # CONSOLE SPECIFIC FUNCTIONS
+
+    def _pause_progress(self):
+        """
+        Pauses the progress bar.
+        """
+
+        if self.progress is not None:
+            self.progress.stop()
+            self._clear_line()
+
+    def _resume_progress(self):
+        """
+        Resumes the progress bar.
+        """
+
+        if self.progress is not None:
+            self.progress.start()
 
     def _clear_line(self):
         """

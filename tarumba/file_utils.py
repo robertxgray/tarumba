@@ -136,11 +136,11 @@ def _check_add_file(add_args, path):
 
     if not os.path.lexists(path):
         raise FileNotFoundError(_("%(filename)s doesn't exist") % {'filename': path})
-    if (not add_args.get('form').CAN_SPECIAL and not os.path.isfile(path) and
+    if (not add_args.get('format').CAN_SPECIAL and not os.path.isfile(path) and
         not os.path.isdir(path) and not os.path.islink(path)):
         raise IsADirectoryError(
             _("%(format)s archive format can't store the special file %(filename)s") %
-            {'format': add_args.get('form').NAME, 'filename': path})
+            {'format': add_args.get('format').NAME, 'filename': path})
     if not os.access(path, os.R_OK, follow_symlinks=add_args.get('follow_links')):
         raise PermissionError(_("can't read %(filename)s") % {'filename': path})
 
@@ -261,8 +261,11 @@ def move_extracted(file, extract_args):
         if file.startswith(extra_path):
             mod_file = mod_file[len(extra_path):]
         else:
-            t_gui.warn(_("path modification %(path)s can't be applied to %(filename)s") %
+            message = (_("path modification %(path)s can't be applied to %(filename)s") %
                 {'path': extra_path, 'filename': file})
+            t_gui.warn(_('%(prog)s: warning: %(message)s\n') %
+                {'prog': 'tarumba', 'message': message})
+
     dest_path = os.path.join(extract_args.get('cwd'), mod_file)
 
     os.makedirs(os.path.dirname(dest_path), exist_ok=True)

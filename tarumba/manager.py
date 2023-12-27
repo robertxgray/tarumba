@@ -80,7 +80,7 @@ def _list_archive_2set(form, archive):
 
     list_args = t_data_classes.ListArgs()
     list_args.set('archive', archive)
-    list_args.set('form', form)
+    list_args.set('format', form)
 
     commands = form.list_commands(list_args)
     listing = t_executor.execute(commands)
@@ -103,13 +103,13 @@ def list_archive(args):
     list_args = t_data_classes.ListArgs()
     list_args.set('archive', args.archive)
     list_args.set('files', args.files)
-    list_args.set('form', _detect_format(args.archive))
+    list_args.set('format', _detect_format(args.archive))
     list_args.set('occurrence', args.occurrence)
     t_gui.debug('list_args', list_args)
 
-    commands = list_args.get('form').list_commands(list_args)
+    commands = list_args.get('format').list_commands(list_args)
     listing = t_executor.execute(commands)
-    return list_args.get('form').parse_listing(listing, columns)
+    return list_args.get('format').parse_listing(listing, columns)
 
 def _add_archive_check(add_args):
     """
@@ -159,15 +159,15 @@ def _add_archive_commands(add_args, files):
         # Move to the temporary folders
         if add_args.get('tmp_dirs'):
             commands.append((t_executor.CHDIR, [add_args.get('tmp_dirs')[index]]))
-            commands += add_args.get('form').add_commands(add_args, safe_file)
+            commands += add_args.get('format').add_commands(add_args, safe_file)
             commands.append((t_executor.CHDIR, [cwd]))
         # Move to the root when dealing with absolute paths
         elif file.startswith('/'):
             commands.append((t_executor.CHDIR, ['/']))
-            commands += add_args.get('form').add_commands(add_args, safe_file)
+            commands += add_args.get('format').add_commands(add_args, safe_file)
             commands.append((t_executor.CHDIR, [cwd]))
         else:
-            commands += add_args.get('form').add_commands(add_args, safe_file)
+            commands += add_args.get('format').add_commands(add_args, safe_file)
         index += 1
     return commands
 
@@ -187,20 +187,34 @@ def add_archive(args):
     add_args.set('archive', args.archive)
     add_args.set('files', args.files)
     add_args.set('follow_links', config.get('follow_links'))
-    add_args.set('form', _detect_format(args.archive))
+    add_args.set('format', _detect_format(args.archive))
     add_args.set('level', args.level)
     add_args.set('owner', args.owner)
     add_args.set('path', args.path.strip('/') if args.path else None)
     t_gui.debug('add_args', add_args)
 
+    # Encryption password
+    password = None
+    if args.encrypt:
+        if add_args.get('format').CAN_ENCRYPT:
+            password = t_utils.new_password(args.archive)
+            add_args.set('password', password)
+        else:
+            raise ArgumentError(None,
+                _("the archive format %(format)s can't encrypt contents") %
+                {'format': add_args.get('format').NAME})
+
     # Can we store multiple files?
-    if not add_args.get('form').CAN_PACK:
+    if not add_args.get('format').CAN_PACK:
         if os.path.isfile(add_args.get('archive')) or len(add_args.get('files')) > 1:
-            raise ArgumentError(None, _("the archive can't store more than one file"))
+            raise ArgumentError(None,
+                _("the archive format %(format)s can't store more than one file") %
+                {'format': add_args.get('format').NAME})
 
     # Do we need to warn before overwrite?
-    if not add_args.get('form').CAN_DUPLICATE and os.path.isfile(add_args.get('archive')):
-        add_args.set('contents', _list_archive_2set(add_args.get('form'), add_args.get('archive')))
+    if not add_args.get('format').CAN_DUPLICATE and os.path.isfile(add_args.get('archive')):
+        add_args.set('contents',
+            _list_archive_2set(add_args.get('format'), add_args.get('archive')))
 
     try:
         # Process the files to add
@@ -209,7 +223,7 @@ def add_archive(args):
         t_gui.update_progress_total(total)
         commands = _add_archive_commands(add_args, target_files)
         if commands:
-            t_executor.execute(commands, add_args.get('form').parse_add, add_args)
+            t_executor.execute(commands, add_args.get('format').parse_add, add_args)
 
     # Temporary folders must be deleted
     finally:
@@ -227,7 +241,7 @@ def _extract_archive_commands(extract_args):
 
     commands = []
     commands.append((t_executor.CHDIR, [extract_args.get('tmp_dir')]))
-    commands += extract_args.get('form').extract_commands(extract_args)
+    commands += extract_args.get('format').extract_commands(extract_args)
     commands.append((t_executor.CHDIR, [extract_args.get('cwd')]))
     return commands
 
@@ -245,23 +259,23 @@ def extract_archive(args):
     list_args = t_data_classes.ListArgs()
     list_args.set('archive', args.archive)
     list_args.set('files', args.files)
-    list_args.set('form', form)
+    list_args.set('format', form)
     t_gui.debug('list_args', list_args)
 
     extract_args = t_data_classes.ExtractArgs()
     extract_args.set('archive', args.archive)
     extract_args.set('cwd', os.getcwd())
     extract_args.set('files', args.files)
-    extract_args.set('form', form)
+    extract_args.set('format', form)
     extract_args.set('occurrence', args.occurrence)
     extract_args.set('path', args.path.strip('/') if args.path else None)
     t_gui.debug('extract_args', extract_args)
 
     try:
         # Get the archive contents
-        list_commands = extract_args.get('form').list_commands(list_args)
+        list_commands = extract_args.get('format').list_commands(list_args)
         listing = t_executor.execute(list_commands)
-        extract_args.set('contents', extract_args.get('form').parse_listing(listing,
+        extract_args.set('contents', extract_args.get('format').parse_listing(listing,
             [t_format.NAME])[1:])
         total = len(extract_args.get('contents'))
         t_gui.debug('total', total)
@@ -272,7 +286,7 @@ def extract_archive(args):
         # Process the files to extract
         extract_commands = _extract_archive_commands(extract_args)
         if extract_commands:
-            t_executor.execute(extract_commands, extract_args.get('form').parse_extract,
+            t_executor.execute(extract_commands, extract_args.get('format').parse_extract,
                 extract_args)
 
     # Temporary folders must be deleted

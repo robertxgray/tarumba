@@ -46,7 +46,7 @@ class ListArgs(Base):
     dictionary = {
         'archive': None,
         'files': None,
-        'form': None,
+        'format': None,
         'occurrence': None
     }
 
@@ -58,10 +58,11 @@ class AddArgs(Base):
         'contents': None,
         'files': None,
         'follow_links': None,
-        'form': None,
+        'format': None,
         'level': None,
         'overwrite': None,
         'owner': None,
+        'password': None,
         'path': None,
         'tmp_dirs': []
     }
@@ -74,7 +75,7 @@ class ExtractArgs(Base):
         'contents': None,
         'cwd': None,
         'files': None,
-        'form': None,
+        'format': None,
         'last_file': None,
         'occurrence': None,
         'overwrite': None,

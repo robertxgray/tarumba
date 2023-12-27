@@ -3,10 +3,13 @@
 
 "Tarumba's utilities"
 
+from gettext import gettext as _
 import os
 import random
 import re
 import sys
+
+from tarumba.gui import current as t_gui
 
 def encode(text):
     """
@@ -99,3 +102,26 @@ def random_name():
     for _ in range(10):
         name += random.choice(characters)
     return name
+
+def new_password(archive):
+    """
+    Prompts for a new password with double check.
+
+    :param archive: Archive path
+    :return: Password
+    """
+
+    base_name = os.path.basename(archive)
+    password = None
+    while password is None:
+        password1 = t_gui.prompt_password(_("Enter a password for %(archive)s") %
+            {'archive': base_name})
+        password2 = t_gui.prompt_password(_("Reenter the password") %
+            {'archive': base_name})
+        if password1 == password2:
+            password = password1
+        else:
+            message = _("the passwords don't match, please try again")
+            t_gui.warn(_('%(prog)s: warning: %(message)s\n') %
+                {'prog': 'tarumba', 'message': message})
+    return password

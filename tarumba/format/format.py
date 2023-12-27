@@ -30,6 +30,8 @@ class Format(ABC):
 
     # The format can store duplicates
     CAN_DUPLICATE = False
+    # The format can encrypt it's contents
+    CAN_ENCRYPT = False
     # The format can store multiple files
     CAN_PACK = False
     # The format can store special files

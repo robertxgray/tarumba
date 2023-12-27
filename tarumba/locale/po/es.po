@@ -32,6 +32,9 @@ msgstr "columnas separadas por comas a incluir en el listado"
 msgid "show debugging information"
 msgstr "mostrar la información de depuración"
 
+msgid "encrypt the archive contents using a password"
+msgstr "encriptar los contendos del archivo bajo una contraseña"
+
 msgid "follow symbolic links. WARNING: MAY CREATE INIFINITE PATHS"
 msgstr "seguir los enlaces simbólicos. AVISO: PUEDE CREAR RUTAS INFINITAS"
 
@@ -125,8 +128,11 @@ msgstr "añadiendo: [cyan]%(file)s[/cyan]"
 msgid "expected a list of files to add"
 msgstr "se espera la lista de ficheros a añadir"
 
-msgid "the archive can't store more than one file"
-msgstr "el archivo no puede almacenar más de un fichero"
+msgid "the archive format %(format)s can't encrypt contents"
+msgstr "el formato de archivo %(format)s no puede encriptar contenidos"
+
+msgid "the archive format %(format)s can't store more than one file"
+msgstr "el formato de archivo %(format)s no puede almacenar más de un fichero"
 
 msgid "a progress bar is already running"
 msgstr "ya se ejecuta una barra de progreso"
@@ -139,6 +145,15 @@ msgstr "fallo en el programa %(program)s"
 
 msgid "invalid configuration key: %(key)s"
 msgstr "clave de configuración inválida: %(key)s"
+
+msgid "Enter a password for %(archive)s"
+msgstr "Introduzca una contraseña para %(archive)s"
+
+msgid "Reenter the password"
+msgstr "Introduzca de nuevo la contraseña"
+
+msgid "the passwords don't match, please try again"
+msgstr "las contraseñas no coinciden, por favor inténtelo de nuevo"
 
 msgid "DATE"
 msgstr "FECHA"

@@ -17,6 +17,8 @@ class Zip(t_format.Format):
 
     # The format can store duplicates
     CAN_DUPLICATE = False
+    # The format can encrypt it's contents
+    CAN_ENCRYPT = True
     # The format can store multiple files
     CAN_PACK = True
     # The format can store special files
@@ -142,7 +144,8 @@ class Zip(t_format.Format):
             t_gui.advance_progress()
             return True
         if len(line) > 0:
-            t_gui.warn(line)
+            t_gui.warn(_('%(prog)s: warning: %(message)s\n') %
+                {'prog': 'tarumba', 'message': line})
             return False
         return True
 
@@ -175,8 +178,14 @@ class Zip(t_format.Format):
                 t_gui.info(_('extracting: [cyan]%(file)s[/cyan]') % {'file': file})
             t_gui.advance_progress()
 
+        if line.startswith('Archive:'): # First line
+            return True
         if (line.startswith('   creating:') or line.startswith('  inflating:') or
             line.startswith(' extracting:') or line.startswith('    linking')):
             extra.set('last_file', extra.get('contents').pop(0)[0])
             return True
-        return False
+        if len(line) > 0:
+            t_gui.warn(_('%(prog)s: warning: %(message)s\n') %
+                {'prog': 'tarumba', 'message': line})
+            return False
+        return True
