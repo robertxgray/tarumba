@@ -101,7 +101,7 @@ class Tar(t_format.Format):
             params.append('--group=0')
         return [(config.get('tar_bin'), params + ['-rvf', add_args.get('archive'), '--', files])]
 
-    def parse_add(self, line_number, line, extra):
+    def parse_add(self, executor, line_number, line, extra):
         """
         Parse the output when adding files.
 
@@ -135,7 +135,7 @@ class Tar(t_format.Format):
         return [(config.get('tar_bin'),
             params + ['-xvf', extract_args.get('archive'), '--'] + extract_args.get('files'))]
 
-    def parse_extract(self, line_number, line, extra):
+    def parse_extract(self, executor, line_number, line, extra):
         """
         Parse the output when extracting files.
 

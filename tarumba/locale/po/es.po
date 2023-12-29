@@ -140,6 +140,9 @@ msgstr "ya se ejecuta una barra de progreso"
 msgid "a progress bar is not running"
 msgstr "no se ejecuta ninguna barra de progreso"
 
+msgid "an archiver process is not running"
+msgstr "no se ejecuta ningún proceso de archivado"
+
 msgid "failure in program %(program)s"
 msgstr "fallo en el programa %(program)s"
 

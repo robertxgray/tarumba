@@ -80,10 +80,11 @@ def _list_archive_2set(form, archive):
 
     list_args = t_data_classes.ListArgs()
     list_args.set('archive', archive)
+    list_args.set('files', [])
     list_args.set('format', form)
 
     commands = form.list_commands(list_args)
-    listing = t_executor.execute(commands)
+    listing = t_executor.Executor().execute(commands, form.LIST_PATTERNS)
     return form.parse_listing_2set(listing)
 
 def list_archive(args):
@@ -108,7 +109,8 @@ def list_archive(args):
     t_gui.debug('list_args', list_args)
 
     commands = list_args.get('format').list_commands(list_args)
-    listing = t_executor.execute(commands)
+    listing = t_executor.Executor().execute(commands,
+        list_args.get('format').LIST_PATTERNS)
     return list_args.get('format').parse_listing(listing, columns)
 
 def _add_archive_check(add_args):
@@ -223,7 +225,8 @@ def add_archive(args):
         t_gui.update_progress_total(total)
         commands = _add_archive_commands(add_args, target_files)
         if commands:
-            t_executor.execute(commands, add_args.get('format').parse_add, add_args)
+            t_executor.Executor().execute(commands, add_args.get('format').ADD_PATTERNS,
+                add_args.get('format').parse_add, add_args)
 
     # Temporary folders must be deleted
     finally:
@@ -274,7 +277,8 @@ def extract_archive(args):
     try:
         # Get the archive contents
         list_commands = extract_args.get('format').list_commands(list_args)
-        listing = t_executor.execute(list_commands)
+        listing = t_executor.Executor().execute(list_commands,
+            extract_args.get('format').LIST_PATTERNS)
         extract_args.set('contents', extract_args.get('format').parse_listing(listing,
             [t_format.NAME])[1:])
         total = len(extract_args.get('contents'))
@@ -286,8 +290,9 @@ def extract_archive(args):
         # Process the files to extract
         extract_commands = _extract_archive_commands(extract_args)
         if extract_commands:
-            t_executor.execute(extract_commands, extract_args.get('format').parse_extract,
-                extract_args)
+            t_executor.Executor().execute(extract_commands,
+                extract_args.get('format').EXTRACT_PATTERNS,
+                extract_args.get('format').parse_extract, extract_args)
 
     # Temporary folders must be deleted
     finally:

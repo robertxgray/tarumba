@@ -37,6 +37,13 @@ class Format(ABC):
     # The format can store special files
     CAN_SPECIAL = False
 
+    # Particular patterns when listing files
+    LIST_PATTERNS = None
+    # Particular patterns when adding files
+    ADD_PATTERNS = None
+    # Particular patterns when extracting files
+    EXTRACT_PATTERNS = None
+
     @abstractmethod
     def list_commands(self, list_args):
         "Commands to list the archive contents"
@@ -54,7 +61,7 @@ class Format(ABC):
         "Commands to add files to an archive"
 
     @abstractmethod
-    def parse_add(self, line_number, line, extra):
+    def parse_add(self, executor, line_number, line, extra):
         "Parse the output when adding files"
 
     @abstractmethod
@@ -62,5 +69,5 @@ class Format(ABC):
         "Commands to extract files from an archive"
 
     @abstractmethod
-    def parse_extract(self, line_number, line, extra):
+    def parse_extract(self, executor, line_number, line, extra):
         "Parse the output when extracting files"
