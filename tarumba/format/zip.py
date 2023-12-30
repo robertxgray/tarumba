@@ -60,9 +60,98 @@ class Zip(t_format.Format):
         return [(config.get('unzip_bin'), ['-Z', '-lT', '--h-t', '--',
             list_args.get('archive')] + expanded_files)]
 
-    def parse_listing(self, contents, columns):
+    def add_commands(self, add_args, files):
         """
-        Parse the archive contents listing.
+        Commands to add files to an archive.
+
+        :param add_args: AddArgs object
+        :param contents: Files root path
+        :return: List of commands
+        """
+
+        params = '-r'
+        if add_args.get('password'):
+            params += 'e'
+        if not add_args.get('follow_links'):
+            params += 'y'
+        if add_args.get('level'):
+            params += add_args.get('level')
+        return [(config.get('zip_bin'), [params, add_args.get('archive'), '--', files])]
+
+    def extract_commands(self, extract_args):
+        """
+        Commands to extract files from an archive.
+
+        :param extract_args: ExtractArgs object
+        :return: List of commands
+        """
+
+        expanded_files = self._expand_patterns(extract_args.get('files'))
+        return [(config.get('unzip_bin'),
+            ['-o', '--', extract_args.get('archive')] + expanded_files)]
+
+    def parse_add(self, executor, line_number, line, extra):
+        """
+        Parse the output when adding files.
+
+        :param executor: Program executor
+        :param line_number: Line number
+        :param line: Line contents
+        :param extra: Extra data
+        :return: True if the line has been successfully parsed
+        """
+
+        if line in self.ADD_PATTERNS:
+            executor.send_line(extra.get('password'))
+            return True
+
+        if line.startswith('  adding: ') or line.startswith('updating: '):
+            if config.get('verbose'):
+                end = line.find(' (stored ')
+                t_gui.info(_('adding: [cyan]%(file)s[/cyan]') % {'file': line[10:end]})
+            t_gui.advance_progress()
+            return True
+
+        if len(line) > 0:
+            t_gui.warn(_('%(prog)s: warning: %(message)s\n') %
+                {'prog': 'tarumba', 'message': line})
+            return False
+
+        return True
+
+    def parse_extract(self, executor, line_number, line, extra):
+        """
+        Parse the output when extracting files.
+
+        :param executor: Program executor
+        :param line_number: Line number
+        :param line: Line contents
+        :param extra: Extra data
+        :return: True if the line has been successfully parsed
+        """
+
+        file = extra.get('last_file')
+        if file:
+            moved = t_file_utils.move_extracted(file, extra)
+            if moved and config.get('verbose'):
+                t_gui.info(_('extracting: [cyan]%(file)s[/cyan]') % {'file': file})
+            t_gui.advance_progress()
+
+        if line.startswith('Archive: '): # First line
+            return True
+        if (line.startswith('   creating: ') or line.startswith('  inflating: ') or
+            line.startswith(' extracting: ') or line.startswith('    linking: ')):
+            extra.set('last_file', extra.get('contents').pop(0)[0])
+            return True
+        if len(line) > 0:
+            t_gui.warn(_('%(prog)s: warning: %(message)s\n') %
+                {'prog': 'tarumba', 'message': line})
+            return False
+        return True
+
+    def listing_2list(self, contents, columns):
+        """
+        Returns the archive contents in list format.
 
         :param contents: Archive contents listing
         :param columns: Requested columns or None for default
@@ -101,9 +190,9 @@ class Zip(t_format.Format):
             listing.append(row)
         return listing
 
-    def parse_listing_2set(self, contents):
+    def listing_2set(self, contents):
         """
-        Parse the archive contents into a set.
+        Returns the archive contents in set format.
 
         :param contents: Archive contents listing
         :return: Set of filenames
@@ -117,92 +206,3 @@ class Zip(t_format.Format):
             elements = content.split(None, 7)
             listing.add(elements[7][16:])
         return listing
-
-    def add_commands(self, add_args, files):
-        """
-        Commands to add files to an archive.
-
-        :param add_args: AddArgs object
-        :param contents: Files root path
-        :return: List of commands
-        """
-
-        params = '-r'
-        if add_args.get('password'):
-            params += 'e'
-        if not add_args.get('follow_links'):
-            params += 'y'
-        if add_args.get('level'):
-            params += add_args.get('level')
-        return [(config.get('zip_bin'), [params, add_args.get('archive'), '--', files])]
-
-    def parse_add(self, executor, line_number, line, extra):
-        """
-        Parse the output when adding files.
-
-        :param executor: Program executor
-        :param line_number: Line number
-        :param line: Line contents
-        :param extra: Extra data
-        :return: True if the line has been successfully parsed
-        """
-
-        if line in self.ADD_PATTERNS:
-            executor.send_line(extra.get('password'))
-            return True
-
-        if line.startswith('  adding: ') or line.startswith('updating: '):
-            if config.get('verbose'):
-                end = line.find(' (stored ')
-                t_gui.info(_('adding: [cyan]%(file)s[/cyan]') % {'file': line[10:end]})
-            t_gui.advance_progress()
-            return True
-
-        if len(line) > 0:
-            t_gui.warn(_('%(prog)s: warning: %(message)s\n') %
-                {'prog': 'tarumba', 'message': line})
-            return False
-
-        return True
-
-    def extract_commands(self, extract_args):
-        """
-        Commands to extract files from an archive.
-
-        :param extract_args: ExtractArgs object
-        :return: List of commands
-        """
-
-        expanded_files = self._expand_patterns(extract_args.get('files'))
-        return [(config.get('unzip_bin'),
-            ['-o', '--', extract_args.get('archive')] + expanded_files)]
-
-    def parse_extract(self, executor, line_number, line, extra):
-        """
-        Parse the output when extracting files.
-
-        :param executor: Program executor
-        :param line_number: Line number
-        :param line: Line contents
-        :param extra: Extra data
-        :return: True if the line has been successfully parsed
-        """
-
-        file = extra.get('last_file')
-        if file:
-            moved = t_file_utils.move_extracted(file, extra)
-            if moved and config.get('verbose'):
-                t_gui.info(_('extracting: [cyan]%(file)s[/cyan]') % {'file': file})
-            t_gui.advance_progress()
-
-        if line.startswith('Archive: '): # First line
-            return True
-        if (line.startswith('   creating: ') or line.startswith('  inflating: ') or
-            line.startswith(' extracting: ') or line.startswith('    linking: ')):
-            extra.set('last_file', extra.get('contents').pop(0)[0])
-            return True
-        if len(line) > 0:
-            t_gui.warn(_('%(prog)s: warning: %(message)s\n') %
-                {'prog': 'tarumba', 'message': line})
-            return False
-        return True

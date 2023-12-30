@@ -41,9 +41,82 @@ class Tar(t_format.Format):
         return [(config.get('tar_bin'),
             params + ['-tvf', list_args.get('archive'), '--'] + list_args.get('files'))]
 
-    def parse_listing(self, contents, columns):
+    def add_commands(self, add_args, files):
         """
-        Parse the archive contents listing.
+        Commands to add files to an archive.
+
+        :param add_args: AddArgs object
+        :param files: List of files
+        :return: List of commands
+        """
+
+        params = []
+        if add_args.get('follow_links'):
+            params.append('-h')
+        if not add_args.get('owner'):
+            params.append('--owner=0')
+            params.append('--group=0')
+        return [(config.get('tar_bin'), params + ['-rvf', add_args.get('archive'), '--', files])]
+
+    def extract_commands(self, extract_args):
+        """
+        Commands to extract files from an archive.
+
+        :param extract_args: ExtractArgs object
+        :return: List of commands
+        """
+
+        params = []
+        if extract_args.get('occurrence'):
+            params.append('--occurrence='+extract_args.get('occurrence'))
+        return [(config.get('tar_bin'),
+            params + ['-xvf', extract_args.get('archive'), '--'] + extract_args.get('files'))]
+
+    def parse_add(self, executor, line_number, line, extra):
+        """
+        Parse the output when adding files.
+
+        :param line_number: Line number
+        :param line: Line contents
+        :param extra: Extra data
+        :return: True if the line has been successfully parsed
+        """
+
+        if line.startswith('tar: '):
+            t_gui.warn(_('%(prog)s: warning: %(message)s\n') %
+                {'prog': 'tarumba', 'message': line})
+            return False
+        if len(line) > 0:
+            if config.get('verbose'):
+                t_gui.info(_('adding: [cyan]%(file)s[/cyan]') % {'file': line})
+            t_gui.advance_progress()
+        return True
+
+    def parse_extract(self, executor, line_number, line, extra):
+        """
+        Parse the output when extracting files.
+
+        :param line_number: Line number
+        :param line: Line contents
+        :param extra: Extra data
+        :return: True if the line has been successfully parsed
+        """
+
+        if line.startswith('tar: '):
+            t_gui.warn(_('%(prog)s: warning: %(message)s\n') %
+                {'prog': 'tarumba', 'message': line})
+            return False
+        if len(line) > 0:
+            file = extra.get('contents').pop(0)[0]
+            moved = t_file_utils.move_extracted(file, extra)
+            if moved and config.get('verbose'):
+                t_gui.info(_('extracting: [cyan]%(file)s[/cyan]') % {'file': file})
+            t_gui.advance_progress()
+        return True
+
+    def listing_2list(self, contents, columns):
+        """
+        Returns the archive contents in list format.
 
         :param contents: Archive contents listing
         :param columns: Requested columns or None for default
@@ -70,9 +143,9 @@ class Tar(t_format.Format):
             listing.append(row)
         return listing
 
-    def parse_listing_2set(self, contents):
+    def listing_2set(self, contents):
         """
-        Parse the archive contents into a set.
+        Returns the archive contents in set format.
 
         :param contents: Archive contents listing
         :return: Set of filenames
@@ -83,76 +156,3 @@ class Tar(t_format.Format):
             elements = content.split(None, 4)
             listing.add(shlex.split(elements[4][6:])[0])
         return listing
-
-    def add_commands(self, add_args, files):
-        """
-        Commands to add files to an archive.
-
-        :param add_args: AddArgs object
-        :param files: List of files
-        :return: List of commands
-        """
-
-        params = []
-        if add_args.get('follow_links'):
-            params.append('-h')
-        if not add_args.get('owner'):
-            params.append('--owner=0')
-            params.append('--group=0')
-        return [(config.get('tar_bin'), params + ['-rvf', add_args.get('archive'), '--', files])]
-
-    def parse_add(self, executor, line_number, line, extra):
-        """
-        Parse the output when adding files.
-
-        :param line_number: Line number
-        :param line: Line contents
-        :param extra: Extra data
-        :return: True if the line has been successfully parsed
-        """
-
-        if line.startswith('tar: '):
-            t_gui.warn(_('%(prog)s: warning: %(message)s\n') %
-                {'prog': 'tarumba', 'message': line})
-            return False
-        if len(line) > 0:
-            if config.get('verbose'):
-                t_gui.info(_('adding: [cyan]%(file)s[/cyan]') % {'file': line})
-            t_gui.advance_progress()
-        return True
-
-    def extract_commands(self, extract_args):
-        """
-        Commands to extract files from an archive.
-
-        :param extract_args: ExtractArgs object
-        :return: List of commands
-        """
-
-        params = []
-        if extract_args.get('occurrence'):
-            params.append('--occurrence='+extract_args.get('occurrence'))
-        return [(config.get('tar_bin'),
-            params + ['-xvf', extract_args.get('archive'), '--'] + extract_args.get('files'))]
-
-    def parse_extract(self, executor, line_number, line, extra):
-        """
-        Parse the output when extracting files.
-
-        :param line_number: Line number
-        :param line: Line contents
-        :param extra: Extra data
-        :return: True if the line has been successfully parsed
-        """
-
-        if line.startswith('tar: '):
-            t_gui.warn(_('%(prog)s: warning: %(message)s\n') %
-                {'prog': 'tarumba', 'message': line})
-            return False
-        if len(line) > 0:
-            file = extra.get('contents').pop(0)[0]
-            moved = t_file_utils.move_extracted(file, extra)
-            if moved and config.get('verbose'):
-                t_gui.info(_('extracting: [cyan]%(file)s[/cyan]') % {'file': file})
-            t_gui.advance_progress()
-        return True

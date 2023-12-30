@@ -85,7 +85,7 @@ def _list_archive_2set(form, archive):
 
     commands = form.list_commands(list_args)
     listing = t_executor.Executor().execute(commands, form.LIST_PATTERNS)
-    return form.parse_listing_2set(listing)
+    return form.listing_2set(listing)
 
 def list_archive(args):
     """
@@ -111,7 +111,7 @@ def list_archive(args):
     commands = list_args.get('format').list_commands(list_args)
     listing = t_executor.Executor().execute(commands,
         list_args.get('format').LIST_PATTERNS)
-    return list_args.get('format').parse_listing(listing, columns)
+    return list_args.get('format').listing_2list(listing, columns)
 
 def _add_archive_check(add_args):
     """
@@ -279,7 +279,7 @@ def extract_archive(args):
         list_commands = extract_args.get('format').list_commands(list_args)
         listing = t_executor.Executor().execute(list_commands,
             extract_args.get('format').LIST_PATTERNS)
-        extract_args.set('contents', extract_args.get('format').parse_listing(listing,
+        extract_args.set('contents', extract_args.get('format').listing_2list(listing,
             [t_format.NAME])[1:])
         total = len(extract_args.get('contents'))
         t_gui.debug('total', total)
