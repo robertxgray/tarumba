@@ -47,7 +47,8 @@ class ListArgs(Base):
         'archive': None,
         'files': None,
         'format': None,
-        'occurrence': None
+        'occurrence': None,
+        'password': None
     }
 
 class AddArgs(Base):
@@ -79,6 +80,7 @@ class ExtractArgs(Base):
         'last_file': None,
         'occurrence': None,
         'overwrite': None,
+        'password': None,
         'path': None,
         'tmp_dir': None
     }

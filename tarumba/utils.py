@@ -114,9 +114,9 @@ def new_password(archive):
     base_name = os.path.basename(archive)
     password = None
     while password is None:
-        password1 = t_gui.prompt_password(_("Enter a password for %(archive)s") %
+        password1 = t_gui.prompt_password(_('Enter a password for %(archive)s') %
             {'archive': base_name})
-        password2 = t_gui.prompt_password(_("Reenter the password") %
+        password2 = t_gui.prompt_password(_('Reenter the password') %
             {'archive': base_name})
         if password1 == password2:
             password = password1
@@ -125,3 +125,17 @@ def new_password(archive):
             t_gui.warn(_('%(prog)s: warning: %(message)s\n') %
                 {'prog': 'tarumba', 'message': message})
     return password
+
+def get_password(file):
+    """
+    Prompts for a existing password.
+
+    :param file: File name
+    :return: Password
+    """
+
+    if file:
+        message = _('%(file)s is encrypted, enter the password') % {'file': file}
+    else:
+        message = _('enter the password')
+    return t_gui.prompt_password(message)

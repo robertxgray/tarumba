@@ -42,7 +42,7 @@ class Console(t_gui.Gui):
         """
 
         if config.get('debug'):
-            self.out_c.print((f'{key.upper()}: {value}').rstrip(), style='bright_black')
+            self.out_c.out((f'{key.upper()}: {value}').rstrip(), style='bright_black')
 
     def info(self, message):
         """
@@ -51,7 +51,7 @@ class Console(t_gui.Gui):
         :param message: Message to print
         """
 
-        self.out_c.print(message.rstrip())
+        self.out_c.out(message.rstrip())
 
     def warn(self, message):
         """
@@ -60,7 +60,7 @@ class Console(t_gui.Gui):
         :param message: Message to print
         """
 
-        self.out_c.print(message.rstrip(), style='bold yellow')
+        self.out_c.out(message.rstrip(), style='bold yellow')
 
     def error(self, message):
         """
@@ -69,7 +69,7 @@ class Console(t_gui.Gui):
         :param message: Message to print
         """
 
-        self.err_c.print(message.rstrip(), style='bold red')
+        self.err_c.out(message.rstrip(), style='bold red')
 
     def prompt_password(self, message):
         """

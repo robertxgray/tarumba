@@ -9,6 +9,7 @@ from tarumba.config import current as config
 import tarumba.file_utils as t_file_utils
 from tarumba.format import format as t_format
 from tarumba.gui import current as t_gui
+import tarumba.utils as t_utils
 
 class Zip(t_format.Format):
     "Zip archive support functions"
@@ -24,12 +25,10 @@ class Zip(t_format.Format):
     # The format can store special files
     CAN_SPECIAL = False
 
-    # Particular patterns when listing files
-    LIST_PATTERNS = None
     # Particular patterns when adding files
     ADD_PATTERNS = ['Enter password: ', 'Verify password: ']
     # Particular patterns when extracting files
-    EXTRACT_PATTERNS = None
+    EXTRACT_PATTERNS = [' password: ', 'password incorrect--reenter: ']
 
     def _expand_patterns(self, files):
         """
@@ -129,6 +128,23 @@ class Zip(t_format.Format):
         :param extra: Extra data
         :return: True if the line has been successfully parsed
         """
+
+        password = False
+        if line == 'password incorrect--reenter: ':
+            message = _('wrong password, please try again')
+            t_gui.warn(_('%(prog)s: warning: %(message)s\n') %
+                {'prog': 'tarumba', 'message': message})
+            extra.set('password', t_utils.get_password(None))
+            password = True
+        if line.endswith(' password: '):
+            # <-- len+3 --->        <-- 11 --->
+            # [archive.zip] file.txt password:
+            filename = line[len(extra.get('archive'))+3:-11]
+            extra.set('password', t_utils.get_password(filename))
+            password = True
+        if password:
+            executor.send_line(extra.get('password'))
+            return True
 
         file = extra.get('last_file')
         if file:

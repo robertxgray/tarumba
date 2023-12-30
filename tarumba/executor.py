@@ -76,9 +76,8 @@ class Executor:
             # Stop on error
             if error:
                 message=_('failure in program %(program)s') % {'program': command[0]} + '\n'
-                print(str(output))
                 if output:
-                    message += '\n'.join(output[-3:])
+                    message += '\n'.join(output[-5:])
                 raise ChildProcessError(message)
 
         # Restore the current working directory

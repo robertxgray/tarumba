@@ -158,6 +158,15 @@ msgstr "Introduzca de nuevo la contraseña"
 msgid "the passwords don't match, please try again"
 msgstr "las contraseñas no coinciden, por favor inténtelo de nuevo"
 
+msgid "wrong password, please try again"
+msgstr "contraseña incorrecta, por favor inténtelo de nuevo"
+
+msgid "%(file)s is encrypted, enter the password"
+msgstr "%(file)s está encriptado, introduzca la contraseña"
+
+msgid "enter the password"
+msgstr "introduzca la contraseña"
+
 msgid "DATE"
 msgstr "FECHA"
 
