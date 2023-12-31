@@ -26,9 +26,9 @@ class Console(t_gui.Gui):
 
     def __init__(self):
         self.out_c = r_console.Console(
-            color_system=config.get('color_system'), highlight=False)
+            color_system=config.get('colors_s_system'), highlight=False)
         self.err_c = r_console.Console(
-            color_system=config.get('color_system'), highlight=False, stderr=True)
+            color_system=config.get('colors_s_system'), highlight=False, stderr=True)
         self.progress = None
         self.task = None
 
@@ -41,7 +41,7 @@ class Console(t_gui.Gui):
         :param message: Message to print
         """
 
-        if config.get('debug'):
+        if config.get('main_b_debug'):
             self.out_c.out((f'{key.upper()}: {value}').rstrip(), style='bright_black')
 
     def info(self, message):
@@ -191,7 +191,7 @@ class Console(t_gui.Gui):
         Prints a traceback for the current exception.
         """
 
-        if config.get('debug'):
+        if config.get('main_b_debug'):
             self.err_c.print_exception(show_locals=True)
 
     def print_listing(self, listing):
@@ -201,21 +201,21 @@ class Console(t_gui.Gui):
         :param listing: Archive listing
         """
 
-        table = r_table.Table(box=r_box.SIMPLE, header_style=config.get('list_header_color'),
-            border_style=config.get('list_border_color'))
+        table = r_table.Table(box=r_box.SIMPLE, header_style=config.get('colors_s_list_header'),
+            border_style=config.get('colors_s_list_border'))
 
         col_name = None
         idx = 0
         for idx in range(len(listing[0])):
             column = listing[0][idx]
             if column == t_format.NAME:
-                table.add_column(_(column), style=config.get('list_name_color'))
+                table.add_column(_(column), style=config.get('colors_s_list_name'))
                 col_name = idx
             elif column == t_format.SIZE:
-                table.add_column(_(column), style=config.get('list_default_color'),
+                table.add_column(_(column), style=config.get('colors_s_list_default'),
                 justify='right')
             else:
-                table.add_column(_(column), style=config.get('list_default_color'))
+                table.add_column(_(column), style=config.get('colors_s_list_default'))
 
         for row in listing[1:]:
             if col_name is not None:

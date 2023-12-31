@@ -22,12 +22,12 @@ def main():
 
         # Options
         if args.debug:
-            config.set('debug', args.debug)
+            config.set('main_b_debug', args.debug)
             t_gui.debug('args', args)
         if args.follow_links:
-            config.set('follow_links', args.follow_links)
+            config.set('main_b_follow_links', args.follow_links)
         if args.verbose:
-            config.set('verbose', args.verbose)
+            config.set('main_b_verbose', args.verbose)
         if args.no_color:
             t_gui.disable_color()
 

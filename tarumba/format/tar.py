@@ -38,7 +38,7 @@ class Tar(t_format.Format):
         params.append('--quoting-style=shell-always')
         if list_args.get('occurrence'):
             params.append('--occurrence='+list_args.get('occurrence'))
-        return [(config.get('tar_bin'),
+        return [(config.get('tar_s_tar_bin'),
             params + ['-tvf', list_args.get('archive'), '--'] + list_args.get('files'))]
 
     def add_commands(self, add_args, files):
@@ -56,7 +56,8 @@ class Tar(t_format.Format):
         if not add_args.get('owner'):
             params.append('--owner=0')
             params.append('--group=0')
-        return [(config.get('tar_bin'), params + ['-rvf', add_args.get('archive'), '--', files])]
+        return [(config.get('tar_s_tar_bin'),
+            params + ['-rvf', add_args.get('archive'), '--', files])]
 
     def extract_commands(self, extract_args):
         """
@@ -69,7 +70,7 @@ class Tar(t_format.Format):
         params = []
         if extract_args.get('occurrence'):
             params.append('--occurrence='+extract_args.get('occurrence'))
-        return [(config.get('tar_bin'),
+        return [(config.get('tar_s_tar_bin'),
             params + ['-xvf', extract_args.get('archive'), '--'] + extract_args.get('files'))]
 
     def parse_add(self, executor, line_number, line, extra):
@@ -87,7 +88,7 @@ class Tar(t_format.Format):
                 {'prog': 'tarumba', 'message': line})
             return False
         if len(line) > 0:
-            if config.get('verbose'):
+            if config.get('main_b_verbose'):
                 t_gui.info(_('adding: [cyan]%(file)s[/cyan]') % {'file': line})
             t_gui.advance_progress()
         return True
@@ -109,12 +110,12 @@ class Tar(t_format.Format):
         if len(line) > 0:
             file = extra.get('contents').pop(0)[0]
             moved = t_file_utils.move_extracted(file, extra)
-            if moved and config.get('verbose'):
+            if moved and config.get('main_b_verbose'):
                 t_gui.info(_('extracting: [cyan]%(file)s[/cyan]') % {'file': file})
             t_gui.advance_progress()
         return True
 
-    def listing_2list(self, contents, columns):
+    def listing_2_list(self, contents, columns):
         """
         Returns the archive contents in list format.
 
@@ -124,7 +125,7 @@ class Tar(t_format.Format):
         """
 
         if not columns:
-            columns = config.get('tar_columns')
+            columns = config.get('tar_l_columns')
         listing = [columns]
         for content in contents:
             row = []
@@ -143,7 +144,7 @@ class Tar(t_format.Format):
             listing.append(row)
         return listing
 
-    def listing_2set(self, contents):
+    def listing_2_set(self, contents):
         """
         Returns the archive contents in set format.
 

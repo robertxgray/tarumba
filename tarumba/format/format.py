@@ -72,9 +72,9 @@ class Format(ABC):
         return False
 
     @abstractmethod
-    def listing_2list(self, contents, columns):
+    def listing_2_list(self, contents, columns):
         "Returns the archive contents in list format"
 
     @abstractmethod
-    def listing_2set(self, contents):
+    def listing_2_set(self, contents):
         "Returns the archive contents in set format"

@@ -56,7 +56,7 @@ class Zip(t_format.Format):
         """
 
         expanded_files = self._expand_patterns(list_args.get('files'))
-        return [(config.get('unzip_bin'), ['-Z', '-lT', '--h-t', '--',
+        return [(config.get('zip_s_unzip_bin'), ['-Z', '-lT', '--h-t', '--',
             list_args.get('archive')] + expanded_files)]
 
     def add_commands(self, add_args, files):
@@ -75,7 +75,7 @@ class Zip(t_format.Format):
             params += 'y'
         if add_args.get('level'):
             params += add_args.get('level')
-        return [(config.get('zip_bin'), [params, add_args.get('archive'), '--', files])]
+        return [(config.get('zip_s_zip_bin'), [params, add_args.get('archive'), '--', files])]
 
     def extract_commands(self, extract_args):
         """
@@ -86,7 +86,7 @@ class Zip(t_format.Format):
         """
 
         expanded_files = self._expand_patterns(extract_args.get('files'))
-        return [(config.get('unzip_bin'),
+        return [(config.get('zip_s_unzip_bin'),
             ['-o', '--', extract_args.get('archive')] + expanded_files)]
 
     def parse_add(self, executor, line_number, line, extra):
@@ -105,7 +105,7 @@ class Zip(t_format.Format):
             return True
 
         if line.startswith('  adding: ') or line.startswith('updating: '):
-            if config.get('verbose'):
+            if config.get('main_b_verbose'):
                 end = line.find(' (stored ')
                 t_gui.info(_('adding: [cyan]%(file)s[/cyan]') % {'file': line[10:end]})
             t_gui.advance_progress()
@@ -149,7 +149,7 @@ class Zip(t_format.Format):
         file = extra.get('last_file')
         if file:
             moved = t_file_utils.move_extracted(file, extra)
-            if moved and config.get('verbose'):
+            if moved and config.get('main_b_verbose'):
                 t_gui.info(_('extracting: [cyan]%(file)s[/cyan]') % {'file': file})
             t_gui.advance_progress()
 
@@ -165,7 +165,7 @@ class Zip(t_format.Format):
             return False
         return True
 
-    def listing_2list(self, contents, columns):
+    def listing_2_list(self, contents, columns):
         """
         Returns the archive contents in list format.
 
@@ -175,7 +175,7 @@ class Zip(t_format.Format):
         """
 
         if not columns:
-            columns = config.get('zip_columns')
+            columns = config.get('zip_l_columns')
         listing = [columns]
         for content in contents:
 
@@ -206,7 +206,7 @@ class Zip(t_format.Format):
             listing.append(row)
         return listing
 
-    def listing_2set(self, contents):
+    def listing_2_set(self, contents):
         """
         Returns the archive contents in set format.
 

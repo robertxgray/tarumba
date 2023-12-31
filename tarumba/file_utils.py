@@ -111,10 +111,10 @@ def tmp_folder_same_fs(path):
     base_path = os.path.dirname(os.path.abspath(path))
     path_fs = get_filesystem(base_path)
 
-    default_tmp = config.get('tmp')
+    default_tmp = config.get('main_s_tmp_path')
     default_tmp_fs = get_filesystem(default_tmp)
     # Prefer the default tmp
-    if config.get('follow_links') or path_fs == default_tmp_fs:
+    if config.get('main_b_follow_links') or path_fs == default_tmp_fs:
         return (tmp_folder(default_tmp), True)
     # Use a hidden folder in the same path as an alternative
     if os.access(base_path, os.W_OK):
