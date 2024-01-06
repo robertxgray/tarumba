@@ -122,14 +122,20 @@ msgstr "valor de ocurrencia inválido: %(occurrence)s"
 msgid "the occurrence argument can only be used with a list of files"
 msgstr "el argumento ocurrencia solo se puede usar con una lista de archivos"
 
-msgid "reading [blue]%(archive)s[/blue]"
-msgstr "leyendo [blue]%(archive)s[/blue]"
+msgid "reading"
+msgstr "leyendo"
 
-msgid "adding files to [blue]%(archive)s[/blue]"
-msgstr "añadiendo ficheros a [blue]%(archive)s[/blue]"
+msgid "adding"
+msgstr "añadiendo"
 
-msgid "adding: [cyan]%(file)s[/cyan]"
-msgstr "añadiendo: [cyan]%(file)s[/cyan]"
+msgid "adding files to"
+msgstr "añadiendo ficheros a"
+
+msgid "extracting"
+msgstr "extrayendo"
+
+msgid "extracting files from"
+msgstr "extrayendo archivos de"
 
 msgid "expected a list of files to add"
 msgstr "se espera la lista de ficheros a añadir"

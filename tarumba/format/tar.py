@@ -88,8 +88,7 @@ class Tar(t_format.Format):
                 {'prog': 'tarumba', 'message': line})
             return False
         if len(line) > 0:
-            if config.get('main_b_verbose'):
-                t_gui.info(_('adding: [cyan]%(file)s[/cyan]') % {'file': line})
+            t_gui.adding_msg(line)
             t_gui.advance_progress()
         return True
 
@@ -110,8 +109,8 @@ class Tar(t_format.Format):
         if len(line) > 0:
             file = extra.get('contents').pop(0)[0]
             moved = t_file_utils.move_extracted(file, extra)
-            if moved and config.get('main_b_verbose'):
-                t_gui.info(_('extracting: [cyan]%(file)s[/cyan]') % {'file': file})
+            if moved:
+                t_gui.extracting_msg(file)
             t_gui.advance_progress()
         return True
 

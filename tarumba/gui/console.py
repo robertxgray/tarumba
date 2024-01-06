@@ -8,9 +8,12 @@ import shlex
 
 from rich import box as r_box
 from rich import console as r_console
+from rich import markup as r_markup
 from rich import progress as r_progress
 from rich import prompt as r_prompt
 from rich import table as r_table
+from rich import text as r_text
+from rich import theme as r_theme
 
 from tarumba.config import current as config
 from tarumba.format import format as t_format
@@ -25,10 +28,22 @@ class Console(t_gui.Gui):
     CLEAR = "\x1b[2K"
 
     def __init__(self):
+        theme = r_theme.Theme({
+            'bar.back': config.get('colors_s_progress_back'),
+            'bar.complete': config.get('colors_s_progress_complete'),
+            'bar.finished': config.get('colors_s_progress_finished'),
+            'bar.pulse': config.get('colors_s_progress_pulse'),
+            'progress.percentage': config.get('colors_s_progress_percentage'),
+            'prompt': config.get('colors_s_prompt'),
+            'prompt.choices': config.get('colors_s_prompt_choices'),
+            'prompt.default': config.get('colors_s_prompt_default'),
+            'prompt.invalid': config.get('colors_s_prompt_invalid'),
+            'prompt.invalid.choice': config.get('colors_s_prompt_invalid_choice'),
+        })
         self.out_c = r_console.Console(
-            color_system=config.get('colors_s_system'), highlight=False)
+            color_system=config.get('colors_s_system'), highlight=False, theme=theme)
         self.err_c = r_console.Console(
-            color_system=config.get('colors_s_system'), highlight=False, stderr=True)
+            color_system=config.get('colors_s_system'), highlight=False, theme=theme, stderr=True)
         self.progress = None
         self.task = None
 
@@ -42,7 +57,7 @@ class Console(t_gui.Gui):
         """
 
         if config.get('main_b_debug'):
-            self.out_c.out((f'{key.upper()}: {value}').rstrip(), style='bright_black')
+            self.out_c.out((f'{key.upper()}: {value}').rstrip(), style=config.get('colors_s_debug'))
 
     def info(self, message):
         """
@@ -51,7 +66,7 @@ class Console(t_gui.Gui):
         :param message: Message to print
         """
 
-        self.out_c.out(message.rstrip())
+        self.out_c.out(message.rstrip(), style=config.get('colors_s_info'))
 
     def warn(self, message):
         """
@@ -60,7 +75,7 @@ class Console(t_gui.Gui):
         :param message: Message to print
         """
 
-        self.out_c.out(message.rstrip(), style='bold yellow')
+        self.out_c.out(message.rstrip(), style=config.get('colors_s_warn'))
 
     def error(self, message):
         """
@@ -69,7 +84,33 @@ class Console(t_gui.Gui):
         :param message: Message to print
         """
 
-        self.err_c.out(message.rstrip(), style='bold red')
+        self.err_c.out(message.rstrip(), style=config.get('colors_s_error'))
+
+    def adding_msg(self, file):
+        """
+        Prints a coloured verbose mensage when adding files.
+
+        :param file: File name
+        """
+
+        if config.get('main_b_verbose'):
+            text = r_text.Text()
+            text.append(_('adding') + ': ')
+            text.append(file, style=config.get('colors_s_list_name'))
+            self.out_c.print(text)
+
+    def extracting_msg(self, file):
+        """
+        Prints a coloured verbose mensage when extracting files.
+
+        :param file: File name
+        """
+
+        if config.get('main_b_verbose'):
+            text = r_text.Text()
+            text.append(_('extracting') + ': ')
+            text.append(file, style=config.get('colors_s_list_name'))
+            self.out_c.print(text)
 
     def prompt_password(self, message):
         """
@@ -84,11 +125,12 @@ class Console(t_gui.Gui):
         self._resume_progress()
         return password
 
-    def start_progress(self, message):
+    def start_progress(self, message, file):
         """
         Starts a progress bar.
 
         :param message: Message to include in the task
+        :param file: File name
         :return: Progress bar
         """
 
@@ -98,7 +140,9 @@ class Console(t_gui.Gui):
             r_progress.BarColumn(),
             r_progress.TaskProgressColumn(),
             console=self.out_c)
-        self.task = self.progress.add_task(message, total=None, transient=True)
+        color = config.get('colors_s_list_header')
+        description = message+' ['+color+']'+r_markup.escape(file)+'[/'+color+']'
+        self.task = self.progress.add_task(description, total=None, transient=True)
         return self.progress
 
     def stop_progress(self):
@@ -141,7 +185,8 @@ class Console(t_gui.Gui):
 
         self._pause_progress()
         choices = [_('yes'), _('no'), _('all'), _('none')]
-        answer = r_prompt.Prompt.ask(message, console=self.out_c, choices=choices, default=_('no'))
+        answer = r_prompt.Prompt.ask(
+            r_markup.escape(message), console=self.out_c, choices=choices, default=_('no'))
         self._resume_progress()
 
         if answer == _('yes'):
@@ -220,7 +265,7 @@ class Console(t_gui.Gui):
         for row in listing[1:]:
             if col_name is not None:
                 # Quote filenames when needed
-                row[col_name] = shlex.quote(row[col_name])
+                row[col_name] = r_markup.escape(shlex.quote(row[col_name]))
             table.add_row(*row)
 
         self.out_c.print(table)

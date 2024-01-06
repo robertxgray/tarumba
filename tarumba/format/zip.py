@@ -105,9 +105,10 @@ class Zip(t_format.Format):
             return True
 
         if line.startswith('  adding: ') or line.startswith('updating: '):
-            if config.get('main_b_verbose'):
+            end = line.find(' (deflated ')
+            if end < 0:
                 end = line.find(' (stored ')
-                t_gui.info(_('adding: [cyan]%(file)s[/cyan]') % {'file': line[10:end]})
+            t_gui.adding_msg(line[10:end])
             t_gui.advance_progress()
             return True
 
@@ -149,8 +150,8 @@ class Zip(t_format.Format):
         file = extra.get('last_file')
         if file:
             moved = t_file_utils.move_extracted(file, extra)
-            if moved and config.get('main_b_verbose'):
-                t_gui.info(_('extracting: [cyan]%(file)s[/cyan]') % {'file': file})
+            if moved:
+                t_gui.extracting_msg(file)
             t_gui.advance_progress()
 
         if line.startswith('Archive: '): # First line

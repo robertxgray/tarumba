@@ -35,23 +35,23 @@ def main():
 
         # List
         if args.command in ('l', 'list'):
-            message = _('reading [blue]%(archive)s[/blue]') % {'archive': basename}
-            with t_gui.start_progress(message):
+            message = _('reading')
+            with t_gui.start_progress(message, basename):
                 listing = t_manager.list_archive(args)
                 t_gui.print_listing(listing)
                 t_gui.stop_progress()
 
         # Compress
         if args.command in ('a', 'add'):
-            message = _('adding files to [blue]%(archive)s[/blue]') % {'archive': basename}
-            with t_gui.start_progress(message):
+            message = _('adding files to')
+            with t_gui.start_progress(message, basename):
                 t_manager.add_archive(args)
                 t_gui.stop_progress()
 
         # Extract
         if args.command in ('e', 'extract'):
-            message = _('extracting files from [blue]%(archive)s[/blue]') % {'archive': basename}
-            with t_gui.start_progress(message):
+            message = _('extracting files from')
+            with t_gui.start_progress(message, basename):
                 t_manager.extract_archive(args)
                 t_gui.stop_progress()
 

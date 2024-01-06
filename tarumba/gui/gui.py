@@ -35,7 +35,7 @@ class Gui(ABC):
         "Prompts for a password"
 
     @abstractmethod
-    def start_progress(self, message):
+    def start_progress(self, message, file):
         "Starts a progress bar"
 
     @abstractmethod
