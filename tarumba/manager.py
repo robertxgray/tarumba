@@ -113,6 +113,20 @@ def list_archive(args):
         list_args.get('format').LIST_PATTERNS)
     return list_args.get('format').listing_2_list(listing, columns)
 
+def _get_overwrite(args):
+    """
+    Determines the initial value for the overwrite variable.
+
+    :param args: Input arguments
+    :return: Overwrite value
+    """
+
+    if args.never_overwrite:
+        return t_gui.NONE
+    if args.always_overwrite:
+        return t_gui.ALL
+    return None
+
 def _add_archive_check(add_args):
     """
     Check the files to add and copy if needed. Updates the list of temporary folders. Existing
@@ -191,6 +205,7 @@ def add_archive(args):
     add_args.set('follow_links', config.get('main_b_follow_links'))
     add_args.set('format', _detect_format(args.archive))
     add_args.set('level', args.level)
+    add_args.set('overwrite', _get_overwrite(args))
     add_args.set('owner', args.owner)
     add_args.set('path', args.path.strip('/') if args.path else None)
     t_gui.debug('add_args', add_args)
@@ -271,6 +286,7 @@ def extract_archive(args):
     extract_args.set('files', args.files)
     extract_args.set('format', form)
     extract_args.set('occurrence', args.occurrence)
+    extract_args.set('overwrite', _get_overwrite(args))
     extract_args.set('path', args.path.strip('/') if args.path else None)
     t_gui.debug('extract_args', extract_args)
 

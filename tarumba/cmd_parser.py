@@ -40,6 +40,8 @@ def get_arguments():
         help=_('archive file to process'))
     parser.add_argument('files', nargs='*',
         help=_('list of files to list, add or extract'))
+    parser.add_argument('-a', '--always-overwrite', action='store_true',
+        help=_('always overwrite existing files'))
     parser.add_argument('-c', '--columns',
         help=_('comma separated columns to include in the listing'))
     parser.add_argument('-d', '--debug', action='store_true',
@@ -50,8 +52,10 @@ def get_arguments():
         help=_('follow symbolic links. WARNING: MAY CREATE INIFINITE PATHS'))
     parser.add_argument('-l', '--level',
         help=_('compression level [0-9]'))
-    parser.add_argument('-n', '--no-color', action='store_true',
+    parser.add_argument('-m', '--no-color', action='store_true',
         help=_('disable colored output'))
+    parser.add_argument('-n', '--never-overwrite', action='store_true',
+        help=_('never overwrite existing files'))
     parser.add_argument('-o', '--occurrence',
         help=_('process only the Nth occurrence of each file in the archive'))
     parser.add_argument('-p', '--path',

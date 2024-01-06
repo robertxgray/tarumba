@@ -26,6 +26,9 @@ msgstr "fichero de archivo a procesar"
 msgid "list of files to list, add or extract"
 msgstr "lista de ficheros a listar, añadir o extraer"
 
+msgid "always overwrite existing files"
+msgstr "sobreescribir siempre los archivos existentes"
+
 msgid "comma separated columns to include in the listing"
 msgstr "columnas separadas por comas a incluir en el listado"
 
@@ -43,6 +46,9 @@ msgstr "nivel de compresión [0-9]"
 
 msgid "disable colored output"
 msgstr "desactivar la salida en color"
+
+msgid "never overwrite existing files"
+msgstr "nunca sobreescribir los archivos existentes"
 
 msgid "process only the Nth occurrence of each file in the archive"
 msgstr "procesa solo la enésima ocurrencia de cada fichero en el archivo"
