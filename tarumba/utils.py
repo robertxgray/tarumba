@@ -139,3 +139,20 @@ def get_password(file):
     else:
         message = _('enter the password')
     return t_gui.prompt_password(message)
+
+def get_list_columns(input_cols, default_cols, output):
+    """
+    Returns the effective list of columns. If the output list is empty, headers will be added.
+
+    :param input_cols: Input columns
+    :param default_cols: Default columns
+    :param output: Output list
+    :return: List of columns
+    """
+
+    columns = input_cols
+    if not columns:
+        columns = default_cols
+    if len(output) == 0:
+        output.append(columns)
+    return columns

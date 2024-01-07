@@ -56,25 +56,17 @@ class Format(ABC):
     def extract_commands(self, extract_args):
         "Commands to extract files from an archive"
 
-    # pylint: disable=unused-argument
+    @abstractmethod
     def parse_list(self, executor, line_number, line, extra):
         "Parse the output when listing files"
         return False
 
-    # pylint: disable=unused-argument
+    @abstractmethod
     def parse_add(self, executor, line_number, line, extra):
         "Parse the output when adding files"
         return False
 
-    # pylint: disable=unused-argument
+    @abstractmethod
     def parse_extract(self, executor, line_number, line, extra):
         "Parse the output when extracting files"
         return False
-
-    @abstractmethod
-    def listing_2_list(self, contents, columns):
-        "Returns the archive contents in list format"
-
-    @abstractmethod
-    def listing_2_set(self, contents):
-        "Returns the archive contents in set format"

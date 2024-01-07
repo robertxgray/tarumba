@@ -3,6 +3,7 @@
 
 "Tarumba's programs executor"
 
+from collections import deque
 from gettext import gettext as _
 import os
 import pexpect
@@ -18,15 +19,14 @@ class Executor:
 
     subprocess = None
 
-    def execute(self, commands, patterns=None, parser=None, extra=None):
+    def execute(self, commands, patterns, parser, extra):
         """
         Executes a list of commands via pexpect.
 
         :param commands: List of commands
-        :param patterns: Optional particular patterns
-        :param parser: Optional line parser
-        :param extra: Optional extra data
-        :return: Unparsed commands output
+        :param patterns: Particular patterns
+        :param parser: Line parser
+        :param extra: Extra data
         """
 
         # Save the current working directory
@@ -48,26 +48,21 @@ class Executor:
             # Read the subprocess output
             case = 1
             sub_output = None
-            output = []
+            buffer = deque(maxlen=5)
             line = 1
             while case > 0:
                 case = self.subprocess.expect([pexpect.EOF, '\r\n', '\n'] + patterns)
                 t_gui.debug('case', case)
                 if case > 0 or len(self.subprocess.before):
-                    save_line = True
                     sub_output = t_utils.decode(self.subprocess.before)
                     if case >= 3:
                         sub_output += t_utils.decode(self.subprocess.after)
                     t_gui.debug('sub_output', sub_output)
-                    if parser:
-                        if parser(self, line, sub_output, extra):
-                            save_line = False
-                    if save_line:
-                        output.append(sub_output)
+                    buffer.append(sub_output)
+                    parser(self, line, sub_output, extra)
                     line += 1
-            # Some parsers need this
-            if parser:
-                parser(self, line, '', extra)
+            # Somer parsers need to clean up
+            parser(self, line, '', extra)
 
             self.subprocess.close()
             error = self.subprocess.status
@@ -76,13 +71,12 @@ class Executor:
             # Stop on error
             if error:
                 message=_('failure in program %(program)s') % {'program': command[0]} + '\n'
-                if output:
-                    message += '\n'.join(output[-5:])
+                if buffer:
+                    message += '\n'.join(buffer)
                 raise ChildProcessError(message)
 
         # Restore the current working directory
         os.chdir(old_cwd)
-        return output
 
     def send_line(self, line):
         """

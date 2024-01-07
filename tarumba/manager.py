@@ -82,10 +82,13 @@ def _list_archive_2set(form, archive):
     list_args.set('archive', archive)
     list_args.set('files', [])
     list_args.set('format', form)
+    list_args.set('output', set())
+    t_gui.debug('list_args', list_args)
 
     commands = form.list_commands(list_args)
-    listing = t_executor.Executor().execute(commands, form.LIST_PATTERNS)
-    return form.listing_2_set(listing)
+    t_executor.Executor().execute(commands, list_args.get('format').LIST_PATTERNS,
+        list_args.get('format').parse_list, list_args)
+    return list_args.get('output')
 
 def list_archive(args):
     """
@@ -97,21 +100,19 @@ def list_archive(args):
 
     t_file_utils.check_read_file(args.archive)
 
-    columns = None
-    if args.columns:
-        columns = t_config.parse_columns(args.columns)
-
     list_args = t_data_classes.ListArgs()
     list_args.set('archive', args.archive)
+    list_args.set('columns', t_config.parse_columns(args.columns))
     list_args.set('files', args.files)
     list_args.set('format', _detect_format(args.archive))
     list_args.set('occurrence', args.occurrence)
+    list_args.set('output', [])
     t_gui.debug('list_args', list_args)
 
     commands = list_args.get('format').list_commands(list_args)
-    listing = t_executor.Executor().execute(commands,
-        list_args.get('format').LIST_PATTERNS)
-    return list_args.get('format').listing_2_list(listing, columns)
+    t_executor.Executor().execute(commands, list_args.get('format').LIST_PATTERNS,
+        list_args.get('format').parse_list, list_args)
+    return list_args.get('output')
 
 def _get_overwrite(args):
     """
@@ -276,8 +277,10 @@ def extract_archive(args):
 
     list_args = t_data_classes.ListArgs()
     list_args.set('archive', args.archive)
+    list_args.set('columns', [t_format.NAME])
     list_args.set('files', args.files)
     list_args.set('format', form)
+    list_args.set('output', [])
     t_gui.debug('list_args', list_args)
 
     extract_args = t_data_classes.ExtractArgs()
@@ -293,10 +296,9 @@ def extract_archive(args):
     try:
         # Get the archive contents
         list_commands = extract_args.get('format').list_commands(list_args)
-        listing = t_executor.Executor().execute(list_commands,
-            extract_args.get('format').LIST_PATTERNS)
-        extract_args.set('contents', extract_args.get('format').listing_2_list(listing,
-            [t_format.NAME])[1:])
+        t_executor.Executor().execute(list_commands, list_args.get('format').LIST_PATTERNS,
+            list_args.get('format').parse_list, list_args)
+        extract_args.set('contents', list_args.get('output')[1:]) # No header
         total = len(extract_args.get('contents'))
         t_gui.debug('total', total)
         t_gui.update_progress_total(total)

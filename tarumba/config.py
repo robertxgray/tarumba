@@ -56,9 +56,12 @@ def parse_columns(col_string):
     Parse a list of columns.
 
     :param col_string: Text describing a list of columns
-    :return: List of columns
+    :return: List of columns or None if no input
     :raises ValueError: A column name is invalid
     """
+
+    if not col_string:
+        return None
 
     output = []
     columns = col_string.split(',')

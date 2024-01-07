@@ -89,103 +89,28 @@ class Zip(t_format.Format):
         return [(config.get('zip_s_unzip_bin'),
             ['-o', '--', extract_args.get('archive')] + expanded_files)]
 
-    def parse_add(self, executor, line_number, line, extra):
+    def parse_list(self, executor, line_number, line, extra):
         """
-        Parse the output when adding files.
+        Parse the output when listing files.
 
         :param executor: Program executor
         :param line_number: Line number
         :param line: Line contents
         :param extra: Extra data
-        :return: True if the line has been successfully parsed
         """
 
-        if line in self.ADD_PATTERNS:
-            executor.send_line(extra.get('password'))
-            return True
+        if not line or line.startswith('caution: '): # Ignore warnings
+            return
+        elements = line.split(None, 7)
+        if len(elements) < 8:
+            return
+        output = extra.get('output')
 
-        if line.startswith('  adding: ') or line.startswith('updating: '):
-            end = line.find(' (deflated ')
-            if end < 0:
-                end = line.find(' (stored ')
-            t_gui.adding_msg(line[10:end])
-            t_gui.advance_progress()
-            return True
-
-        if len(line) > 0:
-            t_gui.warn(_('%(prog)s: warning: %(message)s\n') %
-                {'prog': 'tarumba', 'message': line})
-            return False
-
-        return True
-
-    def parse_extract(self, executor, line_number, line, extra):
-        """
-        Parse the output when extracting files.
-
-        :param executor: Program executor
-        :param line_number: Line number
-        :param line: Line contents
-        :param extra: Extra data
-        :return: True if the line has been successfully parsed
-        """
-
-        password = False
-        if line == 'password incorrect--reenter: ':
-            message = _('wrong password, please try again')
-            t_gui.warn(_('%(prog)s: warning: %(message)s\n') %
-                {'prog': 'tarumba', 'message': message})
-            extra.set('password', t_utils.get_password(None))
-            password = True
-        if line.endswith(' password: '):
-            # <-- len+3 --->        <-- 11 --->
-            # [archive.zip] file.txt password:
-            filename = line[len(extra.get('archive'))+3:-11]
-            extra.set('password', t_utils.get_password(filename))
-            password = True
-        if password:
-            executor.send_line(extra.get('password'))
-            return True
-
-        file = extra.get('last_file')
-        if file:
-            moved = t_file_utils.move_extracted(file, extra)
-            if moved:
-                t_gui.extracting_msg(file)
-            t_gui.advance_progress()
-
-        if line.startswith('Archive: '): # First line
-            return True
-        if (line.startswith('   creating: ') or line.startswith('  inflating: ') or
-            line.startswith(' extracting: ') or line.startswith('    linking: ')):
-            extra.set('last_file', extra.get('contents').pop(0)[0])
-            return True
-        if len(line) > 0:
-            t_gui.warn(_('%(prog)s: warning: %(message)s\n') %
-                {'prog': 'tarumba', 'message': line})
-            return False
-        return True
-
-    def listing_2_list(self, contents, columns):
-        """
-        Returns the archive contents in list format.
-
-        :param contents: Archive contents listing
-        :param columns: Requested columns or None for default
-        :return: Listing parsed as rows
-        """
-
-        if not columns:
-            columns = config.get('zip_l_columns')
-        listing = [columns]
-        for content in contents:
-
-            # Ignore warnings
-            if content.startswith('caution: '):
-                continue
-
+        # List output
+        if isinstance(output, list):
+            columns = t_utils.get_list_columns(
+                extra.get('columns'), config.get('zip_l_columns'), output)
             row = []
-            elements = content.split(None, 7)
             for column in columns:
                 # We are ignoring the zip version and other metadata
                 # They may be added in the future by popular demand
@@ -204,22 +129,73 @@ class Zip(t_format.Format):
                     row.append(f'{yea}-{mon}-{day} {hou}:{mit}')
                 elif column == t_format.NAME:
                     row.append(elements[7][16:])
-            listing.append(row)
-        return listing
+            output.append(row)
+        # Set output
+        if isinstance(output, set):
+            output.add(elements[7][16:])
 
-    def listing_2_set(self, contents):
+    def parse_add(self, executor, line_number, line, extra):
         """
-        Returns the archive contents in set format.
+        Parse the output when adding files.
 
-        :param contents: Archive contents listing
-        :return: Set of filenames
+        :param executor: Program executor
+        :param line_number: Line number
+        :param line: Line contents
+        :param extra: Extra data
         """
 
-        listing = set()
-        for content in contents:
-            # Ignore warnings
-            if content.startswith('caution: '):
-                continue
-            elements = content.split(None, 7)
-            listing.add(elements[7][16:])
-        return listing
+        if line in self.ADD_PATTERNS:
+            executor.send_line(extra.get('password'))
+        elif line.startswith('  adding: ') or line.startswith('updating: '):
+            end = line.find(' (deflated ')
+            if end < 0:
+                end = line.find(' (stored ')
+            t_gui.adding_msg(line[10:end])
+            t_gui.advance_progress()
+        elif len(line) > 0:
+            t_gui.warn(_('%(prog)s: warning: %(message)s\n') %
+                {'prog': 'tarumba', 'message': line})
+
+    def parse_extract(self, executor, line_number, line, extra):
+        """
+        Parse the output when extracting files.
+
+        :param executor: Program executor
+        :param line_number: Line number
+        :param line: Line contents
+        :param extra: Extra data
+        """
+
+        if line_number == 1:
+            return
+
+        password = False
+        if line == 'password incorrect--reenter: ':
+            message = _('wrong password, please try again')
+            t_gui.warn(_('%(prog)s: warning: %(message)s\n') %
+                {'prog': 'tarumba', 'message': message})
+            extra.set('password', t_utils.get_password(None))
+            password = True
+        elif line.endswith(' password: '):
+            # <-- len+3 --->        <-- 11 --->
+            # [archive.zip] file.txt password:
+            filename = line[len(extra.get('archive'))+3:-11]
+            extra.set('password', t_utils.get_password(filename))
+            password = True
+        if password:
+            executor.send_line(extra.get('password'))
+            return
+
+        file = extra.get('last_file')
+        if file:
+            moved = t_file_utils.move_extracted(file, extra)
+            if moved:
+                t_gui.extracting_msg(file)
+            t_gui.advance_progress()
+
+        if (line.startswith('   creating: ') or line.startswith('  inflating: ') or
+            line.startswith(' extracting: ') or line.startswith('    linking: ')):
+            extra.set('last_file', extra.get('contents').pop(0)[0])
+        elif len(line) > 0:
+            t_gui.warn(_('%(prog)s: warning: %(message)s\n') %
+                {'prog': 'tarumba', 'message': line})

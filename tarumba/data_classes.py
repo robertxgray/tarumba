@@ -45,9 +45,11 @@ class ListArgs(Base):
 
     dictionary = {
         'archive': None,
+        'columns': None,
         'files': None,
         'format': None,
         'occurrence': None,
+        'output': None,
         'password': None
     }
 

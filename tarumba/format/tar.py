@@ -4,12 +4,12 @@
 "Tarumba's tar archive support"
 
 from gettext import gettext as _
-import shlex
 
 from tarumba.config import current as config
 import tarumba.file_utils as t_file_utils
 from tarumba.format import format as t_format
 from tarumba.gui import current as t_gui
+from tarumba import utils as t_utils
 
 class Tar(t_format.Format):
     "Tar archive support functions"
@@ -35,7 +35,6 @@ class Tar(t_format.Format):
 
         params = []
         params.append('--numeric-owner')
-        params.append('--quoting-style=shell-always')
         if list_args.get('occurrence'):
             params.append('--occurrence='+list_args.get('occurrence'))
         return [(config.get('tar_s_tar_bin'),
@@ -73,62 +72,28 @@ class Tar(t_format.Format):
         return [(config.get('tar_s_tar_bin'),
             params + ['-xvf', extract_args.get('archive'), '--'] + extract_args.get('files'))]
 
-    def parse_add(self, executor, line_number, line, extra):
+    def parse_list(self, executor, line_number, line, extra):
         """
-        Parse the output when adding files.
+        Parse the output when listing files.
 
+        :param executor: Program executor
         :param line_number: Line number
         :param line: Line contents
         :param extra: Extra data
-        :return: True if the line has been successfully parsed
         """
 
-        if line.startswith('tar: '):
-            t_gui.warn(_('%(prog)s: warning: %(message)s\n') %
-                {'prog': 'tarumba', 'message': line})
-            return False
-        if len(line) > 0:
-            t_gui.adding_msg(line)
-            t_gui.advance_progress()
-        return True
+        if not line:
+            return
+        elements = line.split(None, 4)
+        if len(elements) < 5:
+            return
+        output = extra.get('output')
 
-    def parse_extract(self, executor, line_number, line, extra):
-        """
-        Parse the output when extracting files.
-
-        :param line_number: Line number
-        :param line: Line contents
-        :param extra: Extra data
-        :return: True if the line has been successfully parsed
-        """
-
-        if line.startswith('tar: '):
-            t_gui.warn(_('%(prog)s: warning: %(message)s\n') %
-                {'prog': 'tarumba', 'message': line})
-            return False
-        if len(line) > 0:
-            file = extra.get('contents').pop(0)[0]
-            moved = t_file_utils.move_extracted(file, extra)
-            if moved:
-                t_gui.extracting_msg(file)
-            t_gui.advance_progress()
-        return True
-
-    def listing_2_list(self, contents, columns):
-        """
-        Returns the archive contents in list format.
-
-        :param contents: Archive contents listing
-        :param columns: Requested columns or None for default
-        :return: Listing parsed as rows
-        """
-
-        if not columns:
-            columns = config.get('tar_l_columns')
-        listing = [columns]
-        for content in contents:
+        # List output
+        if isinstance(output, list):
+            columns = t_utils.get_list_columns(
+                extra.get('columns'), config.get('tar_l_columns'), output)
             row = []
-            elements = content.split(None, 4)
             for column in columns:
                 if column == t_format.PERMS:
                     row.append(elements[0])
@@ -139,20 +104,45 @@ class Tar(t_format.Format):
                 elif column == t_format.DATE:
                     row.append(f'{elements[3]} {elements[4][:5]}')
                 elif column == t_format.NAME:
-                    row.append(shlex.split(elements[4][6:])[0])
-            listing.append(row)
-        return listing
+                    row.append(elements[4][6:])
+            output.append(row)
+        # Set output
+        if isinstance(output, set):
+            output.add(elements[4][6:])
 
-    def listing_2_set(self, contents):
+    def parse_add(self, executor, line_number, line, extra):
         """
-        Returns the archive contents in set format.
+        Parse the output when adding files.
 
-        :param contents: Archive contents listing
-        :return: Set of filenames
+        :param executor: Program executor
+        :param line_number: Line number
+        :param line: Line contents
+        :param extra: Extra data
         """
 
-        listing = set()
-        for content in contents:
-            elements = content.split(None, 4)
-            listing.add(shlex.split(elements[4][6:])[0])
-        return listing
+        if line.startswith('tar: '):
+            t_gui.warn(_('%(prog)s: warning: %(message)s\n') %
+                {'prog': 'tarumba', 'message': line})
+        elif len(line) > 0:
+            t_gui.adding_msg(line)
+            t_gui.advance_progress()
+
+    def parse_extract(self, executor, line_number, line, extra):
+        """
+        Parse the output when extracting files.
+
+        :param executor: Program executor
+        :param line_number: Line number
+        :param line: Line contents
+        :param extra: Extra data
+        """
+
+        if line.startswith('tar: '):
+            t_gui.warn(_('%(prog)s: warning: %(message)s\n') %
+                {'prog': 'tarumba', 'message': line})
+        elif len(line) > 0:
+            file = extra.get('contents').pop(0)[0]
+            moved = t_file_utils.move_extracted(file, extra)
+            if moved:
+                t_gui.extracting_msg(file)
+            t_gui.advance_progress()
