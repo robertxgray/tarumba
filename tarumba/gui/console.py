@@ -175,18 +175,28 @@ class Console(t_gui.Gui):
         assert self.progress is not None, _('a progress bar is not running')
         self.progress.advance(self.task)
 
-    def prompt_ynan(self, message):
+    def prompt_ynan(self, message, filename=None, archive=None):
         """
         Prompts the user a yes/no/all/none question.
 
         :param message: Question message
+        :param file: Related file name
+        :param archive: Related archive
         :return: 
         """
+
+        params = {}
+        if filename:
+            color = config.get('colors_s_list_name')
+            params['filename'] = '['+color+']'+r_markup.escape(filename)+'[/'+color+']'
+        if archive:
+            color = config.get('colors_s_list_header')
+            params['archive'] = '['+color+']'+r_markup.escape(archive)+'[/'+color+']'
 
         self._pause_progress()
         choices = [_('yes'), _('no'), _('all'), _('none')]
         answer = r_prompt.Prompt.ask(
-            r_markup.escape(message), console=self.out_c, choices=choices, default=_('no'))
+            message%params, console=self.out_c, choices=choices, default=_('no'))
         self._resume_progress()
 
         if answer == _('yes'):
