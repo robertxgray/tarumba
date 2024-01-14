@@ -82,7 +82,8 @@ def delete_folder(path):
     :param path: Folder path
     """
 
-    shutil.rmtree(path)
+    if os.path.isdir(path):
+        shutil.rmtree(path, ignore_errors=True)
 
 def tmp_folder(path):
     """
@@ -145,12 +146,17 @@ def _check_add_file(add_args, path):
         raise PermissionError(_("can't read %(filename)s") % {'filename': path})
 
     copy = True
-    if add_args.get('contents') is not None and path.lstrip('/') in add_args.get('contents'):
-        if add_args.get('overwrite') not in (t_gui.ALL, t_gui.NONE):
+    if add_args.get('contents') is not None:
+        file_path = path.lstrip('/')
+        # Add the extra path
+        if add_args.get('path'):
+            file_path = os.path.join(add_args.get('path'), file_path)
+        if (file_path in add_args.get('contents') and
+            add_args.get('overwrite') not in (t_gui.ALL, t_gui.NONE)):
             add_args.set('overwrite', t_gui.prompt_ynan(
                 _('%(filename)s already exists in %(archive)s. Do you want to overwrite?'),
-                path, os.path.basename(add_args.get('archive'))))
-        copy = add_args.get('overwrite') in (t_gui.YES, t_gui.ALL)
+                file_path, os.path.basename(add_args.get('archive'))))
+            copy = add_args.get('overwrite') in (t_gui.YES, t_gui.ALL)
     return copy
 
 def _check_add_file_copy(add_args, path, tmp_dir, copy):

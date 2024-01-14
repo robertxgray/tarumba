@@ -209,6 +209,7 @@ def add_archive(args):
     add_args.set('overwrite', _get_overwrite(args))
     add_args.set('owner', args.owner)
     add_args.set('path', args.path.strip('/') if args.path else None)
+    add_args.set('tmp_dirs', [])
     t_gui.debug('add_args', add_args)
 
     # Encryption password

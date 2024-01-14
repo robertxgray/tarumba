@@ -68,6 +68,11 @@ dependencies = [
 [tool.hatch.envs.types.scripts]
 check = "mypy --install-types --non-interactive {args:src/tarumba tests}"
 
+[tool.pytest.ini_options]
+pythonpath = [
+	"src"
+]
+
 [tool.coverage.run]
 source_pkgs = ["tarumba", "tests"]
 branch = true
@@ -78,7 +83,7 @@ omit = [
 
 [tool.coverage.paths]
 tarumba = ["src/tarumba", "*/tarumba/src/tarumba"]
-tests = ["tests", "*/tarumba/tests"]
+tests = ["tests"]
 
 [tool.coverage.report]
 exclude_lines = [

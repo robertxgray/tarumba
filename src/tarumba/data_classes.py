@@ -8,7 +8,12 @@ from gettext import gettext as _
 class Base:
     "Base data class"
 
-    dictionary = {}
+    def __init__(self):
+        """
+        Initialize the dictionary.
+        """
+
+        self.dictionary = None
 
     def get(self, key):
         """
@@ -38,51 +43,70 @@ class Base:
 
         :return: String
         """
+
         return str(self.dictionary)
 
 class ListArgs(Base):
     "Arguments used when listing files"
 
-    dictionary = {
-        'archive': None,
-        'columns': None,
-        'files': None,
-        'format': None,
-        'occurrence': None,
-        'output': None,
-        'password': None
-    }
+    def __init__(self):
+        """
+        Initialize the dictionary.
+        """
+
+        super().__init__()
+        self.dictionary = {
+            'archive': None,
+            'columns': None,
+            'files': None,
+            'format': None,
+            'occurrence': None,
+            'output': None,
+            'password': None
+        }
 
 class AddArgs(Base):
     "Arguments used when adding files"
 
-    dictionary = {
-        'archive': None,
-        'contents': None,
-        'files': None,
-        'follow_links': None,
-        'format': None,
-        'level': None,
-        'overwrite': None,
-        'owner': None,
-        'password': None,
-        'path': None,
-        'tmp_dirs': []
-    }
+    def __init__(self):
+        """
+        Initialize the dictionary.
+        """
+
+        super().__init__()
+        self.dictionary = {
+            'archive': None,
+            'contents': None,
+            'files': None,
+            'follow_links': None,
+            'format': None,
+            'level': None,
+            'overwrite': None,
+            'owner': None,
+            'password': None,
+            'path': None,
+            'tmp_dirs': None
+        }
 
 class ExtractArgs(Base):
     "Arguments used when extracting files"
 
-    dictionary = {
-        'archive': None,
-        'contents': None,
-        'cwd': None,
-        'files': None,
-        'format': None,
-        'last_file': None,
-        'occurrence': None,
-        'overwrite': None,
-        'password': None,
-        'path': None,
-        'tmp_dir': None
-    }
+    def __init__(self):
+        """
+        Initialize the dictionary.
+        """
+
+        super().__init__()
+        self.dictionary = {
+            'archive': None,
+            'contents': None,
+            'cwd': None,
+            'files': None,
+            'format': None,
+            'last_file': None,
+            'occurrence': None,
+            'overwrite': None,
+            'password': None,
+            'path': None,
+            'tmp_dir': None
+        }
