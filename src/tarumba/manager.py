@@ -109,6 +109,8 @@ def list_archive(args):
     list_args.set('output', [])
     t_gui.debug('list_args', list_args)
 
+    t_utils.check_installed(list_args.get('format').EXTRACTORS)
+
     commands = list_args.get('format').list_commands(list_args)
     t_executor.Executor().execute(commands, list_args.get('format').LIST_PATTERNS,
         list_args.get('format').parse_list, list_args)
@@ -212,6 +214,8 @@ def add_archive(args):
     add_args.set('tmp_dirs', [])
     t_gui.debug('add_args', add_args)
 
+    t_utils.check_installed(add_args.get('format').COMPRESSORS)
+
     # Encryption password
     password = None
     if args.encrypt:
@@ -275,6 +279,7 @@ def extract_archive(args):
     t_file_utils.check_read_file(args.archive)
 
     form = _detect_format(args.archive)
+    t_utils.check_installed(form.EXTRACTORS)
 
     list_args = t_data_classes.ListArgs()
     list_args.set('archive', args.archive)

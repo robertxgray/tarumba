@@ -86,6 +86,13 @@ msgstr "%(filename)s no existe"
 msgid "%(filename)s is not a folder"
 msgstr "%(filename)s no es una carpeta"
 
+msgid "operation not available because the %(executable)s program "
+      "can't be found, please make sure it's installed and available in the $PATH or "
+      "enter the full path to the program in the configuration"
+msgstr "operación no disponible porque no se encuentra el programa %(executable)s, "
+       "por favor compruebe que está instalado y disponible en el $PATH o introduzca "
+       "la ruta completa al programa en la configuración"
+
 msgid "%(format)s archive format can't store the special file %(filename)s"
 msgstr "el formato %(format)s no puede almacenar el fichero especial %(filename)s"
 

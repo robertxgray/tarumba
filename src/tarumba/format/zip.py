@@ -16,6 +16,11 @@ class Zip(t_format.Format):
 
     NAME = 'zip'
 
+    # List of programs used to add
+    COMPRESSORS = [config.get('zip_s_zip_bin')]
+    # List of programs used to list and extract
+    EXTRACTORS = [config.get('zip_s_unzip_bin')]
+
     # The format can store duplicates
     CAN_DUPLICATE = False
     # The format can encrypt it's contents

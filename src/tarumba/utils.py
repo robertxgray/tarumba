@@ -9,6 +9,8 @@ import random
 import re
 import sys
 
+import pexpect
+
 from tarumba.gui import current as t_gui
 
 def encode(text):
@@ -156,3 +158,18 @@ def get_list_columns(input_cols, default_cols, output):
     if len(output) == 0:
         output.append(columns)
     return columns
+
+def check_installed(executables):
+    """
+    Checks if a list of executables is available in the system.
+
+    :param executables: List of executable names or paths
+    :raises FileNotFoundError: An executable is not available
+    """
+
+    for executable in executables:
+        if not executable or not pexpect.which(executable):
+            raise FileNotFoundError(_("operation not available because the %(executable)s program "
+                "can't be found, please make sure it's installed and available in the $PATH or "
+                "enter the full path to the program in the configuration") %
+                {'executable': executable})

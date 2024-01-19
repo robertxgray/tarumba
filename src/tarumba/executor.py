@@ -6,6 +6,7 @@
 from collections import deque
 from gettext import gettext as _
 import os
+
 import pexpect
 
 from tarumba import utils as t_utils

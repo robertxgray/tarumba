@@ -28,6 +28,11 @@ class Format(ABC):
 
     NAME = None
 
+    # List of programs used to add
+    COMPRESSORS = []
+    # List of programs used to list and extract
+    EXTRACTORS = []
+
     # The format can store duplicates
     CAN_DUPLICATE = False
     # The format can encrypt it's contents

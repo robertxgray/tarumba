@@ -16,6 +16,11 @@ class Tar(t_format.Format):
 
     NAME = 'tar'
 
+    # List of programs used to add
+    COMPRESSORS = [config.get('tar_s_tar_bin')]
+    # List of programs used to list and extract
+    EXTRACTORS = [config.get('tar_s_tar_bin')]
+
     # The format can store duplicates
     CAN_DUPLICATE = True
     # The format can encrypt it's contents
