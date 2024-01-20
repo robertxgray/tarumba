@@ -4,6 +4,7 @@
 "Tarumba's test utils"
 
 import os
+import shutil
 import sys
 
 from tarumba.__main__ import main
@@ -58,3 +59,16 @@ def test_extract(archive, files, extra_args):
     sys.argv += files
     main()
     os.chdir(cwd)
+
+def cleanup(path):
+    """
+    Delete a file or folder in the tests dir.
+
+    :param path: Path to delete
+    """
+
+    test_path = os.path.join(TEST_PATH, path)
+    if os.path.isdir(test_path):
+        shutil.rmtree(test_path, ignore_errors=True)
+    else:
+        os.remove(test_path)
