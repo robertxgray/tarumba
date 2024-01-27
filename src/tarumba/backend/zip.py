@@ -1,18 +1,18 @@
 # Copyright: (c) 2023, Félix Medrano
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
-"Tarumba's zip archive support"
+"Tarumba's zip backend support"
 
 from gettext import gettext as _
 
 from tarumba.config import current as config
 import tarumba.file_utils as t_file_utils
-from tarumba.format import format as t_format
+from tarumba.backend import backend as t_backend
 from tarumba.gui import current as t_gui
 import tarumba.utils as t_utils
 
-class Zip(t_format.Format):
-    "Zip archive support functions"
+class Zip(t_backend.Backend):
+    "Zip archive backend"
 
     NAME = 'zip'
 
@@ -21,13 +21,13 @@ class Zip(t_format.Format):
     # List of programs used to list and extract
     EXTRACTORS = [config.get('zip_s_unzip_bin')]
 
-    # The format can store duplicates
+    # The backend can store duplicates
     CAN_DUPLICATE = False
-    # The format can encrypt it's contents
+    # The backend can encrypt it's contents
     CAN_ENCRYPT = True
-    # The format can store multiple files
+    # The backend can store multiple files
     CAN_PACK = True
-    # The format can store special files
+    # The backend can store special files
     CAN_SPECIAL = False
 
     # Particular patterns when adding files
@@ -119,20 +119,20 @@ class Zip(t_format.Format):
             for column in columns:
                 # We are ignoring the zip version and other metadata
                 # They may be added in the future by popular demand
-                if column == t_format.PERMS:
+                if column == t_backend.PERMS:
                     row.append(elements[0])
-                elif column == t_format.SIZE:
+                elif column == t_backend.SIZE:
                     row.append(elements[3])
-                elif column == t_format.PACKED:
+                elif column == t_backend.PACKED:
                     row.append(elements[5])
-                elif column == t_format.DATE:
+                elif column == t_backend.DATE:
                     yea = elements[7][0:4]
                     mon = elements[7][4:6]
                     day = elements[7][6:8]
                     hou = elements[7][9:11]
                     mit = elements[7][11:13]
                     row.append(f'{yea}-{mon}-{day} {hou}:{mit}')
-                elif column == t_format.NAME:
+                elif column == t_backend.NAME:
                     row.append(elements[7][16:])
             output.append(row)
         # Set output

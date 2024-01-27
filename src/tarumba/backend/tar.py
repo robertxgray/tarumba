@@ -1,18 +1,18 @@
 # Copyright: (c) 2023, Félix Medrano
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
-"Tarumba's tar archive support"
+"Tarumba's tar backend support"
 
 from gettext import gettext as _
 
 from tarumba.config import current as config
 import tarumba.file_utils as t_file_utils
-from tarumba.format import format as t_format
+from tarumba.backend import backend as t_backend
 from tarumba.gui import current as t_gui
 from tarumba import utils as t_utils
 
-class Tar(t_format.Format):
-    "Tar archive support functions"
+class Tar(t_backend.Backend):
+    "Tar archive backend"
 
     NAME = 'tar'
 
@@ -21,13 +21,13 @@ class Tar(t_format.Format):
     # List of programs used to list and extract
     EXTRACTORS = [config.get('tar_s_tar_bin')]
 
-    # The format can store duplicates
+    # The backend can store duplicates
     CAN_DUPLICATE = True
-    # The format can encrypt it's contents
+    # The backend can encrypt it's contents
     CAN_ENCRYPT = False
-    # The format can store multiple files
+    # The backend can store multiple files
     CAN_PACK = True
-    # The format can store special files
+    # The backend can store special files
     CAN_SPECIAL = True
 
     def list_commands(self, list_args):
@@ -100,15 +100,15 @@ class Tar(t_format.Format):
                 extra.get('columns'), config.get('tar_l_columns'), output)
             row = []
             for column in columns:
-                if column == t_format.PERMS:
+                if column == t_backend.PERMS:
                     row.append(elements[0])
-                elif column == t_format.OWNER:
+                elif column == t_backend.OWNER:
                     row.append(elements[1])
-                elif column == t_format.SIZE:
+                elif column == t_backend.SIZE:
                     row.append(elements[2])
-                elif column == t_format.DATE:
+                elif column == t_backend.DATE:
                     row.append(f'{elements[3]} {elements[4][:5]}')
-                elif column == t_format.NAME:
+                elif column == t_backend.NAME:
                     row.append(elements[4][6:])
             output.append(row)
         # Set output

@@ -1,7 +1,7 @@
 # Copyright: (c) 2023, Félix Medrano
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
-"Tarumba's base archive format"
+"Tarumba's base archive backend"
 
 from abc import ABC, abstractmethod
 
@@ -23,8 +23,8 @@ COLUMNS_SET = {
     SIZE
 }
 
-class Format(ABC):
-    "Abstract parent class for archive formats"
+class Backend(ABC):
+    "Abstract parent class for archive backends"
 
     NAME = None
 
@@ -33,13 +33,13 @@ class Format(ABC):
     # List of programs used to list and extract
     EXTRACTORS = []
 
-    # The format can store duplicates
+    # The backend can store duplicates
     CAN_DUPLICATE = False
-    # The format can encrypt it's contents
+    # The backend can encrypt it's contents
     CAN_ENCRYPT = False
-    # The format can store multiple files
+    # The backend can store multiple files
     CAN_PACK = False
-    # The format can store special files
+    # The backend can store special files
     CAN_SPECIAL = False
 
     # Particular patterns when listing files

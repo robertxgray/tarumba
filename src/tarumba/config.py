@@ -8,7 +8,7 @@ from gettext import gettext as _
 import os
 
 import tarumba.data_classes as t_data_classes
-from tarumba.format import format as t_format
+from tarumba.backend import backend as t_backend
 
 BASE_PATH = os.path.abspath(os.path.dirname(__file__))
 CONFIG_PATH = os.path.expanduser('~/.local/share/tarumba')
@@ -50,11 +50,11 @@ class Config(t_data_classes.Base):
             'colors_s_prompt_invalid_choice': 'red',
             # Tar
             'tar_s_tar_bin': 'tar',
-            'tar_l_columns': [t_format.PERMS, t_format.SIZE, t_format.DATE, t_format.NAME],
+            'tar_l_columns': [t_backend.PERMS, t_backend.SIZE, t_backend.DATE, t_backend.NAME],
             # Zip
             'zip_s_zip_bin': 'zip',
             'zip_s_unzip_bin': 'unzip',
-            'zip_l_columns': [t_format.PERMS, t_format.SIZE, t_format.DATE, t_format.NAME]
+            'zip_l_columns': [t_backend.PERMS, t_backend.SIZE, t_backend.DATE, t_backend.NAME]
         }
 
 def parse_columns(col_string):
@@ -73,7 +73,7 @@ def parse_columns(col_string):
     columns = col_string.split(',')
     for column in columns:
         formatted = column.strip().upper()
-        if formatted in t_format.COLUMNS_SET:
+        if formatted in t_backend.COLUMNS_SET:
             output.append(formatted)
         else:
             raise ValueError(_('invalid column name: %(column)s') % {'column': column.strip()})
@@ -99,7 +99,7 @@ def _config_2_init(config, parser):
 
 def _init_2_config(config, parser):
     """
-    Loads the configuration form a init file.
+    Loads the configuration from a init file.
 
     :param config: Configuration
     :param parser: Init parser

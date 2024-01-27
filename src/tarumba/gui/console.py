@@ -16,7 +16,7 @@ from rich import text as r_text
 from rich import theme as r_theme
 
 from tarumba.config import current as config
-from tarumba.format import format as t_format
+from tarumba.backend import backend as t_backend
 from tarumba.gui import gui as t_gui
 
 
@@ -263,10 +263,10 @@ class Console(t_gui.Gui):
         idx = 0
         for idx in range(len(listing[0])):
             column = listing[0][idx]
-            if column == t_format.NAME:
+            if column == t_backend.NAME:
                 table.add_column(_(column), style=config.get('colors_s_list_name'))
                 col_name = idx
-            elif column == t_format.SIZE:
+            elif column == t_backend.SIZE:
                 table.add_column(_(column), style=config.get('colors_s_list_default'),
                 justify='right')
             else:
