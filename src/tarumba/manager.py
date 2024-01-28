@@ -171,16 +171,12 @@ def add_archive(args):
             password = t_utils.new_password(args.archive)
             add_args.set('password', password)
         else:
-            raise ArgumentError(None,
-                _("the archive format %(format)s can't encrypt contents") %
-                {'format': add_args.get('backend').NAME})
+            raise ArgumentError(None, _("this archive format can't encrypt contents"))
 
     # Can we store multiple files?
     if not add_args.get('backend').CAN_PACK:
         if os.path.isfile(add_args.get('archive')) or len(add_args.get('files')) > 1:
-            raise ArgumentError(None,
-                _("the archive format %(format)s can't store more than one file") %
-                {'format': add_args.get('backend').NAME})
+            raise ArgumentError(None, _("this archive format can't store more than one file"))
 
     # Do we need to warn before overwrite?
     if not add_args.get('backend').CAN_DUPLICATE and os.path.isfile(add_args.get('archive')):

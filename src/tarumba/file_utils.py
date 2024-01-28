@@ -140,8 +140,7 @@ def _check_add_file(add_args, path):
     if (not add_args.get('backend').CAN_SPECIAL and not os.path.isfile(path) and
         not os.path.isdir(path) and not os.path.islink(path)):
         raise IsADirectoryError(
-            _("%(format)s archive format can't store the special file %(filename)s") %
-            {'format': add_args.get('backend').NAME, 'filename': path})
+            _("this archive format can't store the special file %(filename)s") % {'filename': path})
     if not os.access(path, os.R_OK, follow_symlinks=add_args.get('follow_links')):
         raise PermissionError(_("can't read %(filename)s") % {'filename': path})
 

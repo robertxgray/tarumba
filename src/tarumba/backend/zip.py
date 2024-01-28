@@ -14,8 +14,6 @@ import tarumba.utils as t_utils
 class Zip(t_backend.Backend):
     "Zip archive backend"
 
-    NAME = 'zip'
-
     # List of programs used to add
     COMPRESSORS = [config.get('zip_s_zip_bin')]
     # List of programs used to list and extract

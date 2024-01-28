@@ -74,9 +74,9 @@ def detect_format(archive):
         mime = file_mime
 
     if mime[0] == TAR:
-        return t_tar.Tar()
+        return t_tar.Tar(mime)
     if mime[0] == ZIP:
-        return t_zip.Zip()
+        return t_zip.Zip(mime)
 
     message = _('unknown archive format')
     raise TypeError(_('%(prog)s: error: %(message)s\n') % {'prog': 'tarumba', 'message': message})

@@ -26,8 +26,6 @@ COLUMNS_SET = {
 class Backend(ABC):
     "Abstract parent class for archive backends"
 
-    NAME = None
-
     # List of programs used to add
     COMPRESSORS = []
     # List of programs used to list and extract
@@ -48,6 +46,14 @@ class Backend(ABC):
     ADD_PATTERNS = None
     # Particular patterns when extracting files
     EXTRACT_PATTERNS = None
+
+    def __init__(self, mime):
+        """
+        Backend constructor.
+
+        :param mime: Archive mime type
+        """
+        self.mime = mime
 
     @abstractmethod
     def list_commands(self, list_args):

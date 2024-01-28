@@ -14,8 +14,6 @@ from tarumba import utils as t_utils
 class Tar(t_backend.Backend):
     "Tar archive backend"
 
-    NAME = 'tar'
-
     # List of programs used to add
     COMPRESSORS = [config.get('tar_s_tar_bin')]
     # List of programs used to list and extract

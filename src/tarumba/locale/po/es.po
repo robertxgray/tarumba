@@ -93,8 +93,8 @@ msgstr "operación no disponible porque no se encuentra el programa %(executable
        "por favor compruebe que está instalado y disponible en el $PATH o introduzca "
        "la ruta completa al programa en la configuración"
 
-msgid "%(format)s archive format can't store the special file %(filename)s"
-msgstr "el formato %(format)s no puede almacenar el fichero especial %(filename)s"
+msgid "this archive format can't store the special file %(filename)s"
+msgstr "este formato de archivo no puede almacenar el fichero especial %(filename)s"
 
 msgid "%(filename)s already exists. Do you want to overwrite?"
 msgstr "%(filename)s ya existe. Quiere sobrescribirlo?"
@@ -147,11 +147,11 @@ msgstr "extrayendo archivos de"
 msgid "expected a list of files to add"
 msgstr "se espera la lista de ficheros a añadir"
 
-msgid "the archive format %(format)s can't encrypt contents"
-msgstr "el formato de archivo %(format)s no puede encriptar contenidos"
+msgid "this archive format can't encrypt contents"
+msgstr "este formato de archivo no puede encriptar contenidos"
 
-msgid "the archive format %(format)s can't store more than one file"
-msgstr "el formato de archivo %(format)s no puede almacenar más de un fichero"
+msgid "this archive format can't store more than one file"
+msgstr "este formato de archivo no puede almacenar más de un fichero"
 
 msgid "a progress bar is already running"
 msgstr "ya se ejecuta una barra de progreso"
