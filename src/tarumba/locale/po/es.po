@@ -68,8 +68,8 @@ msgstr "formato de archivo desconocido"
 msgid "%(prog)s: warning: %(message)s\n"
 msgstr "%(prog)s: aviso: %(message)s\n"
 
-msgid "archive type and extension don't match"
-msgstr "el tipo de archivo y la extensión no coinciden"
+msgid "detected archive type and extension don't match"
+msgstr "el tipo de archivo detectado y la extensión no coinciden"
 
 msgid "can't read %(filename)s"
 msgstr "no se puede leer %(filename)s"

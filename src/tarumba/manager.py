@@ -5,11 +5,9 @@
 
 from argparse import ArgumentError
 from gettext import gettext as _
-import mimetypes
 import os
 
-import magic
-
+from tarumba import classifier as t_classifier
 from tarumba import config as t_config
 from tarumba import data_classes as t_data_classes
 from tarumba import executor as t_executor
@@ -17,57 +15,7 @@ from tarumba import file_utils as t_file_utils
 from tarumba import utils as t_utils
 from tarumba.config import current as config
 from tarumba.backend import backend as t_backend
-from tarumba.backend import tar as t_tar
-from tarumba.backend import zip as t_zip
 from tarumba.gui import current as t_gui
-
-GZIP = 'application/gzip'
-TAR = 'application/x-tar'
-ZIP = 'application/zip'
-
-def _detect_format(archive):
-    """
-    Detect the archive format and returns a backend to handle it.
-
-    :param archive: Archive file name
-    :return: Backend
-    :raises TypeError: If the format is unknown
-    """
-
-    name_mime = mimetypes.guess_type(archive, strict=False)
-
-    if os.path.isfile(archive):
-        file_mime = magic.from_file(archive, mime=True) # pylint: disable=no-member
-
-        if name_mime[0] != TAR and name_mime[0] != file_mime:
-            message = _("archive type and extension don't match")
-            t_gui.warn(_('%(prog)s: warning: %(message)s\n') %
-                {'prog': 'tarumba', 'message': message})
-
-        if file_mime == GZIP:
-            if name_mime[0] == TAR:
-                pass #return targzip.TarGzip()
-            else:
-                pass #return gzip.Gzip()
-
-        if file_mime == TAR:
-            return t_tar.Tar()
-
-        if file_mime == ZIP:
-            return t_zip.Zip()
-
-    else:
-        if name_mime[0] == TAR and name_mime[1] == 'gzip':
-            pass #return targzip.TarGzip()
-
-        if name_mime[0] == TAR and name_mime[1] is None:
-            return t_tar.Tar()
-
-        if name_mime[0] == ZIP:
-            return t_zip.Zip()
-
-    message = _('unknown archive format')
-    raise TypeError(_('%(prog)s: error: %(message)s\n') % {'prog': 'tarumba', 'message': message})
 
 def _list_archive_2set(backend, archive):
     """
@@ -104,7 +52,7 @@ def list_archive(args):
     list_args.set('archive', args.archive)
     list_args.set('columns', t_config.parse_columns(args.columns))
     list_args.set('files', args.files)
-    list_args.set('backend', _detect_format(args.archive))
+    list_args.set('backend', t_classifier.detect_format(args.archive))
     list_args.set('occurrence', args.occurrence)
     list_args.set('output', [])
     t_gui.debug('list_args', list_args)
@@ -206,7 +154,7 @@ def add_archive(args):
     add_args.set('archive', args.archive)
     add_args.set('files', args.files)
     add_args.set('follow_links', config.get('main_b_follow_links'))
-    add_args.set('backend', _detect_format(args.archive))
+    add_args.set('backend', t_classifier.detect_format(args.archive))
     add_args.set('level', args.level)
     add_args.set('overwrite', _get_overwrite(args))
     add_args.set('owner', args.owner)
@@ -278,7 +226,7 @@ def extract_archive(args):
 
     t_file_utils.check_read_file(args.archive)
 
-    backend = _detect_format(args.archive)
+    backend = t_classifier.detect_format(args.archive)
     t_utils.check_installed(backend.EXTRACTORS)
 
     list_args = t_data_classes.ListArgs()
