@@ -9,8 +9,8 @@ import os
 
 import magic # pylint: disable=import-error
 
+from tarumba.backend import _7z as t_7z
 from tarumba.backend import tar as t_tar
-from tarumba.backend import zip as t_zip
 from tarumba.gui import current as t_gui
 
 _7Z = 'application/x-7z-compressed'
@@ -75,8 +75,8 @@ def detect_format(archive):
 
     if mime[0] == TAR:
         return t_tar.Tar(mime)
-    if mime[0] == ZIP:
-        return t_zip.Zip(mime)
+    return t_7z._7z(mime)
 
-    message = _('unknown archive format')
-    raise TypeError(_('%(prog)s: error: %(message)s\n') % {'prog': 'tarumba', 'message': message})
+    # TODO
+    #message = _('unknown archive format')
+    #raise TypeError(_('%(prog)s: error: %(message)s\n') % {'prog': 'tarumba', 'message': message})

@@ -6,7 +6,10 @@
 from abc import ABC, abstractmethod
 
 # Columns in archive contents
+CRC = 'CRC'
 DATE = 'DATE'
+ENC = 'ENCRYPTED'
+METHOD = 'METHOD'
 NAME = 'NAME'
 OWNER = 'OWNER'
 PACKED = 'PACKED'
@@ -15,7 +18,10 @@ SIZE = 'SIZE'
 
 # Set to check if a column exists
 COLUMNS_SET = {
+    CRC,
     DATE,
+    ENC,
+    METHOD,
     NAME,
     OWNER,
     PACKED,
@@ -24,7 +30,7 @@ COLUMNS_SET = {
 }
 
 class Backend(ABC):
-    "Abstract parent class for archive backends"
+    "Abstract parent class for archiver backends"
 
     # List of programs used to add
     COMPRESSORS = []

@@ -186,8 +186,17 @@ msgstr "%(file)s está encriptado, introduzca la contraseña"
 msgid "enter the password"
 msgstr "introduzca la contraseña"
 
+msgid "CRC"
+msgstr "CRC"
+
 msgid "DATE"
 msgstr "FECHA"
+
+msgid "ENCRYPTED"
+msgstr "ENCRIPTADO"
+
+msgid "METHOD"
+msgstr "MÉTODO"
 
 msgid "NAME"
 msgstr "NOMBRE"

@@ -103,7 +103,6 @@ class ExtractArgs(Base):
             'cwd': None,
             'files': None,
             'backend': None,
-            'last_file': None,
             'occurrence': None,
             'overwrite': None,
             'password': None,

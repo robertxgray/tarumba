@@ -62,8 +62,6 @@ class Executor:
                     buffer.append(sub_output)
                     parser(self, line, sub_output, extra)
                     line += 1
-            # Somer parsers need to clean up
-            parser(self, line, '', extra)
 
             self.subprocess.close()
             error = self.subprocess.status

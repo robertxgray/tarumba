@@ -1,7 +1,7 @@
 # Copyright: (c) 2023, Félix Medrano
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
-"Tarumba's zip backend support"
+"Tarumba's 7z backend support"
 
 from gettext import gettext as _
 
@@ -11,13 +11,13 @@ from tarumba.backend import backend as t_backend
 from tarumba.gui import current as t_gui
 import tarumba.utils as t_utils
 
-class Zip(t_backend.Backend):
-    "Zip archive backend"
+class _7z(t_backend.Backend):
+    "7z archiver backend"
 
     # List of programs used to add
-    COMPRESSORS = [config.get('zip_s_zip_bin')]
+    COMPRESSORS = [config.get('7z_s_7z_bin')]
     # List of programs used to list and extract
-    EXTRACTORS = [config.get('zip_s_unzip_bin')]
+    EXTRACTORS = [config.get('7z_s_7z_bin')]
 
     # The backend can store duplicates
     CAN_DUPLICATE = False
@@ -33,22 +33,20 @@ class Zip(t_backend.Backend):
     # Particular patterns when extracting files
     EXTRACT_PATTERNS = [' password: ', 'password incorrect--reenter: ']
 
-    def _expand_patterns(self, files):
-        """
-        Expand file name patterns trying to imitate the behaviour of tar.
+    # 7z uses this string to mark the start of the list of files
+    LIST_START = '----------'
 
-        :param files: List of files
-        :return: Expanded list of files
+
+    def __init__(self, mime):
+        """
+        Backend constructor.
+
+        :param mime: Archive mime type
         """
 
-        expanded_files = []
-        for file in files:
-            # Include directory contents
-            if file.endswith('/'):
-                expanded_files.append(file + '*')
-            else:
-                expanded_files.append(file)
-        return expanded_files
+        super().__init__(mime)
+        self._list_started = False
+        self._current_file = {}
 
     def list_commands(self, list_args):
         """
@@ -58,9 +56,8 @@ class Zip(t_backend.Backend):
         :return: List of commands
         """
 
-        expanded_files = self._expand_patterns(list_args.get('files'))
-        return [(config.get('zip_s_unzip_bin'), ['-Z', '-lT', '--h-t', '--',
-            list_args.get('archive')] + expanded_files)]
+        return [(config.get('7z_s_7z_bin'), ['l', '-slt', '--',
+            list_args.get('archive')] + list_args.get('files'))]
 
     def add_commands(self, add_args, files):
         """
@@ -88,9 +85,8 @@ class Zip(t_backend.Backend):
         :return: List of commands
         """
 
-        expanded_files = self._expand_patterns(extract_args.get('files'))
         return [(config.get('zip_s_unzip_bin'),
-            ['-o', '--', extract_args.get('archive')] + expanded_files)]
+            ['-o', '--', extract_args.get('archive')] + list_args.get('files'))]
 
     def parse_list(self, executor, line_number, line, extra):
         """
@@ -102,40 +98,44 @@ class Zip(t_backend.Backend):
         :param extra: Extra data
         """
 
-        if not line or line.startswith('caution: '): # Ignore warnings
-            return
-        elements = line.split(None, 7)
-        if len(elements) < 8:
-            return
-        output = extra.get('output')
+        if not self._list_started:
+            if line == self.LIST_START:
+                self._list_started = True
+        else:
+            output = extra.get('output')
 
-        # List output
-        if isinstance(output, list):
-            columns = t_utils.get_list_columns(
-                extra.get('columns'), config.get('zip_l_columns'), output)
-            row = []
-            for column in columns:
-                # We are ignoring the zip version and other metadata
-                # They may be added in the future by popular demand
-                if column == t_backend.PERMS:
-                    row.append(elements[0])
-                elif column == t_backend.SIZE:
-                    row.append(elements[3])
-                elif column == t_backend.PACKED:
-                    row.append(elements[5])
-                elif column == t_backend.DATE:
-                    yea = elements[7][0:4]
-                    mon = elements[7][4:6]
-                    day = elements[7][6:8]
-                    hou = elements[7][9:11]
-                    mit = elements[7][11:13]
-                    row.append(f'{yea}-{mon}-{day} {hou}:{mit}')
-                elif column == t_backend.NAME:
-                    row.append(elements[7][16:])
-            output.append(row)
-        # Set output
-        if isinstance(output, set):
-            output.add(elements[7][16:])
+            # List output
+            if isinstance(output, list):
+                if line == '': # End of file
+                    columns = t_utils.get_list_columns(
+                        extra.get('columns'), config.get('main_l_list_columns'), output)
+                    row = []
+                    for column in columns:
+                        row.append(self._current_file.get(column))
+                    output.append(row)
+                    self._current_file = {}
+
+                elif line.startswith('Path = '):
+                    self._current_file[t_backend.NAME] = line[7:]
+                elif line.startswith('Size = '):
+                    self._current_file[t_backend.SIZE] = line[7:]
+                elif line.startswith('Packed Size = '):
+                    self._current_file[t_backend.PACKED] = line[14:]
+                elif line.startswith('Modified = '):
+                    self._current_file[t_backend.DATE] = line[11:-3]
+                elif line.startswith('Attributes = '):
+                    self._current_file[t_backend.PERMS] = line[-10:]
+                elif line.startswith('Encrypted = '):
+                    self._current_file[t_backend.ENC] = line[12:]
+                elif line.startswith('CRC = '):
+                    self._current_file[t_backend.CRC] = line[6:]
+                elif line.startswith('Method = '):
+                    self._current_file[t_backend.METHOD] = line[9:]
+
+            # Set output
+            if isinstance(output, set):
+                if line.startswith('Path = '):
+                    output.add(line[7:])
 
     def parse_add(self, executor, line_number, line, extra):
         """

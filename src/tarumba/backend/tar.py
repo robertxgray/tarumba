@@ -12,7 +12,7 @@ from tarumba.gui import current as t_gui
 from tarumba import utils as t_utils
 
 class Tar(t_backend.Backend):
-    "Tar archive backend"
+    "Tar archiver backend"
 
     # List of programs used to add
     COMPRESSORS = [config.get('tar_s_tar_bin')]
@@ -85,8 +85,6 @@ class Tar(t_backend.Backend):
         :param extra: Extra data
         """
 
-        if not line:
-            return
         elements = line.split(None, 4)
         if len(elements) < 5:
             return
@@ -95,7 +93,7 @@ class Tar(t_backend.Backend):
         # List output
         if isinstance(output, list):
             columns = t_utils.get_list_columns(
-                extra.get('columns'), config.get('tar_l_columns'), output)
+                extra.get('columns'), config.get('main_l_list_columns'), output)
             row = []
             for column in columns:
                 if column == t_backend.PERMS:
