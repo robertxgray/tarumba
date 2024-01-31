@@ -29,6 +29,9 @@ class Config(t_data_classes.Base):
             'main_s_tmp_path': '/tmp',
             'main_b_verbose': False,
             'main_l_list_columns': [t_backend.PERMS, t_backend.SIZE, t_backend.DATE, t_backend.NAME],
+            # Backends
+            'backends_l_7z_bin': ['7z', '7zz', '7zzs', '7za'],
+            'backends_l_tar_bin': ['tar'],
             # Colors
             'colors_s_system': 'auto',
             'colors_s_debug': 'bright_black',
@@ -49,10 +52,6 @@ class Config(t_data_classes.Base):
             'colors_s_prompt_default': 'bold cyan',
             'colors_s_prompt_invalid': 'red',
             'colors_s_prompt_invalid_choice': 'red',
-            # 7z backend
-            '7z_s_7z_bin': '7z',
-            # Tar backend
-            'tar_s_tar_bin': 'tar'
         }
 
 def parse_columns(col_string):

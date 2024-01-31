@@ -23,8 +23,6 @@ TAR = 'application/x-tar'
 ZIP = 'application/zip'
 XZ = 'applicaiton/x-xz'
 
-ERROR = 'application/x-decompression-error-gzip-'
-
 # Enrich the mimetypes maps
 mimetypes.types_map['.7z'] = _7Z
 mimetypes.encodings_map['.br'] = BROTLI
@@ -46,20 +44,22 @@ def _sanitize_mime(mime):
     _type, _encoding = mime
     if _type == TAR:
         return mime
-    if (_type is None or _type == ERROR) and _encoding is not None:
-        return (mime[1], None)
-    return (mime[0], None)
+    if _encoding is not None:
+        return (_encoding, None)
+    return (_type, None)
 
-def detect_format(archive):
+def detect_format(archive, operation):
     """
     Detect the archive format and returns a backend to handle it.
 
     :param archive: Archive file name
+    :param operation: Backend operation
     :return: Backend
     :raises TypeError: If the format is unknown
     """
 
     name_mime = _sanitize_mime(mimetypes.guess_type(archive, strict=False))
+    t_gui.debug('name_mime', name_mime)
     mime = name_mime
 
     if os.path.isfile(archive):
@@ -67,6 +67,7 @@ def detect_format(archive):
         magic_mime_unc = magic.Magic(mime=True, uncompress=True)
         file_mime = _sanitize_mime((magic_mime_unc.from_file(archive),
                                     magic_mime.from_file(archive)))
+        t_gui.debug('file_mime', file_mime)
         if name_mime[0] != file_mime[0]:
             message = _("detected archive type and extension don't match")
             t_gui.warn(_('%(prog)s: warning: %(message)s\n') %
@@ -74,8 +75,8 @@ def detect_format(archive):
         mime = file_mime
 
     if mime[0] == TAR:
-        return t_tar.Tar(mime)
-    return t_7z._7z(mime)
+        return t_tar.Tar(mime, operation)
+    return t_7z._7z(mime, operation)
 
     # TODO
     #message = _('unknown archive format')

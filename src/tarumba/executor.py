@@ -20,6 +20,18 @@ class Executor:
 
     subprocess = None
 
+    def execute_simple(self, command):
+        """
+        Executes a command, waits for it to finish and resturns all the output.
+
+        :param command: Command
+        :return: List of lines in command output
+        """
+
+        output = t_utils.decode(pexpect.run(command))
+        t_gui.debug('output', output)
+        return output.split('\r\n')
+
     def execute(self, commands, patterns, parser, extra):
         """
         Executes a list of commands via pexpect.

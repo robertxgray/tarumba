@@ -5,6 +5,13 @@
 
 from abc import ABC, abstractmethod
 
+# Backend operations
+LIST = 'LIST'
+ADD = 'ADD'
+EXTRACT = 'EXTRACT'
+RENAME = 'RENAME'
+TEST = 'TEST'
+
 # Columns in archive contents
 CRC = 'CRC'
 DATE = 'DATE'
@@ -32,11 +39,6 @@ COLUMNS_SET = {
 class Backend(ABC):
     "Abstract parent class for archiver backends"
 
-    # List of programs used to add
-    COMPRESSORS = []
-    # List of programs used to list and extract
-    EXTRACTORS = []
-
     # The backend can store duplicates
     CAN_DUPLICATE = False
     # The backend can encrypt it's contents
@@ -53,13 +55,14 @@ class Backend(ABC):
     # Particular patterns when extracting files
     EXTRACT_PATTERNS = None
 
-    def __init__(self, mime):
+    def __init__(self, mime, operation):
         """
         Backend constructor.
 
         :param mime: Archive mime type
         """
         self.mime = mime
+        self.operation = operation
 
     @abstractmethod
     def list_commands(self, list_args):

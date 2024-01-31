@@ -161,15 +161,17 @@ def get_list_columns(input_cols, default_cols, output):
 
 def check_installed(executables):
     """
-    Checks if a list of executables is available in the system.
+    Checks if any of the program aliases is available. Returns the first coincidence.
 
-    :param executables: List of executable names or paths
-    :raises FileNotFoundError: An executable is not available
+    :param programs: List of executable names or paths
+    :return: First alias found
+    :raises FileNotFoundError: The program is not available
     """
 
     for executable in executables:
-        if not executable or not pexpect.which(executable):
-            raise FileNotFoundError(_("operation not available because the %(executable)s program "
-                "can't be found, please make sure it's installed and available in the $PATH or "
-                "enter the full path to the program in the configuration") %
-                {'executable': executable})
+        if pexpect.which(executable):
+            return executable
+    raise FileNotFoundError(_("operation not available because the %(executable)s program "
+        "can't be found, please make sure it's installed and available in the $PATH or "
+        "enter the full path to the program in the configuration") %
+        {'executable': executables[0]})

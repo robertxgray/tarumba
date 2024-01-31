@@ -14,11 +14,6 @@ from tarumba import utils as t_utils
 class Tar(t_backend.Backend):
     "Tar archiver backend"
 
-    # List of programs used to add
-    COMPRESSORS = [config.get('tar_s_tar_bin')]
-    # List of programs used to list and extract
-    EXTRACTORS = [config.get('tar_s_tar_bin')]
-
     # The backend can store duplicates
     CAN_DUPLICATE = True
     # The backend can encrypt it's contents
@@ -27,6 +22,17 @@ class Tar(t_backend.Backend):
     CAN_PACK = True
     # The backend can store special files
     CAN_SPECIAL = True
+
+    def __init__(self, mime, operation):
+        """
+        Backend constructor.
+
+        :param mime: Archive mime type
+        :param operation: Backend operation
+        """
+
+        super().__init__(mime, operation)
+        self._tar_bin = t_utils.check_installed(config.get('backends_l_tar_bin'))
 
     def list_commands(self, list_args):
         """
@@ -40,7 +46,7 @@ class Tar(t_backend.Backend):
         params.append('--numeric-owner')
         if list_args.get('occurrence'):
             params.append('--occurrence='+list_args.get('occurrence'))
-        return [(config.get('tar_s_tar_bin'),
+        return [(self._tar_bin,
             params + ['-tvf', list_args.get('archive'), '--'] + list_args.get('files'))]
 
     def add_commands(self, add_args, files):
@@ -58,8 +64,8 @@ class Tar(t_backend.Backend):
         if not add_args.get('owner'):
             params.append('--owner=0')
             params.append('--group=0')
-        return [(config.get('tar_s_tar_bin'),
-            params + ['-rvf', add_args.get('archive'), '--', files])]
+        return [(self._tar_bin,
+            params + ['-rvSf', add_args.get('archive'), '--', files])]
 
     def extract_commands(self, extract_args):
         """
@@ -72,7 +78,7 @@ class Tar(t_backend.Backend):
         params = []
         if extract_args.get('occurrence'):
             params.append('--occurrence='+extract_args.get('occurrence'))
-        return [(config.get('tar_s_tar_bin'),
+        return [(self._tar_bin,
             params + ['-xvf', extract_args.get('archive'), '--'] + extract_args.get('files'))]
 
     def parse_list(self, executor, line_number, line, extra):

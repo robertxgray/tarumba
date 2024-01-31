@@ -52,12 +52,10 @@ def list_archive(args):
     list_args.set('archive', args.archive)
     list_args.set('columns', t_config.parse_columns(args.columns))
     list_args.set('files', args.files)
-    list_args.set('backend', t_classifier.detect_format(args.archive))
+    list_args.set('backend', t_classifier.detect_format(args.archive, t_backend.LIST))
     list_args.set('occurrence', args.occurrence)
     list_args.set('output', [])
     t_gui.debug('list_args', list_args)
-
-    t_utils.check_installed(list_args.get('backend').EXTRACTORS)
 
     commands = list_args.get('backend').list_commands(list_args)
     t_executor.Executor().execute(commands, list_args.get('backend').LIST_PATTERNS,
@@ -154,15 +152,13 @@ def add_archive(args):
     add_args.set('archive', args.archive)
     add_args.set('files', args.files)
     add_args.set('follow_links', config.get('main_b_follow_links'))
-    add_args.set('backend', t_classifier.detect_format(args.archive))
+    add_args.set('backend', t_classifier.detect_format(args.archive, t_backend.ADD))
     add_args.set('level', args.level)
     add_args.set('overwrite', _get_overwrite(args))
     add_args.set('owner', args.owner)
     add_args.set('path', args.path.strip('/') if args.path else None)
     add_args.set('tmp_dirs', [])
     t_gui.debug('add_args', add_args)
-
-    t_utils.check_installed(add_args.get('backend').COMPRESSORS)
 
     # Encryption password
     password = None
@@ -222,8 +218,7 @@ def extract_archive(args):
 
     t_file_utils.check_read_file(args.archive)
 
-    backend = t_classifier.detect_format(args.archive)
-    t_utils.check_installed(backend.EXTRACTORS)
+    backend = t_classifier.detect_format(args.archive, t_backend.EXTRACT)
 
     list_args = t_data_classes.ListArgs()
     list_args.set('archive', args.archive)

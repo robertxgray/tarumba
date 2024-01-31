@@ -8,16 +8,12 @@ from gettext import gettext as _
 from tarumba.config import current as config
 import tarumba.file_utils as t_file_utils
 from tarumba.backend import backend as t_backend
+from tarumba import executor as t_executor 
 from tarumba.gui import current as t_gui
 import tarumba.utils as t_utils
 
 class _7z(t_backend.Backend):
     "7z archiver backend"
-
-    # List of programs used to add
-    COMPRESSORS = [config.get('7z_s_7z_bin')]
-    # List of programs used to list and extract
-    EXTRACTORS = [config.get('7z_s_7z_bin')]
 
     # The backend can store duplicates
     CAN_DUPLICATE = False
@@ -36,17 +32,30 @@ class _7z(t_backend.Backend):
     # 7z uses this string to mark the start of the list of files
     LIST_START = '----------'
 
-
-    def __init__(self, mime):
+    def __init__(self, mime, operation):
         """
         Backend constructor.
 
         :param mime: Archive mime type
+        :param operation: Backend operation
         """
 
-        super().__init__(mime)
+        super().__init__(mime, operation)
+        self._7z_bin = t_utils.check_installed(config.get('backends_l_7z_bin'))
+        _7z_info = t_executor.Executor().execute_simple(self._7z_bin)
+        self._p7zip = self._check_p7zip(_7z_info)
         self._list_started = False
         self._current_file = {}
+
+    def _check_p7zip(self, _7z_info):
+        """
+        Returns true if we are using a p7zip variant of the backend.
+
+        :param _7z_info: Program output wihtout parameters
+        :return: True if p7zip is detected
+        """
+
+        return _7z_info[2].startswith('p7zip')
 
     def list_commands(self, list_args):
         """
@@ -56,7 +65,7 @@ class _7z(t_backend.Backend):
         :return: List of commands
         """
 
-        return [(config.get('7z_s_7z_bin'), ['l', '-slt', '--',
+        return [(self._7z_bin, ['l', '-slt', '--',
             list_args.get('archive')] + list_args.get('files'))]
 
     def add_commands(self, add_args, files):
@@ -68,14 +77,17 @@ class _7z(t_backend.Backend):
         :return: List of commands
         """
 
-        params = '-r'
+        params = ['a', '-bb1', '-ba', '-bd']
         if add_args.get('password'):
-            params += 'e'
+            params.append('-p')
         if not add_args.get('follow_links'):
-            params += 'y'
+            if self._p7zip:
+                params.append('-l')
+            else:
+                params.append('-snh')
         if add_args.get('level'):
-            params += add_args.get('level')
-        return [(config.get('zip_s_zip_bin'), [params, add_args.get('archive'), '--', files])]
+            params.append("-mx={add_args.get('level')}")
+        return [(self._7z_bin, params + [add_args.get('archive'), '--', files])]
 
     def extract_commands(self, extract_args):
         """
@@ -149,15 +161,9 @@ class _7z(t_backend.Backend):
 
         if line in self.ADD_PATTERNS:
             executor.send_line(extra.get('password'))
-        elif line.startswith('  adding: ') or line.startswith('updating: '):
-            end = line.find(' (deflated ')
-            if end < 0:
-                end = line.find(' (stored ')
-            t_gui.adding_msg(line[10:end])
+        elif line.startswith('+ ') or line.startswith('U '):
+            t_gui.adding_msg(line[2:])
             t_gui.advance_progress()
-        elif len(line) > 0:
-            t_gui.warn(_('%(prog)s: warning: %(message)s\n') %
-                {'prog': 'tarumba', 'message': line})
 
     def parse_extract(self, executor, line_number, line, extra):
         """
