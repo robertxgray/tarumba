@@ -112,16 +112,19 @@ class Console(t_gui.Gui):
             text.append(file, style=config.get('colors_s_list_name'))
             self.out_c.print(text)
 
-    def prompt_password(self, message):
+    def prompt_password(self, message, filename=None, archive=None):
         """
         Prompts for a password.
 
         :param message: Message to print
+        :param file: Related file name
+        :param archive: Related archive
         :return: Password
         """
 
+        params = self._prompt_params(filename, archive)
         self._pause_progress()
-        password = r_prompt.Prompt.ask(message, console=self.out_c, password=True)
+        password = r_prompt.Prompt.ask(message%params, console=self.out_c, password=True)
         self._resume_progress()
         return password
 
@@ -185,14 +188,7 @@ class Console(t_gui.Gui):
         :return: 
         """
 
-        params = {}
-        if filename:
-            color = config.get('colors_s_list_name')
-            params['filename'] = '['+color+']'+r_markup.escape(filename)+'[/'+color+']'
-        if archive:
-            color = config.get('colors_s_list_header')
-            params['archive'] = '['+color+']'+r_markup.escape(archive)+'[/'+color+']'
-
+        params = self._prompt_params(filename, archive)
         self._pause_progress()
         choices = [_('yes'), _('no'), _('all'), _('none')]
         answer = r_prompt.Prompt.ask(
@@ -208,6 +204,24 @@ class Console(t_gui.Gui):
         return self.NONE
 
     # CONSOLE SPECIFIC FUNCTIONS
+
+    def _prompt_params(self, filename, archive):
+        """
+        Sets the coloured parameters used in prompts.
+
+        :param file: Related file name
+        :param archive: Related archive
+        :return: Parameters
+        """
+
+        params = {}
+        if filename:
+            color = config.get('colors_s_list_name')
+            params['filename'] = '['+color+']'+r_markup.escape(filename)+'[/'+color+']'
+        if archive:
+            color = config.get('colors_s_list_header')
+            params['archive'] = '['+color+']'+r_markup.escape(archive)+'[/'+color+']'
+        return params
 
     def _pause_progress(self):
         """

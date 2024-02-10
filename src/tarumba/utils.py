@@ -113,13 +113,11 @@ def new_password(archive):
     :return: Password
     """
 
-    base_name = os.path.basename(archive)
     password = None
     while password is None:
-        password1 = t_gui.prompt_password(_('Enter a password for %(archive)s') %
-            {'archive': base_name})
-        password2 = t_gui.prompt_password(_('Reenter the password') %
-            {'archive': base_name})
+        basename = os.path.basename(archive)
+        password1 = t_gui.prompt_password(_('Enter a password for %(archive)s'), archive=basename)
+        password2 = t_gui.prompt_password(_('Reenter the password'))
         if password1 == password2:
             password = password1
         else:
@@ -128,18 +126,26 @@ def new_password(archive):
                 {'prog': 'tarumba', 'message': message})
     return password
 
-def get_password(file):
+def get_password(archive=None, file=None):
     """
     Prompts for a existing password.
 
+    :param archive: Archive path
     :param file: File name
     :return: Password
     """
 
+    if archive:
+        basename = os.path.basename(archive)
+        message = _('%(archive)s is encrypted, enter the password')
+        return t_gui.prompt_password(message, archive=basename)
+
     if file:
-        message = _('%(file)s is encrypted, enter the password') % {'file': file}
-    else:
-        message = _('enter the password')
+        basename = os.path.basename(file)
+        message = _('%(file)s is encrypted, enter the password')
+        return t_gui.prompt_password(message, filename=basename)
+
+    message = _('enter the password')
     return t_gui.prompt_password(message)
 
 def get_list_columns(input_cols, default_cols, output):

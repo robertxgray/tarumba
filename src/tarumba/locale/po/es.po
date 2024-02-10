@@ -180,6 +180,9 @@ msgstr "las contraseñas no coinciden, por favor inténtelo de nuevo"
 msgid "wrong password, please try again"
 msgstr "contraseña incorrecta, por favor inténtelo de nuevo"
 
+msgid "%(archive)s is encrypted, enter the password"
+msgstr "%(archive)s está encriptado, introduzca la contraseña"
+
 msgid "%(file)s is encrypted, enter the password"
 msgstr "%(file)s está encriptado, introduzca la contraseña"
 

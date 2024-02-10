@@ -4,6 +4,7 @@
 "Tarumba's 7z backend support"
 
 from gettext import gettext as _
+import re
 
 from tarumba.config import current as config
 import tarumba.file_utils as t_file_utils
@@ -24,10 +25,12 @@ class _7z(t_backend.Backend):
     # The backend can store special files
     CAN_SPECIAL = False
 
+    # Particular patterns when listing files
+    LIST_PATTERNS = ['Enter password.*:']
     # Particular patterns when adding files
-    ADD_PATTERNS = ['Enter password: ', 'Verify password: ']
+    ADD_PATTERNS = ['Enter password.*:', 'Verify password.*:']
     # Particular patterns when extracting files
-    EXTRACT_PATTERNS = [' password: ', 'password incorrect--reenter: ']
+    EXTRACT_PATTERNS = ['Enter password.*:']
 
     # 7z uses this string to mark the start of the list of files
     LIST_START = '----------'
@@ -79,7 +82,7 @@ class _7z(t_backend.Backend):
 
         params = ['a', '-bb1', '-ba', '-bd']
         if add_args.get('password'):
-            params.append('-p')
+            params = params + ['-p', '-mhe']
         if not add_args.get('follow_links'):
             if self._p7zip:
                 params.append('-l')
@@ -87,7 +90,7 @@ class _7z(t_backend.Backend):
                 params.append('-snh')
         if add_args.get('level'):
             params.append("-mx={add_args.get('level')}")
-        return [(self._7z_bin, params + [add_args.get('archive'), '--', files])]
+        return [(self._7z_bin, params + ['--', add_args.get('archive'), files])]
 
     def extract_commands(self, extract_args):
         """
@@ -97,8 +100,8 @@ class _7z(t_backend.Backend):
         :return: List of commands
         """
 
-        return [(config.get('zip_s_unzip_bin'),
-            ['-o', '--', extract_args.get('archive')] + list_args.get('files'))]
+        return [(self._7z_bin, ['x', '-y', '-bb1', '-ba', '-bd', '--',
+            extract_args.get('archive')] + extract_args.get('files'))]
 
     def parse_list(self, executor, line_number, line, extra):
         """
@@ -109,6 +112,14 @@ class _7z(t_backend.Backend):
         :param line: Line contents
         :param extra: Extra data
         """
+
+        # Password prompt
+        for pattern in self.LIST_PATTERNS:
+            regex = re.compile(pattern)
+            if regex.fullmatch(line):
+                extra.set('password', t_utils.get_password(archive=extra.get('archive')))
+                executor.send_line(extra.get('password'))
+                return
 
         if not self._list_started:
             if line == self.LIST_START:
@@ -134,7 +145,7 @@ class _7z(t_backend.Backend):
                 elif line.startswith('Packed Size = '):
                     self._current_file[t_backend.PACKED] = line[14:]
                 elif line.startswith('Modified = '):
-                    self._current_file[t_backend.DATE] = line[11:-3]
+                    self._current_file[t_backend.DATE] = line[11:27]
                 elif line.startswith('Attributes = '):
                     self._current_file[t_backend.PERMS] = line[-10:]
                 elif line.startswith('Encrypted = '):
@@ -159,9 +170,14 @@ class _7z(t_backend.Backend):
         :param extra: Extra data
         """
 
-        if line in self.ADD_PATTERNS:
-            executor.send_line(extra.get('password'))
-        elif line.startswith('+ ') or line.startswith('U '):
+        # Password prompt
+        for pattern in self.ADD_PATTERNS:
+            regex = re.compile(pattern)
+            if regex.fullmatch(line):
+                executor.send_line(extra.get('password'))
+                return
+
+        if line.startswith('+ ') or line.startswith('U '):
             t_gui.adding_msg(line[2:])
             t_gui.advance_progress()
 
@@ -175,36 +191,18 @@ class _7z(t_backend.Backend):
         :param extra: Extra data
         """
 
-        if line_number == 1:
-            return
+        # Password prompt
+        for pattern in self.EXTRACT_PATTERNS:
+            regex = re.compile(pattern)
+            if regex.fullmatch(line):
+                if not extra.get('password'):
+                    extra.set('password', t_utils.get_password(archive=extra.get('archive')))
+                executor.send_line(extra.get('password'))
+                return
 
-        password = False
-        if line == 'password incorrect--reenter: ':
-            message = _('wrong password, please try again')
-            t_gui.warn(_('%(prog)s: warning: %(message)s\n') %
-                {'prog': 'tarumba', 'message': message})
-            extra.set('password', t_utils.get_password(None))
-            password = True
-        elif line.endswith(' password: '):
-            # <-- len+3 --->        <-- 11 --->
-            # [archive.zip] file.txt password:
-            filename = line[len(extra.get('archive'))+3:-11]
-            extra.set('password', t_utils.get_password(filename))
-            password = True
-        if password:
-            executor.send_line(extra.get('password'))
-            return
-
-        file = extra.get('last_file')
-        if file:
+        if line.startswith('- '):
+            file = extra.get('contents').pop(0)[0]
             moved = t_file_utils.move_extracted(file, extra)
             if moved:
                 t_gui.extracting_msg(file)
             t_gui.advance_progress()
-
-        if (line.startswith('   creating: ') or line.startswith('  inflating: ') or
-            line.startswith(' extracting: ') or line.startswith('    linking: ')):
-            extra.set('last_file', extra.get('contents').pop(0)[0])
-        elif len(line) > 0:
-            t_gui.warn(_('%(prog)s: warning: %(message)s\n') %
-                {'prog': 'tarumba', 'message': line})

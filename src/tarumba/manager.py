@@ -244,6 +244,7 @@ def extract_archive(args):
         t_executor.Executor().execute(list_commands, list_args.get('backend').LIST_PATTERNS,
             list_args.get('backend').parse_list, list_args)
         extract_args.set('contents', list_args.get('output')[1:]) # No header
+        extract_args.set('password', list_args.get('password'))
         total = len(extract_args.get('contents'))
         t_gui.debug('total', total)
         t_gui.update_progress_total(total)
