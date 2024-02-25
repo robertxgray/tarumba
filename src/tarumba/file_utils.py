@@ -294,3 +294,16 @@ def move_extracted(file, extract_args):
         _move_extracted_link(file, dest_path)
         return True
     return False
+
+def pop_and_move_extracted(extra):
+    """
+    When extracting files, pops and moves the next content.
+
+    :param extra: Extra data
+    """
+
+    file = extra.get('contents').pop(0)[0]
+    moved = move_extracted(file, extra)
+    if moved:
+        t_gui.extracting_msg(file)
+    t_gui.advance_progress()

@@ -3,17 +3,17 @@
 
 "Tarumba's 7z backend support"
 
-from gettext import gettext as _
 import re
 
 from tarumba.config import current as config
+import tarumba.constants as t_constants
 import tarumba.file_utils as t_file_utils
 from tarumba.backend import backend as t_backend
-from tarumba import executor as t_executor 
+from tarumba import executor as t_executor
 from tarumba.gui import current as t_gui
 import tarumba.utils as t_utils
 
-class _7z(t_backend.Backend):
+class X7z(t_backend.Backend):
     "7z archiver backend"
 
     # The backend can store duplicates
@@ -82,14 +82,16 @@ class _7z(t_backend.Backend):
 
         params = ['a', '-bb1', '-ba', '-bd']
         if add_args.get('password'):
-            params = params + ['-p', '-mhe']
+            params.append('-p')
+            if self.mime == t_constants.MIME_7Z:
+                params.append('-mhe')
         if not add_args.get('follow_links'):
             if self._p7zip:
                 params.append('-l')
             else:
                 params.append('-snh')
         if add_args.get('level'):
-            params.append("-mx={add_args.get('level')}")
+            params.append(f"-mx={add_args.get('level')}")
         return [(self._7z_bin, params + ['--', add_args.get('archive'), files])]
 
     def extract_commands(self, extract_args):
@@ -102,6 +104,30 @@ class _7z(t_backend.Backend):
 
         return [(self._7z_bin, ['x', '-y', '-bb1', '-ba', '-bd', '--',
             extract_args.get('archive')] + extract_args.get('files'))]
+
+    def _parse_list_line(self, line):
+        """
+        Parses one line of the listing.
+
+        :param line: Line
+        """
+
+        if line.startswith('Path = '):
+            self._current_file[t_constants.COLUMN_NAME] = line[7:]
+        elif line.startswith('Size = '):
+            self._current_file[t_constants.COLUMN_SIZE] = line[7:]
+        elif line.startswith('Packed Size = '):
+            self._current_file[t_constants.COLUMN_PACKED] = line[14:]
+        elif line.startswith('Modified = '):
+            self._current_file[t_constants.COLUMN_DATE] = line[11:27]
+        elif line.startswith('Attributes = '):
+            self._current_file[t_constants.COLUMN_PERMS] = line[-10:]
+        elif line.startswith('Encrypted = '):
+            self._current_file[t_constants.COLUMN_ENC] = line[12:]
+        elif line.startswith('CRC = '):
+            self._current_file[t_constants.COLUMN_CRC] = line[6:]
+        elif line.startswith('Method = '):
+            self._current_file[t_constants.COLUMN_METHOD] = line[9:]
 
     def parse_list(self, executor, line_number, line, extra):
         """
@@ -138,22 +164,8 @@ class _7z(t_backend.Backend):
                     output.append(row)
                     self._current_file = {}
 
-                elif line.startswith('Path = '):
-                    self._current_file[t_backend.NAME] = line[7:]
-                elif line.startswith('Size = '):
-                    self._current_file[t_backend.SIZE] = line[7:]
-                elif line.startswith('Packed Size = '):
-                    self._current_file[t_backend.PACKED] = line[14:]
-                elif line.startswith('Modified = '):
-                    self._current_file[t_backend.DATE] = line[11:27]
-                elif line.startswith('Attributes = '):
-                    self._current_file[t_backend.PERMS] = line[-10:]
-                elif line.startswith('Encrypted = '):
-                    self._current_file[t_backend.ENC] = line[12:]
-                elif line.startswith('CRC = '):
-                    self._current_file[t_backend.CRC] = line[6:]
-                elif line.startswith('Method = '):
-                    self._current_file[t_backend.METHOD] = line[9:]
+                else:
+                    self._parse_list_line(line)
 
             # Set output
             if isinstance(output, set):
@@ -201,8 +213,4 @@ class _7z(t_backend.Backend):
                 return
 
         if line.startswith('- '):
-            file = extra.get('contents').pop(0)[0]
-            moved = t_file_utils.move_extracted(file, extra)
-            if moved:
-                t_gui.extracting_msg(file)
-            t_gui.advance_progress()
+            t_file_utils.pop_and_move_extracted(extra)

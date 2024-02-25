@@ -5,37 +5,6 @@
 
 from abc import ABC, abstractmethod
 
-# Backend operations
-LIST = 'LIST'
-ADD = 'ADD'
-EXTRACT = 'EXTRACT'
-RENAME = 'RENAME'
-TEST = 'TEST'
-
-# Columns in archive contents
-CRC = 'CRC'
-DATE = 'DATE'
-ENC = 'ENCRYPTED'
-METHOD = 'METHOD'
-NAME = 'NAME'
-OWNER = 'OWNER'
-PACKED = 'PACKED'
-PERMS = 'PERMISSIONS'
-SIZE = 'SIZE'
-
-# Set to check if a column exists
-COLUMNS_SET = {
-    CRC,
-    DATE,
-    ENC,
-    METHOD,
-    NAME,
-    OWNER,
-    PACKED,
-    PERMS,
-    SIZE
-}
-
 class Backend(ABC):
     "Abstract parent class for archiver backends"
 

@@ -8,6 +8,7 @@ from gettext import gettext as _
 import os
 import sys
 
+import tarumba.constants as t_constants
 from tarumba.gui import current as t_gui
 
 # Ref: https://github.com/python/cpython/blob/main/Lib/argparse.py
@@ -42,6 +43,9 @@ def get_arguments():
         help=_('list of files to list, add or extract'))
     parser.add_argument('-a', '--always-overwrite', action='store_true',
         help=_('always overwrite existing files'))
+    parser.add_argument('-b', '--backend',
+        choices=[t_constants.BACKEND_7Z, t_constants.BACKEND_TAR],
+        help=_('force a specific backend'))
     parser.add_argument('-c', '--columns',
         help=_('comma separated columns to include in the listing'))
     parser.add_argument('-d', '--debug', action='store_true',

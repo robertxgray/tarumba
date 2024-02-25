@@ -8,7 +8,7 @@ from gettext import gettext as _
 import os
 
 import tarumba.data_classes as t_data_classes
-from tarumba.backend import backend as t_backend
+import tarumba.constants as t_constants
 
 BASE_PATH = os.path.abspath(os.path.dirname(__file__))
 CONFIG_PATH = os.path.expanduser('~/.local/share/tarumba')
@@ -28,7 +28,8 @@ class Config(t_data_classes.Base):
             'main_b_follow_links': False,
             'main_s_tmp_path': '/tmp',
             'main_b_verbose': False,
-            'main_l_list_columns': [t_backend.PERMS, t_backend.SIZE, t_backend.DATE, t_backend.NAME],
+            'main_l_list_columns': [t_constants.COLUMN_PERMS, t_constants.COLUMN_SIZE,
+                                    t_constants.COLUMN_DATE, t_constants.COLUMN_NAME],
             # Backends
             'backends_l_7z_bin': ['7z', '7zz', '7zzs', '7za'],
             'backends_l_tar_bin': ['tar'],
@@ -70,7 +71,7 @@ def parse_columns(col_string):
     columns = col_string.split(',')
     for column in columns:
         formatted = column.strip().upper()
-        if formatted in t_backend.COLUMNS_SET:
+        if formatted in t_constants.COLUMNS_SET:
             output.append(formatted)
         else:
             raise ValueError(_('invalid column name: %(column)s') % {'column': column.strip()})

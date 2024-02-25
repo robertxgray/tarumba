@@ -6,6 +6,7 @@
 from gettext import gettext as _
 
 from tarumba.config import current as config
+import tarumba.constants as t_constants
 import tarumba.file_utils as t_file_utils
 from tarumba.backend import backend as t_backend
 from tarumba.gui import current as t_gui
@@ -102,15 +103,15 @@ class Tar(t_backend.Backend):
                 extra.get('columns'), config.get('main_l_list_columns'), output)
             row = []
             for column in columns:
-                if column == t_backend.PERMS:
+                if column == t_constants.COLUMN_PERMS:
                     row.append(elements[0])
-                elif column == t_backend.OWNER:
+                elif column == t_constants.COLUMN_OWNER:
                     row.append(elements[1])
-                elif column == t_backend.SIZE:
+                elif column == t_constants.COLUMN_SIZE:
                     row.append(elements[2])
-                elif column == t_backend.DATE:
+                elif column == t_constants.COLUMN_DATE:
                     row.append(f'{elements[3]} {elements[4][:5]}')
-                elif column == t_backend.NAME:
+                elif column == t_constants.COLUMN_NAME:
                     row.append(elements[4][6:])
             output.append(row)
         # Set output
@@ -148,8 +149,4 @@ class Tar(t_backend.Backend):
             t_gui.warn(_('%(prog)s: warning: %(message)s\n') %
                 {'prog': 'tarumba', 'message': line})
         elif len(line) > 0:
-            file = extra.get('contents').pop(0)[0]
-            moved = t_file_utils.move_extracted(file, extra)
-            if moved:
-                t_gui.extracting_msg(file)
-            t_gui.advance_progress()
+            t_file_utils.pop_and_move_extracted(extra)

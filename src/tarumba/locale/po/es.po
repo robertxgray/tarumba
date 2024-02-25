@@ -29,6 +29,9 @@ msgstr "lista de ficheros a listar, añadir o extraer"
 msgid "always overwrite existing files"
 msgstr "sobreescribir siempre los archivos existentes"
 
+msgid "force a specific backend"
+msgstr "forzar un backend específico"
+
 msgid "comma separated columns to include in the listing"
 msgstr "columnas separadas por comas a incluir en el listado"
 

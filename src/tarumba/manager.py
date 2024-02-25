@@ -14,7 +14,7 @@ from tarumba import executor as t_executor
 from tarumba import file_utils as t_file_utils
 from tarumba import utils as t_utils
 from tarumba.config import current as config
-from tarumba.backend import backend as t_backend
+import tarumba.constants as t_constants
 from tarumba.gui import current as t_gui
 
 def _list_archive_2set(backend, archive):
@@ -52,7 +52,8 @@ def list_archive(args):
     list_args.set('archive', args.archive)
     list_args.set('columns', t_config.parse_columns(args.columns))
     list_args.set('files', args.files)
-    list_args.set('backend', t_classifier.detect_format(args.archive, t_backend.LIST))
+    list_args.set('backend', t_classifier.detect_format(args.backend, args.archive,
+        t_constants.OPERATION_LIST))
     list_args.set('occurrence', args.occurrence)
     list_args.set('output', [])
     t_gui.debug('list_args', list_args)
@@ -152,7 +153,8 @@ def add_archive(args):
     add_args.set('archive', args.archive)
     add_args.set('files', args.files)
     add_args.set('follow_links', config.get('main_b_follow_links'))
-    add_args.set('backend', t_classifier.detect_format(args.archive, t_backend.ADD))
+    add_args.set('backend', t_classifier.detect_format(args.backend, args.archive,
+        t_constants.OPERATION_ADD))
     add_args.set('level', args.level)
     add_args.set('overwrite', _get_overwrite(args))
     add_args.set('owner', args.owner)
@@ -218,11 +220,11 @@ def extract_archive(args):
 
     t_file_utils.check_read_file(args.archive)
 
-    backend = t_classifier.detect_format(args.archive, t_backend.EXTRACT)
+    backend = t_classifier.detect_format(args.backend, args.archive, t_constants.OPERATION_EXTRACT)
 
     list_args = t_data_classes.ListArgs()
     list_args.set('archive', args.archive)
-    list_args.set('columns', [t_backend.NAME])
+    list_args.set('columns', [t_constants.COLUMN_NAME])
     list_args.set('files', args.files)
     list_args.set('backend', backend)
     list_args.set('output', [])

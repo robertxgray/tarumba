@@ -9,29 +9,20 @@ import os
 
 import magic # pylint: disable=import-error
 
-from tarumba.backend import _7z as t_7z
+import tarumba.constants as t_constants
+from tarumba.backend import x7z as t_x7z
 from tarumba.backend import tar as t_tar
 from tarumba.gui import current as t_gui
 
-_7Z = 'application/x-7z-compressed'
-BROTLI = 'application/x-brotli'
-BZIP2 = 'application/x-bzip2'
-COMPRESS = 'application/x-compress'
-GZIP = 'application/gzip'
-LZMA = 'application/x-lzma'
-TAR = 'application/x-tar'
-ZIP = 'application/zip'
-XZ = 'applicaiton/x-xz'
-
 # Enrich the mimetypes maps
-mimetypes.types_map['.7z'] = _7Z
-mimetypes.encodings_map['.br'] = BROTLI
-mimetypes.encodings_map['.gz'] = GZIP
-mimetypes.encodings_map['.Z'] = COMPRESS
-mimetypes.encodings_map['.bz2'] = BZIP2
-mimetypes.encodings_map['.lz'] = LZMA
-mimetypes.encodings_map['.lzma'] = LZMA
-mimetypes.encodings_map['.xz'] = XZ
+mimetypes.types_map['.7z'] = t_constants.MIME_7Z
+mimetypes.encodings_map['.br'] = t_constants.MIME_BROTLI
+mimetypes.encodings_map['.gz'] = t_constants.MIME_GZIP
+mimetypes.encodings_map['.Z'] = t_constants.MIME_COMPRESS
+mimetypes.encodings_map['.bz2'] = t_constants.MIME_BZIP2
+mimetypes.encodings_map['.lz'] = t_constants.MIME_LZMA
+mimetypes.encodings_map['.lzma'] = t_constants.MIME_LZMA
+mimetypes.encodings_map['.xz'] = t_constants.MIME_XZ
 
 def _sanitize_mime(mime):
     """
@@ -42,16 +33,17 @@ def _sanitize_mime(mime):
     """
 
     _type, _encoding = mime
-    if _type == TAR:
+    if _type == t_constants.MIME_TAR:
         return mime
     if _encoding is not None:
         return (_encoding, None)
     return (_type, None)
 
-def detect_format(archive, operation):
+def detect_format(backend, archive, operation):
     """
     Detect the archive format and returns a backend to handle it.
 
+    :param backend: Selected backend
     :param archive: Archive file name
     :param operation: Backend operation
     :return: Backend
@@ -74,9 +66,15 @@ def detect_format(archive, operation):
                 {'prog': 'tarumba', 'message': message})
         mime = file_mime
 
-    if mime[0] == TAR:
+    if backend:
+        if backend == t_constants.BACKEND_7Z:
+            return t_x7z.X7z(mime, operation)
+        if backend == t_constants.BACKEND_TAR:
+            return t_tar.Tar(mime, operation)
+
+    if mime[0] == t_constants.MIME_TAR:
         return t_tar.Tar(mime, operation)
-    return t_7z._7z(mime, operation)
+    return t_x7z.X7z(mime, operation)
 
     # TODO
     #message = _('unknown archive format')
