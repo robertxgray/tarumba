@@ -15,15 +15,6 @@ from tarumba import utils as t_utils
 class Tar(t_backend.Backend):
     "Tar archiver backend"
 
-    # The backend can store duplicates
-    CAN_DUPLICATE = True
-    # The backend can encrypt it's contents
-    CAN_ENCRYPT = False
-    # The backend can store multiple files
-    CAN_PACK = True
-    # The backend can store special files
-    CAN_SPECIAL = True
-
     def __init__(self, mime, operation):
         """
         Backend constructor.

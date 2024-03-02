@@ -137,7 +137,7 @@ def _check_add_file(add_args, path):
 
     if not os.path.lexists(path):
         raise FileNotFoundError(_("%(filename)s doesn't exist") % {'filename': path})
-    if (not add_args.get('backend').CAN_SPECIAL and not os.path.isfile(path) and
+    if (not add_args.get('backend').can_special() and not os.path.isfile(path) and
         not os.path.isdir(path) and not os.path.islink(path)):
         raise IsADirectoryError(
             _("this archive format can't store the special file %(filename)s") % {'filename': path})

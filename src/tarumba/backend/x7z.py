@@ -16,15 +16,6 @@ import tarumba.utils as t_utils
 class X7z(t_backend.Backend):
     "7z archiver backend"
 
-    # The backend can store duplicates
-    CAN_DUPLICATE = False
-    # The backend can encrypt it's contents
-    CAN_ENCRYPT = True
-    # The backend can store multiple files
-    CAN_PACK = True
-    # The backend can store special files
-    CAN_SPECIAL = False
-
     # Particular patterns when listing files
     LIST_PATTERNS = ['Enter password.*:']
     # Particular patterns when adding files
