@@ -11,23 +11,24 @@ from tarumba.__main__ import main
 
 TEST_PATH = 'test_files'
 
-def test_add(archive, files, extra_args, force_new=False):
+def test_add(archive, files, extra_args):
     """
     Test add command.
 
     :param archive: Archive path
     :param archive: Files to add
     :param extra_args: Extra arguments
-    :param force_new: If true, existing archives will be removed
     """
 
-    archive_path = os.path.join(TEST_PATH, archive)
-    if force_new and os.path.isfile(archive_path):
-        os.remove(archive_path)
-    sys.argv = ['tarumba', 'a', '-v'] + extra_args
-    sys.argv.append(archive_path)
-    sys.argv += files
-    main()
+    cwd = os.getcwd()
+    os.chdir(TEST_PATH)
+    try:
+        sys.argv = ['tarumba', 'a', '-v'] + extra_args
+        sys.argv.append(archive)
+        sys.argv += files
+        main()
+    finally:
+        os.chdir(cwd)
 
 def test_list(archive, files, extra_args):
     """
@@ -54,11 +55,51 @@ def test_extract(archive, files, extra_args):
 
     cwd = os.getcwd()
     os.chdir(TEST_PATH)
-    sys.argv = ['tarumba', 'e', '-v'] + extra_args
-    sys.argv.append(archive)
-    sys.argv += files
-    main()
-    os.chdir(cwd)
+    try:
+        sys.argv = ['tarumba', 'e', '-v'] + extra_args
+        sys.argv.append(archive)
+        sys.argv += files
+        main()
+    finally:
+        os.chdir(cwd)
+
+def _get_text_path(path, dest=None):
+    """
+    Returns paths in the tests dir. The base name can be set with the dest parameter, otherwise
+    the original name will be preserved.
+
+    :param path: Original path
+    :param dest: Optional destination name
+    """
+
+    if dest:
+        return os.path.join(TEST_PATH, dest)
+    return os.path.join(TEST_PATH, path)
+
+def copy(path, dest=None):
+    """
+    Copies a file or folder to the tests dir.
+
+    :param path: Original path
+    :param dest: Optional destination name
+    """
+
+    test_path = _get_text_path(path, dest)
+    if os.path.isdir(path):
+        shutil.copytree(path, test_path, symlinks=True)
+    else:
+        shutil.copy2(path, test_path, follow_symlinks=False)
+
+def link(path, dest=None):
+    """
+    Creates a symbolic link in the tests dir.
+
+    :param path: Original path
+    :param dest: Optional destination name
+    """
+
+    test_path = _get_text_path(path, dest)
+    os.symlink(path, test_path)
 
 def cleanup(path):
     """
@@ -70,5 +111,37 @@ def cleanup(path):
     test_path = os.path.join(TEST_PATH, path)
     if os.path.isdir(test_path):
         shutil.rmtree(test_path, ignore_errors=True)
-    else:
+    elif os.path.lexists(test_path):
         os.remove(test_path)
+
+def assert_file_exists(path):
+    """
+    Asserts that a file exists in the tests dir.
+
+    :param file: File path
+    """
+
+    test_path = _get_text_path(path)
+    assert os.path.isfile(test_path)
+    assert not os.path.islink(test_path)
+
+def assert_dir_exists(path):
+    """
+    Asserts that a directory exists in the tests dir.
+
+    :param dir: Directory path
+    """
+
+    test_path = _get_text_path(path)
+    assert os.path.isdir(test_path)
+    assert not os.path.islink(test_path)
+
+def assert_link_exists(path):
+    """
+    Asserts that a link exists in the tests dir.
+
+    :param file: Link path
+    """
+
+    test_path = _get_text_path(path)
+    assert os.path.islink(test_path)
