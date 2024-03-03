@@ -31,8 +31,8 @@ class Config(t_data_classes.Base):
             'main_l_list_columns': [t_constants.COLUMN_PERMS, t_constants.COLUMN_SIZE,
                                     t_constants.COLUMN_DATE, t_constants.COLUMN_NAME],
             # Backends
-            'backends_l_7z_bin': ['7z', '7zz', '7zzs', '7za'],
-            'backends_l_tar_bin': ['tar'],
+            'backends_l_7z_bin': ['7zz', '7zzs', '7z', '7za'],
+            'backends_l_tar_bin': ['tar', 'bsdtar'],
             # Colors
             'colors_s_system': 'auto',
             'colors_s_debug': 'bright_black',

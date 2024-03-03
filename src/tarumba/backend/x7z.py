@@ -51,6 +51,15 @@ class X7z(t_backend.Backend):
 
         return _7z_info[2].startswith('p7zip')
 
+    def can_duplicate(self):
+        """
+        Returns true if the archive can store duplicates.
+
+        :return: True of False
+        """
+
+        return False # 7z can't manage duplicates, even in tarfiles
+
     def list_commands(self, list_args):
         """
         Commands to list the archive contents.
@@ -76,11 +85,12 @@ class X7z(t_backend.Backend):
             params.append('-p')
             if self.mime == t_constants.MIME_7Z:
                 params.append('-mhe')
-        if not add_args.get('follow_links'):
+        if add_args.get('follow_links'):
+            params.append('-snh')
             if self._p7zip:
                 params.append('-l')
-            else:
-                params.append('-snh')
+        else:
+            params.append('-snl')
         if add_args.get('level'):
             params.append(f"-mx={add_args.get('level')}")
         return [(self._7z_bin, params + ['--', add_args.get('archive'), files])]

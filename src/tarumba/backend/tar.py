@@ -103,7 +103,12 @@ class Tar(t_backend.Backend):
                 elif column == t_constants.COLUMN_DATE:
                     row.append(f'{elements[3]} {elements[4][:5]}')
                 elif column == t_constants.COLUMN_NAME:
-                    row.append(elements[4][6:])
+                    name = elements[4][6:]
+                    link_pos = name.find(' -> ')
+                    if link_pos >= 0:
+                        row.append(name[:link_pos])
+                    else:
+                        row.append(name)
             output.append(row)
         # Set output
         if isinstance(output, set):

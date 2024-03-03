@@ -178,10 +178,14 @@ def _check_add_file_copy(add_args, path, tmp_dir, copy):
 
         os.makedirs(os.path.dirname(dest_path), exist_ok=True)
         if add_args.get('follow_links'):
-            os.symlink(path, dest_path)
+            if os.path.islink(path):
+                link_path = os.path.join(os.path.dirname(os.path.abspath(path)), os.readlink(path))
+                os.symlink(link_path, dest_path)
+            else:
+                os.symlink(os.path.abspath(path), dest_path)
         elif tmp_dir[1]:
             try:
-                os.link(path, dest_path)
+                os.link(path, dest_path, follow_symlinks=False)
             except PermissionError:
                 shutil.copy2(path, dest_path, follow_symlinks=False)
         else:
@@ -247,7 +251,7 @@ def _move_extracted_link(file, dest_path):
         os.mkdir(dest_path)
         shutil.copystat(file, dest_path)
     else:
-        os.link(file, dest_path)
+        os.link(file, dest_path, follow_symlinks=False)
 
 def move_extracted(file, extract_args):
     """
