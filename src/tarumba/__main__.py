@@ -57,10 +57,12 @@ def main():
 
     # We get BrokenPipeError whenever the output is redirected, just ignore it
     except BrokenPipeError:
-        pass
+        t_gui.stop_progress()
     except KeyboardInterrupt:
+        t_gui.stop_progress()
         sys.exit(130)
     except Exception as ex: # pylint: disable=broad-except
+        t_gui.stop_progress()
         t_gui.error(_('%(prog)s: error: %(message)s\n') % {'prog': 'tarumba', 'message': str(ex)})
         t_gui.print_exception()
         sys.exit(1)

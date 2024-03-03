@@ -153,10 +153,10 @@ class Console(t_gui.Gui):
         Stops a progress bar.
         """
 
-        assert self.progress is not None, _('a progress bar is not running')
-        self.progress.remove_task(self.task)
-        self.task = None
-        self.progress = None
+        if self.progress is not None:
+            self.progress.remove_task(self.task)
+            self.task = None
+            self.progress = None
 
     def update_progress_total(self, total):
         """
