@@ -4,7 +4,7 @@
 "Tarumba's constants"
 
 # Supported backends
-BACKEND_7Z = '7z'
+BACKEND_7ZIP = '7zip'
 BACKEND_TAR = 'tar'
 
 # Columns in archive contents

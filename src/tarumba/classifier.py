@@ -67,7 +67,7 @@ def detect_format(backend, archive, operation):
         mime = file_mime
 
     if backend:
-        if backend == t_constants.BACKEND_7Z:
+        if backend == t_constants.BACKEND_7ZIP:
             return t_x7z.X7z(mime, operation)
         if backend == t_constants.BACKEND_TAR:
             return t_tar.Tar(mime, operation)

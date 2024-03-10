@@ -44,7 +44,7 @@ def get_arguments():
     parser.add_argument('-a', '--always-overwrite', action='store_true',
         help=_('always overwrite existing files'))
     parser.add_argument('-b', '--backend',
-        choices=[t_constants.BACKEND_7Z, t_constants.BACKEND_TAR],
+        choices=[t_constants.BACKEND_7ZIP, t_constants.BACKEND_TAR],
         help=_('force a specific backend'))
     parser.add_argument('-c', '--columns',
         help=_('comma separated columns to include in the listing'))

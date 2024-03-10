@@ -35,8 +35,8 @@ class X7z(t_backend.Backend):
         """
 
         super().__init__(mime, operation)
-        self._7z_bin = t_utils.check_installed(config.get('backends_l_7z_bin'))
-        _7z_info = t_executor.Executor().execute_simple(self._7z_bin)
+        self._7zip_bin = t_utils.check_installed(config.get('backends_l_7zip_bin'))
+        _7z_info = t_executor.Executor().execute_simple(self._7zip_bin)
         self._p7zip = self._check_p7zip(_7z_info)
         self._list_started = False
         self._current_file = {}
@@ -68,7 +68,7 @@ class X7z(t_backend.Backend):
         :return: List of commands
         """
 
-        return [(self._7z_bin, ['l', '-slt', '--',
+        return [(self._7zip_bin, ['l', '-slt', '--',
             list_args.get('archive')] + list_args.get('files'))]
 
     def add_commands(self, add_args, files):
@@ -93,7 +93,7 @@ class X7z(t_backend.Backend):
             params.append('-snl')
         if add_args.get('level'):
             params.append(f"-mx={add_args.get('level')}")
-        return [(self._7z_bin, params + ['--', add_args.get('archive'), files])]
+        return [(self._7zip_bin, params + ['--', add_args.get('archive'), files])]
 
     def extract_commands(self, extract_args):
         """
@@ -103,7 +103,7 @@ class X7z(t_backend.Backend):
         :return: List of commands
         """
 
-        return [(self._7z_bin, ['x', '-y', '-bb1', '-ba', '-bd', '--',
+        return [(self._7zip_bin, ['x', '-y', '-bb1', '-ba', '-bd', '--',
             extract_args.get('archive')] + extract_args.get('files'))]
 
     def _parse_list_line(self, line):
