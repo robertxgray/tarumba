@@ -11,6 +11,18 @@ from tarumba.__main__ import main
 
 TEST_PATH = 'test_files'
 
+class test_params:
+    "Test params class"
+
+    def __init__(self, backend, binary, archive):
+        """
+        Test params constructor.
+        """
+
+        self.backend = backend
+        self.binary = binary
+        self.archive = archive
+
 def test_add(archive, files, extra_args):
     """
     Test add command.
