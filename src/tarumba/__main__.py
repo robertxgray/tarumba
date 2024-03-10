@@ -20,16 +20,30 @@ def main():
     try:
         args = t_cmd_parser.get_arguments()
 
-        # Options
+        # Debug option
         if args.debug:
             config.set('main_b_debug', args.debug)
             t_gui.debug('args', args)
-        if args.follow_links:
-            config.set('main_b_follow_links', args.follow_links)
+        else:
+            config.set('main_b_debug', False)
+
+        # Verbose option
         if args.verbose:
             config.set('main_b_verbose', args.verbose)
+        else:
+            config.set('main_b_verbose', False)
+
+        # Follow links option
+        if args.follow_links:
+            config.set('main_b_follow_links', args.follow_links)
+        else:
+            config.set('main_b_follow_links', False)
+
+        # No color option
         if args.no_color:
             t_gui.disable_color()
+        else:
+            t_gui.enable_color()
 
         basename = os.path.basename(args.archive)
 

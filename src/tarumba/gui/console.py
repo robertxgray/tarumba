@@ -28,7 +28,7 @@ class Console(t_gui.Gui):
     CLEAR = "\x1b[2K"
 
     def __init__(self):
-        theme = r_theme.Theme({
+        self.theme = r_theme.Theme({
             'bar.back': config.get('colors_s_progress_back'),
             'bar.complete': config.get('colors_s_progress_complete'),
             'bar.finished': config.get('colors_s_progress_finished'),
@@ -40,12 +40,9 @@ class Console(t_gui.Gui):
             'prompt.invalid': config.get('colors_s_prompt_invalid'),
             'prompt.invalid.choice': config.get('colors_s_prompt_invalid_choice'),
         })
-        self.out_c = r_console.Console(
-            color_system=config.get('colors_s_system'), highlight=False, theme=theme)
-        self.err_c = r_console.Console(
-            color_system=config.get('colors_s_system'), highlight=False, theme=theme, stderr=True)
         self.progress = None
         self.task = None
+        self.enable_color()
 
     # COMMON FUNCTIONS
 
@@ -247,13 +244,29 @@ class Console(t_gui.Gui):
 
         print(self.UP + self.CLEAR + self.UP)
 
+    def _set_console_color_system(self, color_system):
+        """
+        Restart the console with a configurable color system.
+        """
+
+        self.out_c = r_console.Console(
+            color_system=color_system, highlight=False, theme=self.theme)
+        self.err_c = r_console.Console(
+            color_system=color_system, highlight=False, theme=self.theme, stderr=True)
+
+    def enable_color(self):
+        """
+        Enables the colored output.
+        """
+
+        self._set_console_color_system(config.get('colors_s_system'))
+
     def disable_color(self):
         """
         Disables the colored output.
         """
 
-        self.out_c = r_console.Console(color_system=None, highlight=False)
-        self.err_c = r_console.Console(color_system=None, highlight=False, stderr=True)
+        self._set_console_color_system(None)
 
     def print_exception(self):
         """
