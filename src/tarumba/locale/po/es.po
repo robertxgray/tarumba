@@ -156,6 +156,12 @@ msgstr "este formato de archivo no puede encriptar contenidos"
 msgid "this archive format can't store more than one file"
 msgstr "este formato de archivo no puede almacenar más de un fichero"
 
+msgid "this archive format can't store file paths"
+msgstr "este formato de archivo no puede almacenar rutas de fichero"
+
+msgid "this archive format can't store links"
+msgstr "este formato de archivo no puede almacenar enlaces"
+
 msgid "a progress bar is already running"
 msgstr "ya se ejecuta una barra de progreso"
 

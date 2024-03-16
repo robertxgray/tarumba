@@ -4,6 +4,7 @@
 "Tarumba's backend tests"
 
 import os
+from pathlib import Path
 import pytest
 
 from tests import utils as test_utils
@@ -16,6 +17,9 @@ test_params_list = [
     test_utils.test_params(t_constants.BACKEND_7ZIP, '7zz', 'test_7zz.7z'),
     test_utils.test_params(t_constants.BACKEND_7ZIP, '7zz', 'test_7zz.tar'),
     test_utils.test_params(t_constants.BACKEND_7ZIP, '7zz', 'test_7zz.zip'),
+    test_utils.test_params(t_constants.BACKEND_7ZIP, '7zz', 'test_7zz.gz'),
+    test_utils.test_params(t_constants.BACKEND_7ZIP, '7zz', 'test_7zz.bz2'),
+    test_utils.test_params(t_constants.BACKEND_7ZIP, '7zz', 'test_7zz.xz'),
     test_utils.test_params(t_constants.BACKEND_7ZIP, '7z', 'test_7z.7z'),
     test_utils.test_params(t_constants.BACKEND_7ZIP, '7z', 'test_7z.tar'),
     test_utils.test_params(t_constants.BACKEND_7ZIP, '7z', 'test_7z.zip'),
@@ -53,8 +57,14 @@ class TestBackend:
     def test_add_new(self, test_params):
         "Create an archive"
 
-        test_utils.test_add(test_params.archive, [self.DIR], ['-b',test_params.backend])
-        test_utils.assert_file_exists(test_params.archive)
+        backend = t_classifier.detect_format(
+            test_params.backend, test_params.archive, t_constants.OPERATION_ADD)
+        if backend.can_pack():
+            test_utils.test_add(test_params.archive, [self.DIR], ['-b',test_params.backend])
+            test_utils.assert_file_exists(test_params.archive)
+        else:
+            with pytest.raises(SystemExit):
+                test_utils.test_add(test_params.archive, [self.DIR], ['-b',test_params.backend])
 
     def test_add_new_encrypted(self, test_params, mocker):
         "Create an encrypted archive"
@@ -66,6 +76,10 @@ class TestBackend:
             test_utils.test_add(
                 'e_'+test_params.archive, [self.DIR], ['-b',test_params.backend,'-e'])
             test_utils.assert_file_exists(test_params.archive)
+        else:
+            with pytest.raises(SystemExit):
+                test_utils.test_add(
+                    'e_'+test_params.archive, [self.DIR], ['-b',test_params.backend,'-e'])
 
     def test_add_existing(self, test_params):
         "Add files to the archive"
@@ -85,6 +99,11 @@ class TestBackend:
     def test_add_level(self, test_params):
         "Add files to the archive with level"
 
+        backend = t_classifier.detect_format(
+            test_params.backend, test_params.archive, t_constants.OPERATION_ADD)
+        if not backend.can_pack():
+            test_utils.cleanup(test_params.archive)
+
         test_utils.test_add(
             test_params.archive, [self.FILE2], ['-b',test_params.backend,'-l','3'])
         test_utils.assert_file_exists(test_params.archive)
@@ -92,27 +111,54 @@ class TestBackend:
     def test_add_path(self, test_params):
         "Add files to the archive with path"
 
-        test_utils.test_add(
-            test_params.archive, [self.FILE1], ['-b',test_params.backend,'-p',self.PATH1])
-        test_utils.assert_file_exists(test_params.archive)
+        backend = t_classifier.detect_format(
+            test_params.backend, test_params.archive, t_constants.OPERATION_ADD)
+        if backend.can_pack():
+            test_utils.test_add(
+                test_params.archive, [self.FILE1], ['-b',test_params.backend,'-p',self.PATH1])
+            test_utils.assert_file_exists(test_params.archive)
+        else:
+            with pytest.raises(SystemExit):
+                test_utils.test_add(
+                    test_params.archive, [self.FILE1], ['-b',test_params.backend,'-p',self.PATH1])
 
     def test_add_path_follow(self, test_params):
         "Add files to the archive with path and follow links"
 
-        test_utils.test_add(
-            test_params.archive, [self.FILE1], ['-b',test_params.backend,'-p',self.PATH2,'-f'])
-        test_utils.assert_file_exists(test_params.archive)
+        backend = t_classifier.detect_format(
+            test_params.backend, test_params.archive, t_constants.OPERATION_ADD)
+        if backend.can_pack():
+            test_utils.test_add(
+                test_params.archive, [self.FILE1], ['-b',test_params.backend,'-p',self.PATH2,'-f'])
+            test_utils.assert_file_exists(test_params.archive)
+        else:
+            with pytest.raises(SystemExit):
+                test_utils.test_add(test_params.archive, [self.FILE1],
+                    ['-b',test_params.backend,'-p',self.PATH2,'-f'])
 
     def test_add_links(self, test_params):
         "Add links to the archive"
 
         # https://github.com/p7zip-project/p7zip/issues/39
-        if test_params.binary != '7z':
+        if test_params.binary == '7z':
+            return
+
+        backend = t_classifier.detect_format(
+            test_params.backend, test_params.archive, t_constants.OPERATION_ADD)
+        if backend.can_pack():
             test_utils.test_add(test_params.archive, [self.LINK1], ['-b',test_params.backend])
             test_utils.assert_file_exists(test_params.archive)
+        else:
+            with pytest.raises(SystemExit):
+                test_utils.test_add(test_params.archive, [self.LINK1], ['-b',test_params.backend])
 
     def test_add_links_follow(self, test_params):
         "Add links to the archive with follow links"
+
+        backend = t_classifier.detect_format(
+            test_params.backend, test_params.archive, t_constants.OPERATION_ADD)
+        if not backend.can_pack():
+            test_utils.cleanup(test_params.archive)
 
         test_utils.test_add(test_params.archive, [self.LINK2], ['-b',test_params.backend,'-f'])
         config.set('main_b_follow_links', False)
@@ -121,7 +167,13 @@ class TestBackend:
     def test_list_one(self, test_params):
         "List one content"
 
-        test_utils.test_list(test_params.archive, [self.FILE1], ['-b',test_params.backend])
+        backend = t_classifier.detect_format(
+            test_params.backend, test_params.archive, t_constants.OPERATION_LIST)
+        if backend.can_pack() or backend.mime[0] == t_constants.MIME_GZIP:
+            file_name = self.LINK2
+        else:
+            file_name = Path(test_params.archive).stem
+        test_utils.test_list(test_params.archive, [file_name], ['-b',test_params.backend])
 
     def test_list_all(self, test_params):
         "List all contents"
@@ -145,21 +197,34 @@ class TestBackend:
     def test_extract_one(self, test_params):
         "Extract one file from the archive"
 
-        test_utils.test_extract(test_params.archive, [self.FILE1], ['-b',test_params.backend,'-a'])
-        test_utils.assert_file_exists(self.FILE1)
+        backend = t_classifier.detect_format(
+            test_params.backend, test_params.archive, t_constants.OPERATION_LIST)
+        if backend.can_pack() or backend.mime[0] == t_constants.MIME_GZIP:
+            file_name = self.LINK2
+        else:
+            file_name = Path(test_params.archive).stem
+        test_utils.cleanup(file_name)
+        test_utils.test_extract(test_params.archive, [file_name], ['-b',test_params.backend,'-a'])
+        test_utils.assert_file_exists(file_name)
 
     def test_extract_prompt(self, test_params, mocker):
         "Extract one file from the archive with prompt"
 
+        backend = t_classifier.detect_format(
+            test_params.backend, test_params.archive, t_constants.OPERATION_LIST)
         mocker.patch('rich.prompt.Prompt.ask', return_value='n')
-        test_utils.test_extract(test_params.archive, [self.FILE1], ['-b',test_params.backend])
-        test_utils.assert_file_exists(self.FILE1)
+        if backend.can_pack() or backend.mime[0] == t_constants.MIME_GZIP:
+            file_name = self.LINK2
+        else:
+            file_name = Path(test_params.archive).stem
+        test_utils.test_extract(test_params.archive, [file_name], ['-b',test_params.backend])
+        test_utils.assert_file_exists(file_name)
 
     def test_extract_occurrence(self, test_params):
         "Extract one file from the archive with occurrence"
 
         backend = t_classifier.detect_format(
-            test_params.backend, test_params.archive, t_constants.OPERATION_ADD)
+            test_params.backend, test_params.archive, t_constants.OPERATION_EXTRACT)
         if backend.can_duplicate:
             test_utils.test_extract(
                 test_params.archive, [self.FILE1], ['-b',test_params.backend,'-a','-o','1'])
@@ -168,33 +233,51 @@ class TestBackend:
     def test_extract_all(self, test_params):
         "Extract all files from the archive"
 
+        backend = t_classifier.detect_format(
+            test_params.backend, test_params.archive, t_constants.OPERATION_EXTRACT)
+
         test_utils.cleanup(self.DIR)
         test_utils.cleanup(self.FILE1)
         test_utils.cleanup(self.FILE2)
         test_utils.cleanup(self.LINK1)
         test_utils.cleanup(self.LINK2)
         test_utils.test_extract(test_params.archive, [], ['-b',test_params.backend,'-a'])
-        test_utils.assert_dir_exists(self.DIR)
-        test_utils.assert_file_exists(self.FILE1)
-        test_utils.assert_file_exists(os.path.join(self.PATH1, self.FILE1))
-        test_utils.assert_file_exists(os.path.join(self.PATH2, self.FILE1))
-        # https://github.com/p7zip-project/p7zip/issues/39
-        if test_params.binary != '7z':
-            test_utils.assert_link_exists(self.LINK1)
-        test_utils.assert_file_exists(self.LINK2)
+        if backend.can_pack():
+            test_utils.assert_dir_exists(self.DIR)
+            test_utils.assert_file_exists(self.FILE1)
+            test_utils.assert_file_exists(os.path.join(self.PATH1, self.FILE1))
+            test_utils.assert_file_exists(os.path.join(self.PATH2, self.FILE1))
+            # https://github.com/p7zip-project/p7zip/issues/39
+            if test_params.binary != '7z':
+                test_utils.assert_link_exists(self.LINK1)
+            test_utils.assert_file_exists(self.LINK2)
+        elif backend.mime[0] == t_constants.MIME_GZIP:
+            test_utils.assert_file_exists(self.LINK2)
+        else:
+            base_name = Path(test_params.archive).stem
+            test_utils.assert_file_exists(base_name)
 
     def test_extract_none(self, test_params):
         "Extract all files from the archive without overwriting"
 
+        backend = t_classifier.detect_format(
+            test_params.backend, test_params.archive, t_constants.OPERATION_EXTRACT)
+
         test_utils.test_extract(test_params.archive, [], ['-b',test_params.backend,'-n'])
-        test_utils.assert_dir_exists(self.DIR)
-        test_utils.assert_file_exists(self.FILE1)
-        test_utils.assert_file_exists(os.path.join(self.PATH1, self.FILE1))
-        test_utils.assert_file_exists(os.path.join(self.PATH2, self.FILE1))
-        # https://github.com/p7zip-project/p7zip/issues/39
-        if test_params.binary != '7z':
-            test_utils.assert_link_exists(self.LINK1)
-        test_utils.assert_file_exists(self.LINK2)
+        if backend.can_pack():
+            test_utils.assert_dir_exists(self.DIR)
+            test_utils.assert_file_exists(self.FILE1)
+            test_utils.assert_file_exists(os.path.join(self.PATH1, self.FILE1))
+            test_utils.assert_file_exists(os.path.join(self.PATH2, self.FILE1))
+            # https://github.com/p7zip-project/p7zip/issues/39
+            if test_params.binary != '7z':
+                test_utils.assert_link_exists(self.LINK1)
+            test_utils.assert_file_exists(self.LINK2)
+        elif backend.mime[0] == t_constants.MIME_GZIP:
+            test_utils.assert_file_exists(self.LINK2)
+        else:
+            base_name = Path(test_params.archive).stem
+            test_utils.assert_file_exists(base_name)
 
     def test_extract_encrypted(self, test_params, mocker):
         "Lists an encrypted archive"

@@ -3,6 +3,7 @@
 
 "Tarumba's 7z backend support"
 
+from pathlib import Path
 import re
 
 from tarumba.config import current as config
@@ -159,6 +160,12 @@ class X7z(t_backend.Backend):
                 if line == '': # End of file
                     columns = t_utils.get_list_columns(
                         extra.get('columns'), config.get('main_l_list_columns'), output)
+
+                    # Some formats can't store the file name
+                    if t_constants.COLUMN_NAME not in self._current_file:
+                        self._current_file[t_constants.COLUMN_NAME] = Path(
+                            extra.get('archive')).stem
+
                     row = []
                     for column in columns:
                         row.append(self._current_file.get(column))

@@ -173,8 +173,14 @@ def add_archive(args):
 
     # Can we store multiple files?
     if not add_args.get('backend').can_pack():
-        if os.path.isfile(add_args.get('archive')) or len(add_args.get('files')) > 1:
+        if (os.path.isfile(add_args.get('archive')) or
+            len(add_args.get('files')) > 1 or
+            os.path.isdir(add_args.get('files')[0])):
             raise ArgumentError(None, _("this archive format can't store more than one file"))
+        if add_args.get('path'):
+            raise ArgumentError(None, _("this archive format can't store file paths"))
+        if not add_args.get('follow_links') and os.path.islink(add_args.get('files')[0]):
+            raise ArgumentError(None, _("this archive format can't store links"))
 
     # Do we need to warn before overwrite?
     if not add_args.get('backend').can_duplicate() and os.path.isfile(add_args.get('archive')):

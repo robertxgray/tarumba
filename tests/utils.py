@@ -38,7 +38,7 @@ def test_add(archive, files, extra_args):
         sys.argv = ['tarumba', 'a', '-v'] + extra_args
         sys.argv.append(archive)
         sys.argv += files
-        main()
+        return main()
     finally:
         os.chdir(cwd)
 
@@ -54,7 +54,7 @@ def test_list(archive, files, extra_args):
     sys.argv = ['tarumba', 'l'] + extra_args
     sys.argv.append(os.path.join(TEST_PATH, archive))
     sys.argv += files
-    main()
+    return main()
 
 def test_extract(archive, files, extra_args):
     """
@@ -71,7 +71,7 @@ def test_extract(archive, files, extra_args):
         sys.argv = ['tarumba', 'e', '-v'] + extra_args
         sys.argv.append(archive)
         sys.argv += files
-        main()
+        return main()
     finally:
         os.chdir(cwd)
 
