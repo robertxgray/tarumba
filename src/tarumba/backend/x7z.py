@@ -85,7 +85,7 @@ class X7z(t_backend.Backend):
         params = ['a', '-bb1', '-ba', '-bd']
         if add_args.get('password'):
             params.append('-p')
-            if self.mime == t_constants.MIME_7Z:
+            if self.mime[0] == t_constants.MIME_7Z:
                 params.append('-mhe')
         if add_args.get('follow_links'):
             params.append('-snh')
@@ -146,7 +146,7 @@ class X7z(t_backend.Backend):
         for pattern in self.LIST_PATTERNS:
             regex = re.compile(pattern)
             if regex.fullmatch(line):
-                extra.set('password', t_utils.get_password(archive=extra.get('archive')))
+                extra.put('password', t_utils.get_password(archive=extra.get('archive')))
                 executor.send_line(extra.get('password'))
                 return
 
@@ -217,7 +217,7 @@ class X7z(t_backend.Backend):
             regex = re.compile(pattern)
             if regex.fullmatch(line):
                 if not extra.get('password'):
-                    extra.set('password', t_utils.get_password(archive=extra.get('archive')))
+                    extra.put('password', t_utils.get_password(archive=extra.get('archive')))
                 executor.send_line(extra.get('password'))
                 return
 

@@ -22,22 +22,22 @@ def _main_options(args):
 
     # Debug option
     if args.debug:
-        config.set('main_b_debug', args.debug)
+        config.put('main_b_debug', args.debug)
         t_gui.debug('args', args)
     else:
-        config.set('main_b_debug', False)
+        config.put('main_b_debug', False)
 
     # Verbose option
     if args.verbose:
-        config.set('main_b_verbose', args.verbose)
+        config.put('main_b_verbose', args.verbose)
     else:
-        config.set('main_b_verbose', False)
+        config.put('main_b_verbose', False)
 
     # Follow links option
     if args.follow_links:
-        config.set('main_b_follow_links', args.follow_links)
+        config.put('main_b_follow_links', args.follow_links)
     else:
-        config.set('main_b_follow_links', False)
+        config.put('main_b_follow_links', False)
 
     # No color option
     if args.no_color:

@@ -14,16 +14,16 @@ from tarumba.config import current as config
 from tests import utils as test_utils
 
 test_params_list = [
-    test_utils.test_params(t_constants.BACKEND_7ZIP, '7zz', 'test_7zz.7z'),
-    test_utils.test_params(t_constants.BACKEND_7ZIP, '7zz', 'test_7zz.tar'),
-    test_utils.test_params(t_constants.BACKEND_7ZIP, '7zz', 'test_7zz.zip'),
-    test_utils.test_params(t_constants.BACKEND_7ZIP, '7zz', 'test_7zz.gz'),
-    test_utils.test_params(t_constants.BACKEND_7ZIP, '7zz', 'test_7zz.bz2'),
-    test_utils.test_params(t_constants.BACKEND_7ZIP, '7zz', 'test_7zz.xz'),
-    test_utils.test_params(t_constants.BACKEND_7ZIP, '7z', 'test_7z.7z'),
-    test_utils.test_params(t_constants.BACKEND_7ZIP, '7z', 'test_7z.tar'),
-    test_utils.test_params(t_constants.BACKEND_7ZIP, '7z', 'test_7z.zip'),
-    test_utils.test_params(t_constants.BACKEND_TAR, 'tar', 'test_tar.tar')
+    test_utils.TestParams(t_constants.BACKEND_7ZIP, '7zz', 'test_7zz.7z'),
+    test_utils.TestParams(t_constants.BACKEND_7ZIP, '7zz', 'test_7zz.tar'),
+    test_utils.TestParams(t_constants.BACKEND_7ZIP, '7zz', 'test_7zz.zip'),
+    test_utils.TestParams(t_constants.BACKEND_7ZIP, '7zz', 'test_7zz.gz'),
+    test_utils.TestParams(t_constants.BACKEND_7ZIP, '7zz', 'test_7zz.bz2'),
+    test_utils.TestParams(t_constants.BACKEND_7ZIP, '7zz', 'test_7zz.xz'),
+    test_utils.TestParams(t_constants.BACKEND_7ZIP, '7z', 'test_7z.7z'),
+    test_utils.TestParams(t_constants.BACKEND_7ZIP, '7z', 'test_7z.tar'),
+    test_utils.TestParams(t_constants.BACKEND_7ZIP, '7z', 'test_7z.zip'),
+    test_utils.TestParams(t_constants.BACKEND_TAR, 'tar', 'test_tar.tar')
 ]
 
 @pytest.fixture(scope="session", params=test_params_list)
@@ -45,8 +45,8 @@ class TestBackend:
     def test_configure(self, test_params):
         "Not a real test, just configuration"
 
-        config.set('backends_l_7zip_bin', [test_params.binary])
-        config.set('backends_l_tar_bin', [test_params.binary])
+        config.put('backends_l_7zip_bin', [test_params.binary])
+        config.put('backends_l_tar_bin', [test_params.binary])
         self.test_cleanup(test_params)
         test_utils.copy(self.DIR)
         test_utils.copy(self.FILE1)
@@ -161,7 +161,7 @@ class TestBackend:
             test_utils.cleanup(test_params.archive)
 
         test_utils.test_add(test_params.archive, [self.LINK2], ['-b',test_params.backend,'-f'])
-        config.set('main_b_follow_links', False)
+        config.put('main_b_follow_links', False)
         test_utils.assert_file_exists(test_params.archive)
 
     def test_list_one(self, test_params):

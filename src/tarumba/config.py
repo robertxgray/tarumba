@@ -112,7 +112,7 @@ def _init_2_config(config, parser):
                 value = parser.get(cfg_section, cfg_key).split()
             else:
                 value = parser.get(cfg_section, cfg_key)
-            current.set(dict_key, value)
+            current.put(dict_key, value)
 
 def _parse_config():
     """

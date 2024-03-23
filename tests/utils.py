@@ -11,7 +11,7 @@ from tarumba.__main__ import main
 
 TEST_PATH = 'test_files'
 
-class test_params:
+class TestParams:
     "Test params class"
 
     def __init__(self, backend, binary, archive):
@@ -35,10 +35,10 @@ def test_add(archive, files, extra_args):
     cwd = os.getcwd()
     os.chdir(TEST_PATH)
     try:
-        sys.argv = ['tarumba', 'a', '-v'] + extra_args
+        sys.argv = ['tarumba', 'a', '-v', *extra_args]
         sys.argv.append(archive)
         sys.argv += files
-        return main()
+        main()
     finally:
         os.chdir(cwd)
 
@@ -51,10 +51,10 @@ def test_list(archive, files, extra_args):
     :param extra_args: Extra arguments
     """
 
-    sys.argv = ['tarumba', 'l'] + extra_args
+    sys.argv = ['tarumba', 'l', *extra_args]
     sys.argv.append(os.path.join(TEST_PATH, archive))
     sys.argv += files
-    return main()
+    main()
 
 def test_extract(archive, files, extra_args):
     """
@@ -68,10 +68,10 @@ def test_extract(archive, files, extra_args):
     cwd = os.getcwd()
     os.chdir(TEST_PATH)
     try:
-        sys.argv = ['tarumba', 'e', '-v'] + extra_args
+        sys.argv = ['tarumba', 'e', '-v', *extra_args]
         sys.argv.append(archive)
         sys.argv += files
-        return main()
+        main()
     finally:
         os.chdir(cwd)
 

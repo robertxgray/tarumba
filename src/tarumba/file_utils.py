@@ -153,7 +153,7 @@ def _check_add_file(add_args, path):
             file_path = os.path.join(add_args.get('path'), file_path)
         if (file_path in add_args.get('contents') and
             add_args.get('overwrite') not in (t_gui.ALL, t_gui.NONE)):
-            add_args.set('overwrite', t_gui.prompt_ynan(
+            add_args.put('overwrite', t_gui.prompt_ynan(
                 _('%(filename)s already exists in %(archive)s. Do you want to overwrite?'),
                 file_path, os.path.basename(add_args.get('archive'))))
             copy = add_args.get('overwrite') in (t_gui.YES, t_gui.ALL)
@@ -288,7 +288,7 @@ def move_extracted(file, extract_args):
         return True
 
     if extract_args.get('overwrite') not in (t_gui.ALL, t_gui.NONE):
-        extract_args.set('overwrite', t_gui.prompt_ynan(
+        extract_args.put('overwrite', t_gui.prompt_ynan(
             _('%(filename)s already exists. Do you want to overwrite?'), dest_path))
     # Overwrite destination
     if extract_args.get('overwrite') in (t_gui.YES, t_gui.ALL):

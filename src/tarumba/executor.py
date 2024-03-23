@@ -14,6 +14,8 @@ from tarumba.gui import current as t_gui
 
 # Pseudo-command to change the working directory
 CHDIR = 'CHDIR'
+# Index of the first extra pattern
+EXTRA_PATTERNS_IDX = 3
 
 class Executor:
     "Class implementing the programs executor"
@@ -64,11 +66,11 @@ class Executor:
             buffer = deque(maxlen=5)
             line = 1
             while case > 0:
-                case = self.subprocess.expect([pexpect.EOF, '\r\n', '\n'] + patterns)
+                case = self.subprocess.expect([pexpect.EOF, '\r\n', '\n', *patterns])
                 t_gui.debug('case', case)
                 if case > 0 or len(self.subprocess.before):
                     sub_output = t_utils.decode(self.subprocess.before)
-                    if case >= 3:
+                    if case >= EXTRA_PATTERNS_IDX:
                         sub_output += t_utils.decode(self.subprocess.after)
                     t_gui.debug('sub_output', sub_output)
                     buffer.append(sub_output)
@@ -94,8 +96,10 @@ class Executor:
         Function used to send data to the subprocess.
 
         :param line: String data to send
+        :raises AssertionError: An archiver process is not running
         """
 
         t_gui.debug('send_line', line)
-        assert self.subprocess is not None, _('an archiver process is not running')
+        if self.subprocess is None:
+            raise AssertionError(_('an archiver process is not running'))
         self.subprocess.sendline(line)

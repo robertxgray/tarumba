@@ -22,20 +22,24 @@ class Base:
 
         :param key: Configuration key
         :return: Configuration value
+        :raises KeyError: The configuration key is invalid
         """
 
-        assert key in self.dictionary, _('invalid configuration key: %(key)s')
+        if key not in self.dictionary:
+            raise KeyError(_('invalid configuration key: %(key)s'))
         return self.dictionary.get(key)
 
-    def set(self, key, value):
+    def put(self, key, value):
         """
         Updates a configuration value.
 
         :param key: Configuration key
         :param value: Configuration value
+        :raises KeyError: The configuration key is invalid
         """
 
-        assert key in self.dictionary, _('invalid configuration key: %(key)s')
+        if key not in self.dictionary:
+            raise KeyError(_('invalid configuration key: %(key)s'))
         self.dictionary[key] = value
 
     def __str__(self):

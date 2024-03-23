@@ -4,8 +4,8 @@
 "Tarumba's utilities"
 
 import os
-import random
 import re
+import secrets
 import sys
 from gettext import gettext as _
 
@@ -102,8 +102,8 @@ def random_name():
                     'O','P','Q','R','S','T','U','V','W','X','Y','Z',
                     '1','2','3','4','5','6','7','8','9','0','_']
     name = ''
-    for _ in range(10):
-        name += random.choice(characters)
+    for __ in range(10):
+        name += secrets.choice(characters)
     return name
 
 def new_password(archive):

@@ -28,10 +28,10 @@ def _list_archive_2set(backend, archive):
     """
 
     list_args = t_data_classes.ListArgs()
-    list_args.set('archive', archive)
-    list_args.set('files', [])
-    list_args.set('backend', backend)
-    list_args.set('output', set())
+    list_args.put('archive', archive)
+    list_args.put('files', [])
+    list_args.put('backend', backend)
+    list_args.put('output', set())
     t_gui.debug('list_args', list_args)
 
     commands = backend.list_commands(list_args)
@@ -50,13 +50,13 @@ def list_archive(args):
     t_file_utils.check_read_file(args.archive)
 
     list_args = t_data_classes.ListArgs()
-    list_args.set('archive', args.archive)
-    list_args.set('columns', t_config.parse_columns(args.columns))
-    list_args.set('files', args.files)
-    list_args.set('backend', t_classifier.detect_format(args.backend, args.archive,
+    list_args.put('archive', args.archive)
+    list_args.put('columns', t_config.parse_columns(args.columns))
+    list_args.put('files', args.files)
+    list_args.put('backend', t_classifier.detect_format(args.backend, args.archive,
         t_constants.OPERATION_LIST))
-    list_args.set('occurrence', args.occurrence)
-    list_args.set('output', [])
+    list_args.put('occurrence', args.occurrence)
+    list_args.put('output', [])
     t_gui.debug('list_args', list_args)
 
     commands = list_args.get('backend').list_commands(list_args)
@@ -187,23 +187,23 @@ def add_archive(args):
 
     backend = t_classifier.detect_format(args.backend, args.archive, t_constants.OPERATION_ADD)
     add_args = t_data_classes.AddArgs()
-    add_args.set('archive', args.archive)
-    add_args.set('files', args.files)
-    add_args.set('follow_links', config.get('main_b_follow_links'))
-    add_args.set('backend', backend)
-    add_args.set('level', args.level)
-    add_args.set('overwrite', _get_overwrite(args))
-    add_args.set('owner', args.owner)
-    add_args.set('password', _add_archive_get_password(backend, args.archive, args.encrypt))
-    add_args.set('path', args.path.strip('/') if args.path else None)
-    add_args.set('tmp_dirs', [])
+    add_args.put('archive', args.archive)
+    add_args.put('files', args.files)
+    add_args.put('follow_links', config.get('main_b_follow_links'))
+    add_args.put('backend', backend)
+    add_args.put('level', args.level)
+    add_args.put('overwrite', _get_overwrite(args))
+    add_args.put('owner', args.owner)
+    add_args.put('password', _add_archive_get_password(backend, args.archive, args.encrypt))
+    add_args.put('path', args.path.strip('/') if args.path else None)
+    add_args.put('tmp_dirs', [])
     t_gui.debug('add_args', add_args)
 
     _add_archive_check_multiple(add_args)
 
     # Do we need to warn before overwrite?
     if not add_args.get('backend').can_duplicate() and os.path.isfile(add_args.get('archive')):
-        add_args.set('contents',
+        add_args.put('contents',
             _list_archive_2set(add_args.get('backend'), add_args.get('archive')))
 
     try:
@@ -248,21 +248,21 @@ def extract_archive(args):
     backend = t_classifier.detect_format(args.backend, args.archive, t_constants.OPERATION_EXTRACT)
 
     list_args = t_data_classes.ListArgs()
-    list_args.set('archive', args.archive)
-    list_args.set('columns', [t_constants.COLUMN_NAME])
-    list_args.set('files', args.files)
-    list_args.set('backend', backend)
-    list_args.set('output', [])
+    list_args.put('archive', args.archive)
+    list_args.put('columns', [t_constants.COLUMN_NAME])
+    list_args.put('files', args.files)
+    list_args.put('backend', backend)
+    list_args.put('output', [])
     t_gui.debug('list_args', list_args)
 
     extract_args = t_data_classes.ExtractArgs()
-    extract_args.set('archive', args.archive)
-    extract_args.set('cwd', os.getcwd())
-    extract_args.set('files', args.files)
-    extract_args.set('backend', backend)
-    extract_args.set('occurrence', args.occurrence)
-    extract_args.set('overwrite', _get_overwrite(args))
-    extract_args.set('path', args.path.strip('/') if args.path else None)
+    extract_args.put('archive', args.archive)
+    extract_args.put('cwd', os.getcwd())
+    extract_args.put('files', args.files)
+    extract_args.put('backend', backend)
+    extract_args.put('occurrence', args.occurrence)
+    extract_args.put('overwrite', _get_overwrite(args))
+    extract_args.put('path', args.path.strip('/') if args.path else None)
     t_gui.debug('extract_args', extract_args)
 
     try:
@@ -270,13 +270,13 @@ def extract_archive(args):
         list_commands = extract_args.get('backend').list_commands(list_args)
         t_executor.Executor().execute(list_commands, list_args.get('backend').LIST_PATTERNS,
             list_args.get('backend').parse_list, list_args)
-        extract_args.set('contents', list_args.get('output')[1:]) # No header
-        extract_args.set('password', list_args.get('password'))
+        extract_args.put('contents', list_args.get('output')[1:]) # No header
+        extract_args.put('password', list_args.get('password'))
         total = len(extract_args.get('contents'))
         t_gui.debug('total', total)
         t_gui.update_progress_total(total)
         # Use a temporary folder
-        extract_args.set('tmp_dir', t_file_utils.tmp_folder(os.getcwd()))
+        extract_args.put('tmp_dir', t_file_utils.tmp_folder(os.getcwd()))
         t_gui.debug('mkdir', extract_args.get('tmp_dir'))
         # Process the files to extract
         extract_commands = _extract_archive_commands(extract_args)

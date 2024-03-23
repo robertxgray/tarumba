@@ -16,9 +16,9 @@ class TestMain:
     def test_noargs(self):
         "Run the program without arguments"
 
-        with pytest.raises(SystemExit):
-            exit_code = main()
-            assert exit_code == 2
+        with pytest.raises(SystemExit) as e:
+            main()
+        assert e.value.code == 1
 
     def test_help(self):
         "Print the help"
@@ -27,9 +27,9 @@ class TestMain:
             'tarumba',
             '-h'
         ]
-        with pytest.raises(SystemExit):
-            exit_code = main()
-            assert exit_code == 0
+        with pytest.raises(SystemExit) as e:
+            main()
+        assert e.value.code == 0
 
     def test_help_nocolor(self):
         "Print the help without color"
@@ -39,9 +39,9 @@ class TestMain:
             '-h',
             '-m'
         ]
-        with pytest.raises(SystemExit):
-            exit_code = main()
-            assert exit_code == 0
+        with pytest.raises(SystemExit) as e:
+            main()
+        assert e.value.code == 0
 
     def test_help_debug(self):
         "Print the help with debugging"
@@ -51,6 +51,6 @@ class TestMain:
             '-h',
             '-d'
         ]
-        with pytest.raises(SystemExit):
-            exit_code = main()
-            assert exit_code == 0
+        with pytest.raises(SystemExit) as e:
+            main()
+        assert e.value.code == 0

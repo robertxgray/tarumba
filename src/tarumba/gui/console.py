@@ -134,9 +134,11 @@ class Console(t_gui.Gui):
         :param message: Message to include in the task
         :param file: File name
         :return: Progress bar
+        :raises AssertionError: A progress bar is already running
         """
 
-        assert self.progress is None, _('a progress bar is already running')
+        if self.progress is not None:
+            raise AssertionError(_('a progress bar is already running'))
         self.progress = r_progress.Progress(
             r_progress.TextColumn("[progress.description]{task.description}"),
             r_progress.BarColumn(),
@@ -162,9 +164,11 @@ class Console(t_gui.Gui):
         Update the progress bar total.
 
         :param total: Number of files
+        :raises AssertionError: A progress bar is not running
         """
 
-        assert self.progress is not None, _('a progress bar is not running')
+        if self.progress is None:
+            raise AssertionError(_('a progress bar is not running'))
         self.progress.update(self.task, total=total)
 
     def advance_progress(self):
@@ -172,9 +176,11 @@ class Console(t_gui.Gui):
         Advance the progress bar.
 
         :param file: File being processed
+        :raises AssertionError: A progress bar is not running
         """
 
-        assert self.progress is not None, _('a progress bar is not running')
+        if self.progress is None:
+            raise AssertionError(_('a progress bar is not running'))
         self.progress.advance(self.task)
 
     def prompt_ynan(self, message, filename=None, archive=None):
@@ -244,7 +250,7 @@ class Console(t_gui.Gui):
         Clears the last line.
         """
 
-        print(self.UP + self.CLEAR + self.UP)
+        self.err_c.out(self.UP + self.CLEAR + self.UP)
 
     def _set_console_color_system(self, color_system):
         """
