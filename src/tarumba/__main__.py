@@ -84,6 +84,7 @@ def main():
     except KeyboardInterrupt:
         t_gui.stop_progress()
         sys.exit(130)
+    # ruff: noqa: BLE001
     except Exception as ex: # pylint: disable=broad-except
         t_gui.stop_progress()
         t_gui.error(_('%(prog)s: error: %(message)s\n') % {'prog': 'tarumba', 'message': str(ex)})

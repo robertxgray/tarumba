@@ -5,6 +5,8 @@
 
 from gettext import gettext as _
 
+from typing_extensions import override  # pylint: disable=import-error
+
 import tarumba.constants as t_constants
 import tarumba.file_utils as t_file_utils
 from tarumba import utils as t_utils
@@ -12,10 +14,12 @@ from tarumba.backend import backend as t_backend
 from tarumba.config import current as config
 from tarumba.gui import current as t_gui
 
+LIST_ELEMENTS = 5
 
 class Tar(t_backend.Backend):
     "Tar archiver backend"
 
+    @override
     def __init__(self, mime, operation):
         """
         Backend constructor.
@@ -27,6 +31,7 @@ class Tar(t_backend.Backend):
         super().__init__(mime, operation)
         self._tar_bin = t_utils.check_installed(config.get('backends_l_tar_bin'))
 
+    @override
     def list_commands(self, list_args):
         """
         Commands to list the archive contents.
@@ -42,6 +47,7 @@ class Tar(t_backend.Backend):
         return [(self._tar_bin,
             [*params, '-tvf', list_args.get('archive'), '--', *list_args.get('files')])]
 
+    @override
     def add_commands(self, add_args, files):
         """
         Commands to add files to an archive.
@@ -60,6 +66,7 @@ class Tar(t_backend.Backend):
         return [(self._tar_bin,
             [*params, '-rvSf', add_args.get('archive'), '--', files])]
 
+    @override
     def extract_commands(self, extract_args):
         """
         Commands to extract files from an archive.
@@ -74,6 +81,7 @@ class Tar(t_backend.Backend):
         return [(self._tar_bin,
             [*params, '-xvf', extract_args.get('archive'), '--', *extract_args.get('files')])]
 
+    @override
     def parse_list(self, executor, line_number, line, extra):
         """
         Parse the output when listing files.
@@ -85,7 +93,7 @@ class Tar(t_backend.Backend):
         """
 
         elements = line.split(None, 4)
-        if len(elements) < 5:
+        if len(elements) < LIST_ELEMENTS:
             return
         output = extra.get('output')
 
@@ -112,9 +120,10 @@ class Tar(t_backend.Backend):
                         row.append(name)
             output.append(row)
         # Set output
-        if isinstance(output, set):
+        elif isinstance(output, set):
             output.add(elements[4][6:])
 
+    @override
     def parse_add(self, executor, line_number, line, extra):
         """
         Parse the output when adding files.
@@ -132,6 +141,7 @@ class Tar(t_backend.Backend):
             t_gui.adding_msg(line)
             t_gui.advance_progress()
 
+    @override
     def parse_extract(self, executor, line_number, line, extra):
         """
         Parse the output when extracting files.
@@ -145,6 +155,5 @@ class Tar(t_backend.Backend):
         if line.startswith('tar: '):
             t_gui.warn(_('%(prog)s: warning: %(message)s\n') %
                 {'prog': 'tarumba', 'message': line})
-        else:
-            if len(line) > 0:
-                t_file_utils.pop_and_move_extracted(extra)
+        elif len(line) > 0:
+            t_file_utils.pop_and_move_extracted(extra)

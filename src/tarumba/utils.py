@@ -5,7 +5,6 @@
 
 import os
 import re
-import secrets
 import sys
 from gettext import gettext as _
 
@@ -88,23 +87,6 @@ def safe_filelist(files):
         if safe_file not in safe_list:
             safe_list.append(safe_file)
     return safe_list
-
-def random_name():
-    """
-    Returns a random-generated string.
-
-    :return: Random name
-    """
-
-    characters = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n',
-                    'o','p','q','r','s','t','u','v','w','x','y','z',
-                    'A','B','C','D','E','F','G','H','I','J','K','L','M','N',
-                    'O','P','Q','R','S','T','U','V','W','X','Y','Z',
-                    '1','2','3','4','5','6','7','8','9','0','_']
-    name = ''
-    for __ in range(10):
-        name += secrets.choice(characters)
-    return name
 
 def new_password(archive):
     """

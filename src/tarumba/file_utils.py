@@ -5,9 +5,9 @@
 
 import os
 import shutil
+import tempfile
 from gettext import gettext as _
 
-from tarumba import utils as t_utils
 from tarumba.config import current as config
 from tarumba.gui import current as t_gui
 
@@ -94,11 +94,7 @@ def tmp_folder(path):
     :return: Temporary folder path
     """
 
-    while True:
-        name = os.path.join(path, '.tar' + t_utils.random_name())
-        if not os.path.lexists(name):
-            os.mkdir(name)
-            return name
+    return tempfile.mkdtemp(prefix='.tar', dir=path)
 
 def tmp_folder_same_fs(path):
     """

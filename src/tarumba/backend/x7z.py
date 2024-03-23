@@ -6,6 +6,8 @@
 import re
 from pathlib import Path
 
+from typing_extensions import override  # pylint: disable=import-error
+
 import tarumba.constants as t_constants
 import tarumba.file_utils as t_file_utils
 import tarumba.utils as t_utils
@@ -19,15 +21,16 @@ class X7z(t_backend.Backend):
     "7z archiver backend"
 
     # Particular patterns when listing files
-    LIST_PATTERNS = ['Enter password.*:']
+    LIST_PATTERNS = frozenset(['Enter password.*:'])
     # Particular patterns when adding files
-    ADD_PATTERNS = ['Enter password.*:', 'Verify password.*:']
+    ADD_PATTERNS = frozenset(['Enter password.*:', 'Verify password.*:'])
     # Particular patterns when extracting files
-    EXTRACT_PATTERNS = ['Enter password.*:']
+    EXTRACT_PATTERNS = frozenset(['Enter password.*:'])
 
     # 7z uses this string to mark the start of the list of files
     LIST_START = '----------'
 
+    @override
     def __init__(self, mime, operation):
         """
         Backend constructor.
@@ -53,6 +56,7 @@ class X7z(t_backend.Backend):
 
         return _7z_info[2].startswith('p7zip')
 
+    @override
     def can_duplicate(self):
         """
         Returns true if the archive can store duplicates.
@@ -62,6 +66,7 @@ class X7z(t_backend.Backend):
 
         return False # 7z can't manage duplicates, even in tarfiles
 
+    @override
     def list_commands(self, list_args):
         """
         Commands to list the archive contents.
@@ -73,6 +78,7 @@ class X7z(t_backend.Backend):
         return [(self._7zip_bin, ['l', '-slt', '--',
             list_args.get('archive'), *list_args.get('files')])]
 
+    @override
     def add_commands(self, add_args, files):
         """
         Commands to add files to an archive.
@@ -97,6 +103,7 @@ class X7z(t_backend.Backend):
             params.append(f"-mx={add_args.get('level')}")
         return [(self._7zip_bin, [*params, '--', add_args.get('archive'), files])]
 
+    @override
     def extract_commands(self, extract_args):
         """
         Commands to extract files from an archive.
@@ -132,6 +139,7 @@ class X7z(t_backend.Backend):
         elif line.startswith('Method = '):
             self._current_file[t_constants.COLUMN_METHOD] = line[9:]
 
+    @override
     def parse_list(self, executor, line_number, line, extra):
         """
         Parse the output when listing files.
@@ -167,9 +175,7 @@ class X7z(t_backend.Backend):
                         self._current_file[t_constants.COLUMN_NAME] = Path(
                             extra.get('archive')).stem
 
-                    row = []
-                    for column in columns:
-                        row.append(self._current_file.get(column))
+                    row = [self._current_file.get(column) for column in columns]
                     output.append(row)
                     self._current_file = {}
 
@@ -177,10 +183,10 @@ class X7z(t_backend.Backend):
                     self._parse_list_line(line)
 
             # Set output
-            if isinstance(output, set):
-                if line.startswith('Path = '):
-                    output.add(line[7:])
+            elif isinstance(output, set) and line.startswith('Path = '):
+                output.add(line[7:])
 
+    @override
     def parse_add(self, executor, line_number, line, extra):
         """
         Parse the output when adding files.
@@ -198,10 +204,11 @@ class X7z(t_backend.Backend):
                 executor.send_line(extra.get('password'))
                 return
 
-        if line.startswith('+ ') or line.startswith('U '):
+        if line.startswith(('+ ', 'U ')):
             t_gui.adding_msg(line[2:])
             t_gui.advance_progress()
 
+    @override
     def parse_extract(self, executor, line_number, line, extra):
         """
         Parse the output when extracting files.

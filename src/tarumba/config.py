@@ -5,6 +5,7 @@
 
 import configparser
 import os
+import tempfile
 from gettext import gettext as _
 
 import tarumba.constants as t_constants
@@ -26,7 +27,7 @@ class Config(t_data_classes.Base):
         self.dictionary = {
             'main_b_debug': False,
             'main_b_follow_links': False,
-            'main_s_tmp_path': '/tmp',
+            'main_s_tmp_path': tempfile.gettempdir(),
             'main_b_verbose': False,
             'main_l_list_columns': [t_constants.COLUMN_PERMS, t_constants.COLUMN_SIZE,
                                     t_constants.COLUMN_DATE, t_constants.COLUMN_NAME],
@@ -89,10 +90,7 @@ def _config_2_init(config, parser):
         cfg_section, cfg_type, cfg_key = dict_key.split('_', 2)
         if cfg_section not in parser.sections():
             parser.add_section(cfg_section)
-        if cfg_type == 'l':
-            value = ' '.join(current.get(dict_key))
-        else:
-            value = str(current.get(dict_key))
+        value = ' '.join(current.get(dict_key)) if cfg_type == 'l' else str(current.get(dict_key))
         parser.set(cfg_section, cfg_key, value)
 
 def _init_2_config(config, parser):
