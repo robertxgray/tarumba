@@ -5,6 +5,7 @@
 
 from gettext import gettext as _
 
+
 class Base:
     "Base data class"
 

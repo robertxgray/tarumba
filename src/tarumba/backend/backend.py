@@ -7,6 +7,7 @@ from abc import ABC, abstractmethod
 
 import tarumba.constants as t_constants
 
+
 class Backend(ABC):
     "Abstract parent class for archiver backends"
 

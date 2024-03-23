@@ -3,15 +3,15 @@
 
 "Tarumba's archive classifier"
 
-from gettext import gettext as _
 import mimetypes
 import os
+from gettext import gettext as _
 
-import magic # pylint: disable=import-error
+import magic  # pylint: disable=import-error
 
 import tarumba.constants as t_constants
-from tarumba.backend import x7z as t_x7z
 from tarumba.backend import tar as t_tar
+from tarumba.backend import x7z as t_x7z
 from tarumba.gui import current as t_gui
 
 # Enrich the mimetypes maps

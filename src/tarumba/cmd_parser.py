@@ -4,12 +4,13 @@
 "Tarumba's command line parser"
 
 import argparse
-from gettext import gettext as _
 import os
 import sys
+from gettext import gettext as _
 
 import tarumba.constants as t_constants
 from tarumba.gui import current as t_gui
+
 
 # Ref: https://github.com/python/cpython/blob/main/Lib/argparse.py
 class ColouredArgumentParser(argparse.ArgumentParser):

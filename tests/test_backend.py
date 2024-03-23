@@ -5,13 +5,13 @@
 
 import os
 from pathlib import Path
+
 import pytest
 
-from tests import utils as test_utils
-
-from tarumba.config import current as config
-import tarumba.constants as t_constants
 import tarumba.classifier as t_classifier
+import tarumba.constants as t_constants
+from tarumba.config import current as config
+from tests import utils as test_utils
 
 test_params_list = [
     test_utils.test_params(t_constants.BACKEND_7ZIP, '7zz', 'test_7zz.7z'),

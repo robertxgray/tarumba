@@ -4,11 +4,11 @@
 "Tarumba's global configuration"
 
 import configparser
-from gettext import gettext as _
 import os
+from gettext import gettext as _
 
-import tarumba.data_classes as t_data_classes
 import tarumba.constants as t_constants
+import tarumba.data_classes as t_data_classes
 
 BASE_PATH = os.path.abspath(os.path.dirname(__file__))
 CONFIG_PATH = os.path.expanduser('~/.local/share/tarumba')

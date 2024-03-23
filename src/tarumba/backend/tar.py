@@ -5,12 +5,13 @@
 
 from gettext import gettext as _
 
-from tarumba.config import current as config
 import tarumba.constants as t_constants
 import tarumba.file_utils as t_file_utils
-from tarumba.backend import backend as t_backend
-from tarumba.gui import current as t_gui
 from tarumba import utils as t_utils
+from tarumba.backend import backend as t_backend
+from tarumba.config import current as config
+from tarumba.gui import current as t_gui
+
 
 class Tar(t_backend.Backend):
     "Tar archiver backend"
@@ -39,7 +40,7 @@ class Tar(t_backend.Backend):
         if list_args.get('occurrence'):
             params.append('--occurrence='+list_args.get('occurrence'))
         return [(self._tar_bin,
-            params + ['-tvf', list_args.get('archive'), '--'] + list_args.get('files'))]
+            [*params, '-tvf', list_args.get('archive'), '--', *list_args.get('files')])]
 
     def add_commands(self, add_args, files):
         """
@@ -57,7 +58,7 @@ class Tar(t_backend.Backend):
             params.append('--owner=0')
             params.append('--group=0')
         return [(self._tar_bin,
-            params + ['-rvSf', add_args.get('archive'), '--', files])]
+            [*params, '-rvSf', add_args.get('archive'), '--', files])]
 
     def extract_commands(self, extract_args):
         """
@@ -71,7 +72,7 @@ class Tar(t_backend.Backend):
         if extract_args.get('occurrence'):
             params.append('--occurrence='+extract_args.get('occurrence'))
         return [(self._tar_bin,
-            params + ['-xvf', extract_args.get('archive'), '--'] + extract_args.get('files'))]
+            [*params, '-xvf', extract_args.get('archive'), '--', *extract_args.get('files')])]
 
     def parse_list(self, executor, line_number, line, extra):
         """
@@ -144,5 +145,6 @@ class Tar(t_backend.Backend):
         if line.startswith('tar: '):
             t_gui.warn(_('%(prog)s: warning: %(message)s\n') %
                 {'prog': 'tarumba', 'message': line})
-        elif len(line) > 0:
-            t_file_utils.pop_and_move_extracted(extra)
+        else:
+            if len(line) > 0:
+                t_file_utils.pop_and_move_extracted(extra)

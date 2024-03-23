@@ -9,6 +9,7 @@ import pytest
 
 from tarumba.__main__ import main
 
+
 class TestMain:
     "Main function tests"
 

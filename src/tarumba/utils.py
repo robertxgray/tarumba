@@ -3,15 +3,16 @@
 
 "Tarumba's utilities"
 
-from gettext import gettext as _
 import os
 import random
 import re
 import sys
+from gettext import gettext as _
 
 import pexpect
 
 from tarumba.gui import current as t_gui
+
 
 def encode(text):
     """

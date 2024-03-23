@@ -3,13 +3,14 @@
 
 "Tarumba's utilities"
 
-from gettext import gettext as _
 import os
 import shutil
+from gettext import gettext as _
 
 from tarumba import utils as t_utils
 from tarumba.config import current as config
 from tarumba.gui import current as t_gui
+
 
 def check_read_file(filename):
     """

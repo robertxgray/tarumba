@@ -3,8 +3,8 @@
 
 "Tarumba's console interface"
 
-from gettext import gettext as _
 import shlex
+from gettext import gettext as _
 
 from rich import box as r_box
 from rich import console as r_console
@@ -40,6 +40,8 @@ class Console(t_gui.Gui):
             'prompt.invalid': config.get('colors_s_prompt_invalid'),
             'prompt.invalid.choice': config.get('colors_s_prompt_invalid_choice'),
         })
+        self.out_c = None
+        self.err_c = None
         self.progress = None
         self.task = None
         self.enable_color()
@@ -182,7 +184,7 @@ class Console(t_gui.Gui):
         :param message: Question message
         :param file: Related file name
         :param archive: Related archive
-        :return: 
+        :return:
         """
 
         params = self._prompt_params(filename, archive)

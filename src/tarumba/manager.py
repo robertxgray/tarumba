@@ -3,10 +3,11 @@
 
 "Tarumba's archive manager"
 
+import os
 from argparse import ArgumentError
 from gettext import gettext as _
-import os
 
+import tarumba.constants as t_constants
 from tarumba import classifier as t_classifier
 from tarumba import config as t_config
 from tarumba import data_classes as t_data_classes
@@ -14,8 +15,8 @@ from tarumba import executor as t_executor
 from tarumba import file_utils as t_file_utils
 from tarumba import utils as t_utils
 from tarumba.config import current as config
-import tarumba.constants as t_constants
 from tarumba.gui import current as t_gui
+
 
 def _list_archive_2set(backend, archive):
     """
@@ -76,6 +77,41 @@ def _get_overwrite(args):
     if args.always_overwrite:
         return t_gui.ALL
     return None
+
+def _add_archive_get_password(backend, archive, encrypt):
+    """
+    Checks if encryption is required and prompts for a password when needed.
+
+    :param encrypt: Encryption flag
+    :param backend: Archive backend
+    :raises ArgumentError: Encryption not available
+    """
+
+    password = None
+    if encrypt:
+        if backend.can_encrypt():
+            password = t_utils.new_password(archive)
+        else:
+            raise ArgumentError(None, _("this archive format can't encrypt contents"))
+    return password
+
+def _add_archive_check_multiple(add_args):
+    """
+    Checks if the archive can store multiple and the operation is valid.
+
+    :param add_args: AddArgs object
+    :raises ArgumentError: Invalid operation
+    """
+
+    if not add_args.get('backend').can_pack():
+        if (os.path.isfile(add_args.get('archive')) or
+            len(add_args.get('files')) > 1 or
+            os.path.isdir(add_args.get('files')[0])):
+            raise ArgumentError(None, _("this archive format can't store more than one file"))
+        if add_args.get('path'):
+            raise ArgumentError(None, _("this archive format can't store file paths"))
+        if not add_args.get('follow_links') and os.path.islink(add_args.get('files')[0]):
+            raise ArgumentError(None, _("this archive format can't store links"))
 
 def _add_archive_check(add_args):
     """
@@ -149,38 +185,21 @@ def add_archive(args):
 
     t_file_utils.check_write_file(args.archive)
 
+    backend = t_classifier.detect_format(args.backend, args.archive, t_constants.OPERATION_ADD)
     add_args = t_data_classes.AddArgs()
     add_args.set('archive', args.archive)
     add_args.set('files', args.files)
     add_args.set('follow_links', config.get('main_b_follow_links'))
-    add_args.set('backend', t_classifier.detect_format(args.backend, args.archive,
-        t_constants.OPERATION_ADD))
+    add_args.set('backend', backend)
     add_args.set('level', args.level)
     add_args.set('overwrite', _get_overwrite(args))
     add_args.set('owner', args.owner)
+    add_args.set('password', _add_archive_get_password(backend, args.archive, args.encrypt))
     add_args.set('path', args.path.strip('/') if args.path else None)
     add_args.set('tmp_dirs', [])
     t_gui.debug('add_args', add_args)
 
-    # Encryption password
-    password = None
-    if args.encrypt:
-        if add_args.get('backend').can_encrypt():
-            password = t_utils.new_password(args.archive)
-            add_args.set('password', password)
-        else:
-            raise ArgumentError(None, _("this archive format can't encrypt contents"))
-
-    # Can we store multiple files?
-    if not add_args.get('backend').can_pack():
-        if (os.path.isfile(add_args.get('archive')) or
-            len(add_args.get('files')) > 1 or
-            os.path.isdir(add_args.get('files')[0])):
-            raise ArgumentError(None, _("this archive format can't store more than one file"))
-        if add_args.get('path'):
-            raise ArgumentError(None, _("this archive format can't store file paths"))
-        if not add_args.get('follow_links') and os.path.islink(add_args.get('files')[0]):
-            raise ArgumentError(None, _("this archive format can't store links"))
+    _add_archive_check_multiple(add_args)
 
     # Do we need to warn before overwrite?
     if not add_args.get('backend').can_duplicate() and os.path.isfile(add_args.get('archive')):

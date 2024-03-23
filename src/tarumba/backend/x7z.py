@@ -3,16 +3,17 @@
 
 "Tarumba's 7z backend support"
 
-from pathlib import Path
 import re
+from pathlib import Path
 
-from tarumba.config import current as config
 import tarumba.constants as t_constants
 import tarumba.file_utils as t_file_utils
-from tarumba.backend import backend as t_backend
-from tarumba import executor as t_executor
-from tarumba.gui import current as t_gui
 import tarumba.utils as t_utils
+from tarumba import executor as t_executor
+from tarumba.backend import backend as t_backend
+from tarumba.config import current as config
+from tarumba.gui import current as t_gui
+
 
 class X7z(t_backend.Backend):
     "7z archiver backend"
@@ -70,7 +71,7 @@ class X7z(t_backend.Backend):
         """
 
         return [(self._7zip_bin, ['l', '-slt', '--',
-            list_args.get('archive')] + list_args.get('files'))]
+            list_args.get('archive'), *list_args.get('files')])]
 
     def add_commands(self, add_args, files):
         """
@@ -94,7 +95,7 @@ class X7z(t_backend.Backend):
             params.append('-snl')
         if add_args.get('level'):
             params.append(f"-mx={add_args.get('level')}")
-        return [(self._7zip_bin, params + ['--', add_args.get('archive'), files])]
+        return [(self._7zip_bin, [*params, '--', add_args.get('archive'), files])]
 
     def extract_commands(self, extract_args):
         """
@@ -105,7 +106,7 @@ class X7z(t_backend.Backend):
         """
 
         return [(self._7zip_bin, ['x', '-y', '-bb1', '-ba', '-bd', '--',
-            extract_args.get('archive')] + extract_args.get('files'))]
+            extract_args.get('archive'), *extract_args.get('files')])]
 
     def _parse_list_line(self, line):
         """

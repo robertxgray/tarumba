@@ -3,9 +3,9 @@
 
 "Tarumba's programs executor"
 
+import os
 from collections import deque
 from gettext import gettext as _
-import os
 
 import pexpect
 

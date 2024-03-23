@@ -5,6 +5,7 @@
 
 from abc import ABC, abstractmethod
 
+
 class Gui(ABC):
     "Abstract parent class for GUIs"
 

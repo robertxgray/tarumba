@@ -3,14 +3,47 @@
 
 "Tarumba's main function"
 
-from gettext import gettext as _
 import os
 import sys
+from gettext import gettext as _
 
-from tarumba import manager as t_manager
 from tarumba import cmd_parser as t_cmd_parser
+from tarumba import manager as t_manager
 from tarumba.config import current as config
 from tarumba.gui import current as t_gui
+
+
+def _main_options(args):
+    """
+    Sets the main options.
+
+    :param args: Arguments
+    """
+
+    # Debug option
+    if args.debug:
+        config.set('main_b_debug', args.debug)
+        t_gui.debug('args', args)
+    else:
+        config.set('main_b_debug', False)
+
+    # Verbose option
+    if args.verbose:
+        config.set('main_b_verbose', args.verbose)
+    else:
+        config.set('main_b_verbose', False)
+
+    # Follow links option
+    if args.follow_links:
+        config.set('main_b_follow_links', args.follow_links)
+    else:
+        config.set('main_b_follow_links', False)
+
+    # No color option
+    if args.no_color:
+        t_gui.disable_color()
+    else:
+        t_gui.enable_color()
 
 def main():
     """
@@ -19,31 +52,7 @@ def main():
 
     try:
         args = t_cmd_parser.get_arguments()
-
-        # Debug option
-        if args.debug:
-            config.set('main_b_debug', args.debug)
-            t_gui.debug('args', args)
-        else:
-            config.set('main_b_debug', False)
-
-        # Verbose option
-        if args.verbose:
-            config.set('main_b_verbose', args.verbose)
-        else:
-            config.set('main_b_verbose', False)
-
-        # Follow links option
-        if args.follow_links:
-            config.set('main_b_follow_links', args.follow_links)
-        else:
-            config.set('main_b_follow_links', False)
-
-        # No color option
-        if args.no_color:
-            t_gui.disable_color()
-        else:
-            t_gui.enable_color()
+        _main_options(args)
 
         basename = os.path.basename(args.archive)
 
