@@ -33,6 +33,12 @@ def _main_options(args):
     else:
         config.put('main_b_verbose', False)
 
+    # Create folder option
+    if args.create_folder:
+        config.put('main_s_create_folder', args.create_folder)
+    else:
+        config.put('main_s_create_folder', 'auto')
+
     # Follow links option
     if args.follow_links:
         config.put('main_b_follow_links', args.follow_links)

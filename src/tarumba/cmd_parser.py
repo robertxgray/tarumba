@@ -53,7 +53,9 @@ def get_arguments():
         help=_('show debugging information'))
     parser.add_argument('-e', '--encrypt', action='store_true',
         help=_('encrypt the archive contents using a password'))
-    parser.add_argument('-f', '--follow-links', action='store_true',
+    parser.add_argument('-f', '--create-folder', choices=['auto','yes','no'],
+        help=_('creates a root folder with the archive name when extracting files'))
+    parser.add_argument('-k', '--follow-links', action='store_true',
         help=_('follow symbolic links. WARNING: MAY CREATE INIFINITE PATHS'))
     parser.add_argument('-l', '--level',
         help=_('compression level [0-9]'))

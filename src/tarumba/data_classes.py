@@ -105,7 +105,8 @@ class ExtractArgs(Base):
         self.dictionary = {
             'archive': None,
             'contents': None,
-            'cwd': None,
+            'create_folder': None,
+            'destination': None,
             'files': None,
             'backend': None,
             'occurrence': None,

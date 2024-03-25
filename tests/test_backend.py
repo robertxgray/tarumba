@@ -129,12 +129,12 @@ class TestBackend:
             test_params.backend, test_params.archive, t_constants.OPERATION_ADD)
         if backend.can_pack():
             test_utils.test_add(
-                test_params.archive, [self.FILE1], ['-b',test_params.backend,'-p',self.PATH2,'-f'])
+                test_params.archive, [self.FILE1], ['-b',test_params.backend,'-p',self.PATH2,'-k'])
             test_utils.assert_file_exists(test_params.archive)
         else:
             with pytest.raises(SystemExit):
                 test_utils.test_add(test_params.archive, [self.FILE1],
-                    ['-b',test_params.backend,'-p',self.PATH2,'-f'])
+                    ['-b',test_params.backend,'-p',self.PATH2,'-k'])
 
     def test_add_links(self, test_params):
         "Add links to the archive"
@@ -160,7 +160,7 @@ class TestBackend:
         if not backend.can_pack():
             test_utils.cleanup(test_params.archive)
 
-        test_utils.test_add(test_params.archive, [self.LINK2], ['-b',test_params.backend,'-f'])
+        test_utils.test_add(test_params.archive, [self.LINK2], ['-b',test_params.backend,'-k'])
         config.put('main_b_follow_links', False)
         test_utils.assert_file_exists(test_params.archive)
 
@@ -225,10 +225,23 @@ class TestBackend:
 
         backend = t_classifier.detect_format(
             test_params.backend, test_params.archive, t_constants.OPERATION_EXTRACT)
-        if backend.can_duplicate:
+        if backend.can_duplicate():
             test_utils.test_extract(
                 test_params.archive, [self.FILE1], ['-b',test_params.backend,'-a','-o','1'])
             test_utils.assert_file_exists(self.FILE1)
+
+    def test_extract_folder(self, test_params):
+        "Extract one file from the archive with archive folder"
+
+        backend = t_classifier.detect_format(
+            test_params.backend, test_params.archive, t_constants.OPERATION_LIST)
+        if backend.can_pack() or backend.mime[0] == t_constants.MIME_GZIP:
+            file_name = self.LINK2
+        else:
+            file_name = Path(test_params.archive).stem
+        test_utils.cleanup(file_name)
+        test_utils.test_extract(test_params.archive, [file_name], ['-b',test_params.backend,'-a','-f','yes'])
+        test_utils.assert_file_exists(file_name, archive_folder=test_params.archive)
 
     def test_extract_all(self, test_params):
         "Extract all files from the archive"
@@ -236,12 +249,40 @@ class TestBackend:
         backend = t_classifier.detect_format(
             test_params.backend, test_params.archive, t_constants.OPERATION_EXTRACT)
 
+        base_name = Path(test_params.archive).stem
+        test_utils.cleanup(base_name)
+        test_utils.test_extract(test_params.archive, [], ['-b',test_params.backend,'-a'])
+        if backend.can_pack():
+            test_utils.assert_dir_exists(self.DIR, archive_folder=test_params.archive)
+            test_utils.assert_file_exists(self.FILE1, archive_folder=test_params.archive)
+            test_utils.assert_file_exists(os.path.join(self.PATH1, self.FILE1),
+                archive_folder=test_params.archive)
+            test_utils.assert_file_exists(os.path.join(self.PATH2, self.FILE1),
+                archive_folder=test_params.archive)
+            # https://github.com/p7zip-project/p7zip/issues/39
+            if test_params.binary != '7z':
+                test_utils.assert_link_exists(self.LINK1, archive_folder=test_params.archive)
+            test_utils.assert_file_exists(self.LINK2, archive_folder=test_params.archive)
+        elif backend.mime[0] == t_constants.MIME_GZIP:
+            test_utils.assert_file_exists(self.LINK2)
+        else:
+            test_utils.assert_file_exists(base_name)
+
+    def test_extract_all_no_folder(self, test_params):
+        "Extract all files from the archive without archive folder"
+
+        backend = t_classifier.detect_format(
+            test_params.backend, test_params.archive, t_constants.OPERATION_EXTRACT)
+
+        base_name = Path(test_params.archive).stem
         test_utils.cleanup(self.DIR)
         test_utils.cleanup(self.FILE1)
         test_utils.cleanup(self.FILE2)
         test_utils.cleanup(self.LINK1)
         test_utils.cleanup(self.LINK2)
-        test_utils.test_extract(test_params.archive, [], ['-b',test_params.backend,'-a'])
+        test_utils.cleanup(self.PATH1)
+        test_utils.cleanup(self.PATH2)
+        test_utils.test_extract(test_params.archive, [], ['-b',test_params.backend,'-a','-f','no'])
         if backend.can_pack():
             test_utils.assert_dir_exists(self.DIR)
             test_utils.assert_file_exists(self.FILE1)
@@ -254,7 +295,6 @@ class TestBackend:
         elif backend.mime[0] == t_constants.MIME_GZIP:
             test_utils.assert_file_exists(self.LINK2)
         else:
-            base_name = Path(test_params.archive).stem
             test_utils.assert_file_exists(base_name)
 
     def test_extract_none(self, test_params):
@@ -263,20 +303,22 @@ class TestBackend:
         backend = t_classifier.detect_format(
             test_params.backend, test_params.archive, t_constants.OPERATION_EXTRACT)
 
+        base_name = Path(test_params.archive).stem
         test_utils.test_extract(test_params.archive, [], ['-b',test_params.backend,'-n'])
         if backend.can_pack():
-            test_utils.assert_dir_exists(self.DIR)
-            test_utils.assert_file_exists(self.FILE1)
-            test_utils.assert_file_exists(os.path.join(self.PATH1, self.FILE1))
-            test_utils.assert_file_exists(os.path.join(self.PATH2, self.FILE1))
+            test_utils.assert_dir_exists(self.DIR, archive_folder=test_params.archive)
+            test_utils.assert_file_exists(self.FILE1, archive_folder=test_params.archive)
+            test_utils.assert_file_exists(os.path.join(self.PATH1, self.FILE1),
+                archive_folder=test_params.archive)
+            test_utils.assert_file_exists(os.path.join(self.PATH2, self.FILE1),
+                archive_folder=test_params.archive)
             # https://github.com/p7zip-project/p7zip/issues/39
             if test_params.binary != '7z':
-                test_utils.assert_link_exists(self.LINK1)
-            test_utils.assert_file_exists(self.LINK2)
+                test_utils.assert_link_exists(self.LINK1, archive_folder=test_params.archive)
+            test_utils.assert_file_exists(self.LINK2, archive_folder=test_params.archive)
         elif backend.mime[0] == t_constants.MIME_GZIP:
             test_utils.assert_file_exists(self.LINK2)
         else:
-            base_name = Path(test_params.archive).stem
             test_utils.assert_file_exists(base_name)
 
     def test_extract_encrypted(self, test_params, mocker):
@@ -293,6 +335,8 @@ class TestBackend:
     def test_cleanup(self, test_params):
         "Not a real test, just the cleanup"
 
+        base_name = Path(test_params.archive).stem
+        test_utils.cleanup(base_name)
         test_utils.cleanup(test_params.archive)
         test_utils.cleanup('e_'+test_params.archive)
         test_utils.cleanup(self.DIR)

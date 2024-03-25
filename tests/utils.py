@@ -4,6 +4,7 @@
 "Tarumba's test utils"
 
 import os
+import pathlib
 import shutil
 import sys
 
@@ -75,18 +76,23 @@ def test_extract(archive, files, extra_args):
     finally:
         os.chdir(cwd)
 
-def _get_text_path(path, dest=None):
+def _get_test_path(path, dest=None, archive_folder=None):
     """
-    Returns paths in the tests dir. The base name can be set with the dest parameter, otherwise
-    the original name will be preserved.
+    Returns paths in the tests dir.
 
     :param path: Original path
     :param dest: Optional destination name
+    :param archive_folder: Optional archive folder
     """
 
+    if archive_folder is not None:
+        archive_base = pathlib.Path(archive_folder).stem
+        test_dir = os.path.join(TEST_PATH, archive_base)
+    else:
+        test_dir = TEST_PATH
     if dest:
-        return os.path.join(TEST_PATH, dest)
-    return os.path.join(TEST_PATH, path)
+        return os.path.join(test_dir, dest)
+    return os.path.join(test_dir, path)
 
 def copy(path, dest=None):
     """
@@ -96,7 +102,7 @@ def copy(path, dest=None):
     :param dest: Optional destination name
     """
 
-    test_path = _get_text_path(path, dest)
+    test_path = _get_test_path(path, dest)
     if os.path.isdir(path):
         shutil.copytree(path, test_path, symlinks=True)
     else:
@@ -110,50 +116,54 @@ def link(path, dest=None):
     :param dest: Optional destination name
     """
 
-    test_path = _get_text_path(path, dest)
+    test_path = _get_test_path(path, dest)
     os.symlink(path, test_path)
 
-def cleanup(path):
+def cleanup(path, archive_folder=None):
     """
     Delete a file or folder in the tests dir.
 
     :param path: Path to delete
+    :param archive_folder: Optional archive folder
     """
 
-    test_path = os.path.join(TEST_PATH, path)
+    test_path = _get_test_path(path, archive_folder=archive_folder)
     if os.path.isdir(test_path):
         shutil.rmtree(test_path, ignore_errors=True)
     elif os.path.lexists(test_path):
         os.remove(test_path)
 
-def assert_file_exists(path):
+def assert_file_exists(path, archive_folder=None):
     """
     Asserts that a file exists in the tests dir.
 
     :param file: File path
+    :param archive_folder: Optional archive folder
     """
 
-    test_path = _get_text_path(path)
+    test_path = _get_test_path(path, archive_folder=archive_folder)
     assert os.path.isfile(test_path)
     assert not os.path.islink(test_path)
 
-def assert_dir_exists(path):
+def assert_dir_exists(path, archive_folder=None):
     """
     Asserts that a directory exists in the tests dir.
 
     :param dir: Directory path
+    :param archive_folder: Optional archive folder
     """
 
-    test_path = _get_text_path(path)
+    test_path = _get_test_path(path, archive_folder=archive_folder)
     assert os.path.isdir(test_path)
     assert not os.path.islink(test_path)
 
-def assert_link_exists(path):
+def assert_link_exists(path, archive_folder=None):
     """
     Asserts that a link exists in the tests dir.
 
     :param file: Link path
+    :param archive_folder: Optional archive folder
     """
 
-    test_path = _get_text_path(path)
+    test_path = _get_test_path(path, archive_folder=archive_folder)
     assert os.path.islink(test_path)

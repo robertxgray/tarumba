@@ -4,6 +4,7 @@
 "Tarumba's utilities"
 
 import os
+import pathlib
 import shutil
 import tempfile
 from gettext import gettext as _
@@ -11,6 +12,27 @@ from gettext import gettext as _
 from tarumba.config import current as config
 from tarumba.gui import current as t_gui
 
+
+def makedirs(path):
+    """
+    Recursive directory creation function.
+
+    :param path: Path
+    """
+
+    try:
+        os.makedirs(path, exist_ok=True)
+    except (PermissionError, FileExistsError) as ex:
+        raise NotADirectoryError(_("can't create folder %(path)s") % {'path': path}) from ex
+
+def basename_noext(path):
+    """
+    Removes the directory name and the extension from a path.
+
+    :param path: Path
+    """
+
+    return pathlib.Path(path).stem
 
 def check_read_file(filename):
     """
@@ -173,7 +195,7 @@ def _check_add_file_copy(add_args, path, tmp_dir, copy):
             file_path = os.path.join(add_args.get('path'), file_path)
         dest_path = os.path.join(tmp_dir[0], file_path)
 
-        os.makedirs(os.path.dirname(dest_path), exist_ok=True)
+        makedirs(os.path.dirname(dest_path))
         if add_args.get('follow_links'):
             if os.path.islink(path):
                 link_path = os.path.join(os.path.dirname(os.path.abspath(path)), os.readlink(path))
@@ -206,7 +228,7 @@ def _check_add_folder_copy(add_args, path, tmp_dir):
         if add_args.get('path'):
             dir_path = os.path.join(add_args.get('path'), dir_path)
         dest_path = os.path.join(tmp_dir[0], dir_path)
-        os.makedirs(dest_path, exist_ok=True)
+        makedirs(dest_path)
         shutil.copystat(path, dest_path)
     return 1
 
@@ -236,6 +258,30 @@ def check_add_filesystem_tree(add_args, path, tmp_dir):
         total = _check_add_file_copy(add_args, path, tmp_dir, copy)
     return total
 
+def check_extract_create_folder(extract_args):
+    """
+    Creates a root folder for the extraction when needed.
+
+    :param add_args: ExtractArgs object
+    """
+
+    create_folder = extract_args.get('create_folder')
+    create_flag = create_folder == 'yes'
+
+    if create_folder == 'auto':
+        try:
+            common_path = os.path.commonpath(extract_args.get('contents'))
+        except ValueError:
+            common_path = ''
+        if len(common_path) == 0:
+            create_flag = True
+
+    if create_flag:
+        base_name = basename_noext(extract_args.get('archive'))
+        ext_path = os.path.join(extract_args.get('destination'), base_name)
+        makedirs(ext_path)
+        extract_args.put('destination', ext_path)
+
 def _move_extracted_link(file, dest_path):
     """
     Links extracted files to the destination path.
@@ -245,12 +291,12 @@ def _move_extracted_link(file, dest_path):
     """
 
     if os.path.isdir(file):
-        os.mkdir(dest_path)
+        makedirs(dest_path)
         shutil.copystat(file, dest_path)
     else:
         os.link(file, dest_path, follow_symlinks=False)
 
-def move_extracted(file, extract_args):
+def _move_extracted(file, extract_args):
     """
     Move the extracted files to the destination path.
 
@@ -272,9 +318,9 @@ def move_extracted(file, extract_args):
             t_gui.warn(_('%(prog)s: warning: %(message)s\n') %
                 {'prog': 'tarumba', 'message': message})
 
-    dest_path = os.path.join(extract_args.get('cwd'), mod_file)
+    dest_path = os.path.join(extract_args.get('destination'), mod_file)
 
-    os.makedirs(os.path.dirname(dest_path), exist_ok=True)
+    makedirs(os.path.dirname(dest_path))
     # Destination doesn't exist
     if not os.path.lexists(dest_path):
         _move_extracted_link(file, dest_path)
@@ -303,8 +349,8 @@ def pop_and_move_extracted(extra):
     :param extra: Extra data
     """
 
-    file = extra.get('contents').pop(0)[0]
-    moved = move_extracted(file, extra)
+    file = extra.get('contents').pop(0)
+    moved = _move_extracted(file, extra)
     if moved:
         t_gui.extracting_msg(file)
     t_gui.advance_progress()

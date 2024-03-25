@@ -4,7 +4,6 @@
 "Tarumba's 7z backend support"
 
 import re
-from pathlib import Path
 
 from typing_extensions import override  # pylint: disable=import-error
 
@@ -172,8 +171,8 @@ class X7z(t_backend.Backend):
 
                     # Some formats can't store the file name
                     if t_constants.COLUMN_NAME not in self._current_file:
-                        self._current_file[t_constants.COLUMN_NAME] = Path(
-                            extra.get('archive')).stem
+                        self._current_file[t_constants.COLUMN_NAME] = t_file_utils.basename_noext(
+                            extra.get('archive'))
 
                     row = [self._current_file.get(column) for column in columns]
                     output.append(row)

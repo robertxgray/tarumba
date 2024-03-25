@@ -44,6 +44,9 @@ msgstr "encriptar los contendos del archivo bajo una contraseña"
 msgid "follow symbolic links. WARNING: MAY CREATE INIFINITE PATHS"
 msgstr "seguir los enlaces simbólicos. AVISO: PUEDE CREAR RUTAS INFINITAS"
 
+msgid "creates a root folder with the archive name when extracting files"
+msgstr "crea una carpeta raíz con el nombre del archivo al extraer ficheros"
+
 msgid "compression level [0-9]"
 msgstr "nivel de compresión [0-9]"
 
@@ -73,6 +76,9 @@ msgstr "%(prog)s: aviso: %(message)s\n"
 
 msgid "detected archive type and extension don't match"
 msgstr "el tipo de archivo detectado y la extensión no coinciden"
+
+msgid "can't create folder %(path)s"
+msgstr "no se puede crear la carpeta %(path)s"
 
 msgid "can't read %(filename)s"
 msgstr "no se puede leer %(filename)s"

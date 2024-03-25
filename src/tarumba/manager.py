@@ -233,7 +233,7 @@ def _extract_archive_commands(extract_args):
     commands = []
     commands.append((t_executor.CHDIR, [extract_args.get('tmp_dir')]))
     commands += extract_args.get('backend').extract_commands(extract_args)
-    commands.append((t_executor.CHDIR, [extract_args.get('cwd')]))
+    commands.append((t_executor.CHDIR, [extract_args.get('destination')]))
     return commands
 
 def extract_archive(args):
@@ -257,7 +257,8 @@ def extract_archive(args):
 
     extract_args = t_data_classes.ExtractArgs()
     extract_args.put('archive', args.archive)
-    extract_args.put('cwd', os.getcwd())
+    extract_args.put('destination', os.getcwd())
+    extract_args.put('create_folder', config.get('main_s_create_folder'))
     extract_args.put('files', args.files)
     extract_args.put('backend', backend)
     extract_args.put('occurrence', args.occurrence)
@@ -270,8 +271,9 @@ def extract_archive(args):
         list_commands = extract_args.get('backend').list_commands(list_args)
         t_executor.Executor().execute(list_commands, list_args.get('backend').LIST_PATTERNS,
             list_args.get('backend').parse_list, list_args)
-        extract_args.put('contents', list_args.get('output')[1:]) # No header
+        extract_args.put('contents', t_utils.output_2_contents(list_args.get('output')))
         extract_args.put('password', list_args.get('password'))
+        t_file_utils.check_extract_create_folder(extract_args)
         total = len(extract_args.get('contents'))
         t_gui.debug('total', total)
         t_gui.update_progress_total(total)

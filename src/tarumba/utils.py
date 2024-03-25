@@ -164,3 +164,13 @@ def check_installed(executables):
         "can't be found, please make sure it's installed and available in the $PATH or "
         "enter the full path to the program in the configuration") %
         {'executable': executables[0]})
+
+def output_2_contents(output):
+    """
+    Transforms the output from an archive listing into a list of contents.
+
+    :param output: Archive listing output
+    :return: List of contents
+    """
+
+    return [out[0] for out in output[1:]]

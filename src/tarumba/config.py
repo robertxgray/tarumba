@@ -26,11 +26,12 @@ class Config(t_data_classes.Base):
         super().__init__()
         self.dictionary = {
             'main_b_debug': False,
+            'main_s_create_folder': 'auto',
             'main_b_follow_links': False,
-            'main_s_tmp_path': tempfile.gettempdir(),
-            'main_b_verbose': False,
             'main_l_list_columns': [t_constants.COLUMN_PERMS, t_constants.COLUMN_SIZE,
                                     t_constants.COLUMN_DATE, t_constants.COLUMN_NAME],
+            'main_s_tmp_path': tempfile.gettempdir(),
+            'main_b_verbose': False,
             # Backends
             'backends_l_7zip_bin': ['7zz', '7zzs', '7z', '7za'],
             'backends_l_tar_bin': ['tar', 'bsdtar'],
