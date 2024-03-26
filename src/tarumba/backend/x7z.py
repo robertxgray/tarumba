@@ -129,8 +129,11 @@ class X7z(t_backend.Backend):
             self._current_file[t_constants.COLUMN_PACKED] = line[14:]
         elif line.startswith('Modified = '):
             self._current_file[t_constants.COLUMN_DATE] = line[11:27]
+        elif line.startswith('Mode = '):
+            self._current_file[t_constants.COLUMN_PERMS] = line[7:]
         elif line.startswith('Attributes = '):
-            self._current_file[t_constants.COLUMN_PERMS] = line[-10:]
+            if len(line) > 22:
+                self._current_file[t_constants.COLUMN_PERMS] = line[-10:]
         elif line.startswith('Encrypted = '):
             self._current_file[t_constants.COLUMN_ENC] = line[12:]
         elif line.startswith('CRC = '):
