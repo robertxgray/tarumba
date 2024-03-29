@@ -82,6 +82,18 @@ class Tar(t_backend.Backend):
             [*params, '-xvf', extract_args.get('archive'), '--', *extract_args.get('files')])]
 
     @override
+    def test_commands(self, test_args):
+        """
+        Commands to test the archive contents.
+
+        :param test_args: TestArgs object
+        :return: List of commands
+        """
+
+        return [(self._tar_bin,
+            ['-tf', test_args.get('archive'), '--', *test_args.get('files')])]
+
+    @override
     def parse_list(self, executor, line_number, line, extra):
         """
         Parse the output when listing files.
@@ -134,7 +146,7 @@ class Tar(t_backend.Backend):
         :param extra: Extra data
         """
 
-        if line.startswith('tar: '):
+        if line.startswith(f'{self._tar_bin}: '):
             t_gui.warn(_('%(prog)s: warning: %(message)s\n') %
                 {'prog': 'tarumba', 'message': line})
         elif len(line) > 0:
@@ -152,8 +164,26 @@ class Tar(t_backend.Backend):
         :param extra: Extra data
         """
 
-        if line.startswith('tar: '):
+        if line.startswith(f'{self._tar_bin}: '):
             t_gui.warn(_('%(prog)s: warning: %(message)s\n') %
                 {'prog': 'tarumba', 'message': line})
         elif len(line) > 0:
             t_file_utils.pop_and_move_extracted(extra)
+
+    @override
+    def parse_test(self, executor, line_number, line, extra):
+        """
+        Parse the output when testing files.
+
+        :param executor: Program executor
+        :param line_number: Line number
+        :param line: Line contents
+        :param extra: Extra data
+        """
+
+        if line.startswith(f'{self._tar_bin}: '):
+            t_gui.warn(_('%(prog)s: warning: %(message)s\n') %
+                {'prog': 'tarumba', 'message': line})
+        elif len(line) > 0:
+            t_gui.testing_msg(line)
+            t_gui.advance_progress()

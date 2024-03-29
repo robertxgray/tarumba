@@ -25,9 +25,13 @@ class X7z(t_backend.Backend):
     ADD_PATTERNS = frozenset(['Enter password.*:', 'Verify password.*:'])
     # Particular patterns when extracting files
     EXTRACT_PATTERNS = frozenset(['Enter password.*:'])
+    # Particular patterns when testing files
+    TEST_PATTERNS = frozenset(['Enter password.*:'])
 
     # 7z uses this string to mark the start of the list of files
     LIST_START = '----------'
+    # Minimum lenght of attributes when including permissions
+    PERMS_MIN_LEN = 22
 
     @override
     def __init__(self, mime, operation):
@@ -114,6 +118,18 @@ class X7z(t_backend.Backend):
         return [(self._7zip_bin, ['x', '-y', '-bb1', '-ba', '-bd', '--',
             extract_args.get('archive'), *extract_args.get('files')])]
 
+    @override
+    def test_commands(self, test_args):
+        """
+        Commands to test the archive contents.
+
+        :param test_args: TestArgs object
+        :return: List of commands
+        """
+
+        return [(self._7zip_bin, ['t', '-bb1', '-ba', '-bd', '--',
+            test_args.get('archive'), *test_args.get('files')])]
+
     def _parse_list_line(self, line):
         """
         Parses one line of the listing.
@@ -132,7 +148,7 @@ class X7z(t_backend.Backend):
         elif line.startswith('Mode = '):
             self._current_file[t_constants.COLUMN_PERMS] = line[7:]
         elif line.startswith('Attributes = '):
-            if len(line) > 22:
+            if len(line) > self.PERMS_MIN_LEN:
                 self._current_file[t_constants.COLUMN_PERMS] = line[-10:]
         elif line.startswith('Encrypted = '):
             self._current_file[t_constants.COLUMN_ENC] = line[12:]
@@ -232,3 +248,25 @@ class X7z(t_backend.Backend):
 
         if line.startswith('- '):
             t_file_utils.pop_and_move_extracted(extra)
+
+    @override
+    def parse_test(self, executor, line_number, line, extra):
+        """
+        Parse the output when testing files.
+
+        :param executor: Program executor
+        :param line_number: Line number
+        :param line: Line contents
+        :param extra: Extra data
+        """
+
+        # Password prompt
+        for pattern in self.TEST_PATTERNS:
+            regex = re.compile(pattern)
+            if regex.fullmatch(line):
+                executor.send_line(extra.get('password'))
+                return
+
+        if line.startswith('T '):
+            t_gui.testing_msg(line[2:])
+            t_gui.advance_progress()

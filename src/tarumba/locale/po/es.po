@@ -17,32 +17,32 @@ msgstr ""
 msgid "The universal archive manager"
 msgstr "El gestor de archivos universal"
 
-msgid "command"
-msgstr "commando"
+msgid "command: list, add, extract, test or rename"
+msgstr "commando: listar, añadir, extraer, comprobar o renombrar"
 
 msgid "archive file to process"
 msgstr "fichero de archivo a procesar"
 
-msgid "list of files to list, add or extract"
-msgstr "lista de ficheros a listar, añadir o extraer"
+msgid "list of files to list, add, extract, test or rename"
+msgstr "lista de ficheros a listar, añadir, extraer, comprobar o renombrar"
 
 msgid "always overwrite existing files"
-msgstr "sobreescribir siempre los archivos existentes"
+msgstr "sobreescribe siempre los archivos existentes"
 
 msgid "force a specific backend"
-msgstr "forzar un backend específico"
+msgstr "fuerza un backend específico"
 
 msgid "comma separated columns to include in the listing"
 msgstr "columnas separadas por comas a incluir en el listado"
 
 msgid "show debugging information"
-msgstr "mostrar la información de depuración"
+msgstr "muestra la información de depuración"
 
 msgid "encrypt the archive contents using a password"
-msgstr "encriptar los contendos del archivo bajo una contraseña"
+msgstr "encripta los contendos del archivo bajo una contraseña"
 
 msgid "follow symbolic links. WARNING: MAY CREATE INIFINITE PATHS"
-msgstr "seguir los enlaces simbólicos. AVISO: PUEDE CREAR RUTAS INFINITAS"
+msgstr "sigue los enlaces simbólicos. AVISO: PUEDE CREAR RUTAS INFINITAS"
 
 msgid "creates a root folder with the archive name when extracting files"
 msgstr "crea una carpeta raíz con el nombre del archivo al extraer ficheros"
@@ -51,10 +51,10 @@ msgid "compression level [0-9]"
 msgstr "nivel de compresión [0-9]"
 
 msgid "disable colored output"
-msgstr "desactivar la salida en color"
+msgstr "desactiva la salida en color"
 
 msgid "never overwrite existing files"
-msgstr "nunca sobreescribir los archivos existentes"
+msgstr "nunca sobreescribe los archivos existentes"
 
 msgid "process only the Nth occurrence of each file in the archive"
 msgstr "procesa solo la enésima ocurrencia de cada fichero en el archivo"
@@ -66,7 +66,7 @@ msgid "verbosely list processed files"
 msgstr "lista el detalle de ficheros procesados"
 
 msgid "preserve the owner user and group when possible"
-msgstr "conservar el usuario y grupo propietario cuando sea posible"
+msgstr "conserva el usuario y grupo propietario cuando sea posible"
 
 msgid "unknown archive format"
 msgstr "formato de archivo desconocido"
@@ -151,7 +151,13 @@ msgid "extracting"
 msgstr "extrayendo"
 
 msgid "extracting files from"
-msgstr "extrayendo archivos de"
+msgstr "extrayendo ficheros de"
+
+msgid "testing"
+msgstr "comprobando"
+
+msgid "renaming files in"
+msgstr "renombrando ficheros en"
 
 msgid "expected a list of files to add"
 msgstr "se espera la lista de ficheros a añadir"

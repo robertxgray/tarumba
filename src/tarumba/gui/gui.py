@@ -32,15 +32,31 @@ class Gui(ABC):
         "Prints an error message"
 
     @abstractmethod
-    def prompt_password(self, message):
+    def adding_msg(self, file):
+        "Prints a coloured verbose message when adding files"
+
+    @abstractmethod
+    def extracting_msg(self, file):
+        "Prints a coloured verbose message when extracting files"
+
+    @abstractmethod
+    def testing_msg(self, file):
+        "Prints a coloured verbose message when testing files"
+
+    @abstractmethod
+    def prompt_password(self, message, filename, archive):
         "Prompts for a password"
+
+    @abstractmethod
+    def prompt_ynan(self, message, filename, archive):
+        "Prompts the user a yes/no/all/none question"
 
     @abstractmethod
     def start_progress(self, message, file):
         "Starts a progress bar"
 
     @abstractmethod
-    def stop_progress(self):
+    def stop_progress(self, clear):
         "Stops a progress bar"
 
     @abstractmethod

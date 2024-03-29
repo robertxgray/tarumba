@@ -14,6 +14,7 @@ from rich import prompt as r_prompt
 from rich import table as r_table
 from rich import text as r_text
 from rich import theme as r_theme
+from typing_extensions import override  # pylint: disable=import-error
 
 import tarumba.constants as t_constants
 from tarumba.config import current as config
@@ -48,6 +49,7 @@ class Console(t_gui.Gui):
 
     # COMMON FUNCTIONS
 
+    @override
     def debug(self, key, value):
         """
         Prints a debugging information.
@@ -58,6 +60,7 @@ class Console(t_gui.Gui):
         if config.get('main_b_debug'):
             self.out_c.out((f'{key.upper()}: {value}').rstrip(), style=config.get('colors_s_debug'))
 
+    @override
     def info(self, message):
         """
         Prints a info message to the console.
@@ -67,6 +70,7 @@ class Console(t_gui.Gui):
 
         self.out_c.out(message.rstrip(), style=config.get('colors_s_info'))
 
+    @override
     def warn(self, message):
         """
         Prints a warning message to the console.
@@ -76,6 +80,7 @@ class Console(t_gui.Gui):
 
         self.out_c.out(message.rstrip(), style=config.get('colors_s_warn'))
 
+    @override
     def error(self, message):
         """
         Prints an error message to the console.
@@ -85,9 +90,10 @@ class Console(t_gui.Gui):
 
         self.err_c.out(message.rstrip(), style=config.get('colors_s_error'))
 
+    @override
     def adding_msg(self, file):
         """
-        Prints a coloured verbose mensage when adding files.
+        Prints a coloured verbose message when adding files.
 
         :param file: File name
         """
@@ -98,9 +104,10 @@ class Console(t_gui.Gui):
             text.append(file, style=config.get('colors_s_list_name'))
             self.out_c.print(text)
 
+    @override
     def extracting_msg(self, file):
         """
-        Prints a coloured verbose mensage when extracting files.
+        Prints a coloured verbose message when extracting files.
 
         :param file: File name
         """
@@ -111,6 +118,21 @@ class Console(t_gui.Gui):
             text.append(file, style=config.get('colors_s_list_name'))
             self.out_c.print(text)
 
+    @override
+    def testing_msg(self, file):
+        """
+        Prints a coloured verbose message when testing files.
+
+        :param file: File name
+        """
+
+        if config.get('main_b_verbose'):
+            text = r_text.Text()
+            text.append(_('testing') + ': ')
+            text.append(file, style=config.get('colors_s_list_name'))
+            self.out_c.print(text)
+
+    @override
     def prompt_password(self, message, filename=None, archive=None):
         """
         Prompts for a password.
@@ -127,62 +149,7 @@ class Console(t_gui.Gui):
         self._resume_progress()
         return password
 
-    def start_progress(self, message, file):
-        """
-        Starts a progress bar.
-
-        :param message: Message to include in the task
-        :param file: File name
-        :return: Progress bar
-        :raises AssertionError: A progress bar is already running
-        """
-
-        if self.progress is not None:
-            raise AssertionError(_('a progress bar is already running'))
-        self.progress = r_progress.Progress(
-            r_progress.TextColumn("[progress.description]{task.description}"),
-            r_progress.BarColumn(),
-            r_progress.TaskProgressColumn(),
-            console=self.out_c)
-        color = config.get('colors_s_list_header')
-        description = message+' ['+color+']'+r_markup.escape(file)+'[/'+color+']'
-        self.task = self.progress.add_task(description, total=None, transient=True)
-        return self.progress
-
-    def stop_progress(self):
-        """
-        Stops a progress bar.
-        """
-
-        if self.progress is not None:
-            self.progress.remove_task(self.task)
-            self.task = None
-            self.progress = None
-
-    def update_progress_total(self, total):
-        """
-        Update the progress bar total.
-
-        :param total: Number of files
-        :raises AssertionError: A progress bar is not running
-        """
-
-        if self.progress is None:
-            raise AssertionError(_('a progress bar is not running'))
-        self.progress.update(self.task, total=total)
-
-    def advance_progress(self):
-        """
-        Advance the progress bar.
-
-        :param file: File being processed
-        :raises AssertionError: A progress bar is not running
-        """
-
-        if self.progress is None:
-            raise AssertionError(_('a progress bar is not running'))
-        self.progress.advance(self.task)
-
+    @override
     def prompt_ynan(self, message, filename=None, archive=None):
         """
         Prompts the user a yes/no/all/none question.
@@ -207,6 +174,70 @@ class Console(t_gui.Gui):
         if answer == _('all'):
             return self.ALL
         return self.NONE
+
+    @override
+    def start_progress(self, message, file):
+        """
+        Starts a progress bar.
+
+        :param message: Message to include in the task
+        :param file: File name
+        :return: Progress bar
+        :raises AssertionError: A progress bar is already running
+        """
+
+        if self.progress is not None:
+            raise AssertionError(_('a progress bar is already running'))
+        self.progress = r_progress.Progress(
+            r_progress.TextColumn("[progress.description]{task.description}"),
+            r_progress.BarColumn(),
+            r_progress.TaskProgressColumn(),
+            console=self.out_c)
+        color = config.get('colors_s_list_header')
+        description = message+' ['+color+']'+r_markup.escape(file)+'[/'+color+']'
+        self.task = self.progress.add_task(description, total=None, transient=True)
+        return self.progress
+
+    @override
+    def stop_progress(self, clear=False):
+        """
+        Stops a progress bar.
+
+        :param clear: Flag to clear the line
+        """
+
+        if self.progress is not None:
+            self.progress.remove_task(self.task)
+            self.task = None
+            self.progress = None
+            if clear:
+                self._clear_line()
+
+    @override
+    def update_progress_total(self, total):
+        """
+        Update the progress bar total.
+
+        :param total: Number of files
+        :raises AssertionError: A progress bar is not running
+        """
+
+        if self.progress is None:
+            raise AssertionError(_('a progress bar is not running'))
+        self.progress.update(self.task, total=total)
+
+    @override
+    def advance_progress(self):
+        """
+        Advance the progress bar.
+
+        :param file: File being processed
+        :raises AssertionError: A progress bar is not running
+        """
+
+        if self.progress is None:
+            raise AssertionError(_('a progress bar is not running'))
+        self.progress.advance(self.task)
 
     # CONSOLE SPECIFIC FUNCTIONS
 

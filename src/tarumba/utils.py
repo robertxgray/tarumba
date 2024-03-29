@@ -158,8 +158,9 @@ def check_installed(executables):
     """
 
     for executable in executables:
-        if pexpect.which(executable):
-            return executable
+        path = pexpect.which(executable)
+        if path:
+            return path
     raise FileNotFoundError(_("operation not available because the %(executable)s program "
         "can't be found, please make sure it's installed and available in the $PATH or "
         "enter the full path to the program in the configuration") %

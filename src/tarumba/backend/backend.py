@@ -17,6 +17,10 @@ class Backend(ABC):
     ADD_PATTERNS = None
     # Particular patterns when extracting files
     EXTRACT_PATTERNS = None
+    # Particular patterns when testing files
+    TEST_PATTERNS = None
+    # Particular patterns when renaming files
+    RENAME_PATTERNS = None
 
     def __init__(self, mime, operation):
         """
@@ -86,16 +90,29 @@ class Backend(ABC):
         "Commands to extract files from an archive"
 
     @abstractmethod
+    def test_commands(self, test_args):
+        "Commands to test the archive contents"
+
+#    @abstractmethod
+#    def rename_commands(self, extract_args):
+#        "Commands to rename the archive contents"
+
+    @abstractmethod
     def parse_list(self, executor, line_number, line, extra):
         "Parse the output when listing files"
-        return False
 
     @abstractmethod
     def parse_add(self, executor, line_number, line, extra):
         "Parse the output when adding files"
-        return False
 
     @abstractmethod
     def parse_extract(self, executor, line_number, line, extra):
         "Parse the output when extracting files"
-        return False
+
+    @abstractmethod
+    def parse_test(self, executor, line_number, line, extra):
+        "Parse the output when testing files"
+
+#    @abstractmethod
+#    def parse_rename(self, executor, line_number, line, extra):
+#        "Parse the output when renaming files"

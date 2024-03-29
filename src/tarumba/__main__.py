@@ -84,6 +84,20 @@ def main():
                 t_manager.extract_archive(args)
                 t_gui.stop_progress()
 
+        # Test
+        if args.command in ('t', 'test'):
+            message = _('testing')
+            with t_gui.start_progress(message, basename):
+                t_manager.test_archive(args)
+                t_gui.stop_progress()
+
+        # Rename
+        if args.command in ('r', 'rename'):
+            message = _('renaming files in')
+            with t_gui.start_progress(message, basename):
+                t_manager.rename_archive(args)
+                t_gui.stop_progress()
+
     # We get BrokenPipeError whenever the output is redirected, just ignore it
     except BrokenPipeError:
         t_gui.stop_progress()
@@ -92,7 +106,7 @@ def main():
         sys.exit(130)
     # ruff: noqa: BLE001
     except Exception as ex: # pylint: disable=broad-except
-        t_gui.stop_progress()
+        t_gui.stop_progress(True)
         t_gui.error(_('%(prog)s: error: %(message)s\n') % {'prog': 'tarumba', 'message': str(ex)})
         t_gui.print_exception()
         sys.exit(1)

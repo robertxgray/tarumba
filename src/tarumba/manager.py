@@ -292,3 +292,24 @@ def extract_archive(args):
         if extract_args.get('tmp_dir'):
             t_gui.debug('rmdir', extract_args.get('tmp_dir'))
             t_file_utils.delete_folder(extract_args.get('tmp_dir'))
+
+def test_archive(args):
+    """
+    Test archive contents.
+
+    :param args: Input arguments
+    :raises FileNotFoundError: The archive is not readable
+    """
+
+    t_file_utils.check_read_file(args.archive)
+
+    test_args = t_data_classes.TestArgs()
+    test_args.put('archive', args.archive)
+    test_args.put('files', args.files)
+    test_args.put('backend', t_classifier.detect_format(args.backend, args.archive,
+        t_constants.OPERATION_TEST))
+    t_gui.debug('test_args', test_args)
+
+    commands = test_args.get('backend').test_commands(test_args)
+    t_executor.Executor().execute(commands, test_args.get('backend').TEST_PATTERNS,
+        test_args.get('backend').parse_test, test_args)

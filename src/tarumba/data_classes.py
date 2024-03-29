@@ -115,3 +115,19 @@ class ExtractArgs(Base):
             'path': None,
             'tmp_dir': None
         }
+
+class TestArgs(Base):
+    "Arguments used when testing files"
+
+    def __init__(self):
+        """
+        Initialize the dictionary.
+        """
+
+        super().__init__()
+        self.dictionary = {
+            'archive': None,
+            'backend': None,
+            'files': None,
+            'password': None
+        }
