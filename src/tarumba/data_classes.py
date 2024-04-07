@@ -131,3 +131,19 @@ class TestArgs(Base):
             'files': None,
             'password': None
         }
+
+class RenameArgs(Base):
+    "Arguments used when renaming files"
+
+    def __init__(self):
+        """
+        Initialize the dictionary.
+        """
+
+        super().__init__()
+        self.dictionary = {
+            'archive': None,
+            'backend': None,
+            'files': None,
+            'password': None
+        }

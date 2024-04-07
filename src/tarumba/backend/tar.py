@@ -30,6 +30,7 @@ class Tar(t_backend.Backend):
 
         super().__init__(mime, operation)
         self._tar_bin = t_utils.check_installed(config.get('backends_l_tar_bin'))
+        self._error_prefix = f'{self._tar_bin}: '
 
     @override
     def list_commands(self, list_args):
@@ -94,6 +95,19 @@ class Tar(t_backend.Backend):
             ['-tf', test_args.get('archive'), '--', *test_args.get('files')])]
 
     @override
+    def rename_commands(self, rename_args):
+        """
+        Commands to rename the archive contents.
+
+        :param rename_args: RenameArgs object
+        :return: List of commands
+        """
+
+        raise NotImplementedError(
+            _('the %(back1)s backend cannot rename files, but you can use %(back2)s instead') %
+            {'back1': 'tar', 'back2': '7z'})
+
+    @override
     def parse_list(self, executor, line_number, line, extra):
         """
         Parse the output when listing files.
@@ -103,6 +117,10 @@ class Tar(t_backend.Backend):
         :param line: Line contents
         :param extra: Extra data
         """
+
+        if line.startswith(self._error_prefix):
+            t_gui.warn(_('%(prog)s: warning: %(message)s\n') %
+                {'prog': 'tarumba', 'message': line[len(self._error_prefix):]})
 
         elements = line.split(None, 4)
         if len(elements) < LIST_ELEMENTS:
@@ -146,9 +164,9 @@ class Tar(t_backend.Backend):
         :param extra: Extra data
         """
 
-        if line.startswith(f'{self._tar_bin}: '):
+        if line.startswith(self._error_prefix):
             t_gui.warn(_('%(prog)s: warning: %(message)s\n') %
-                {'prog': 'tarumba', 'message': line})
+                {'prog': 'tarumba', 'message': line[len(self._error_prefix):]})
         elif len(line) > 0:
             t_gui.adding_msg(line)
             t_gui.advance_progress()
@@ -164,9 +182,9 @@ class Tar(t_backend.Backend):
         :param extra: Extra data
         """
 
-        if line.startswith(f'{self._tar_bin}: '):
+        if line.startswith(self._error_prefix):
             t_gui.warn(_('%(prog)s: warning: %(message)s\n') %
-                {'prog': 'tarumba', 'message': line})
+                {'prog': 'tarumba', 'message': line[len(self._error_prefix):]})
         elif len(line) > 0:
             t_file_utils.pop_and_move_extracted(extra)
 
@@ -181,9 +199,24 @@ class Tar(t_backend.Backend):
         :param extra: Extra data
         """
 
-        if line.startswith(f'{self._tar_bin}: '):
+        if line.startswith(self._error_prefix):
             t_gui.warn(_('%(prog)s: warning: %(message)s\n') %
-                {'prog': 'tarumba', 'message': line})
+                {'prog': 'tarumba', 'message': line[len(self._error_prefix):]})
         elif len(line) > 0:
             t_gui.testing_msg(line)
             t_gui.advance_progress()
+
+    @override
+    def parse_rename(self, executor, line_number, line, extra):
+        """
+        Parse the output when renaming files.
+
+        :param executor: Program executor
+        :param line_number: Line number
+        :param line: Line contents
+        :param extra: Extra data
+        """
+
+        raise NotImplementedError(
+            _('the %(back1)s backend cannot rename files, but you can use %(back2)s instead') %
+            {'back1': 'tar', 'back2': '7z'})

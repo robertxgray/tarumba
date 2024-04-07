@@ -17,6 +17,7 @@ from tarumba import utils as t_utils
 from tarumba.config import current as config
 from tarumba.gui import current as t_gui
 
+PAIR = 2
 
 def _list_archive_2set(backend, archive):
     """
@@ -44,7 +45,6 @@ def list_archive(args):
     List archive contents.
 
     :param args: Input arguments
-    :raises FileNotFoundError: The archive is not readable
     """
 
     t_file_utils.check_read_file(args.archive)
@@ -298,7 +298,6 @@ def test_archive(args):
     Test archive contents.
 
     :param args: Input arguments
-    :raises FileNotFoundError: The archive is not readable
     """
 
     t_file_utils.check_read_file(args.archive)
@@ -313,3 +312,28 @@ def test_archive(args):
     commands = test_args.get('backend').test_commands(test_args)
     t_executor.Executor().execute(commands, test_args.get('backend').TEST_PATTERNS,
         test_args.get('backend').parse_test, test_args)
+
+
+def rename_archive(args):
+    """
+    Rename archive contents.
+
+    :param args: Input arguments
+    """
+
+    if len(args.files) < PAIR or len(args.files) % PAIR != 0:
+        raise ArgumentError(None,
+            _("renaming requires pairs of file names, the current name and the new name"))
+
+    t_file_utils.check_write_file(args.archive)
+
+    rename_args = t_data_classes.RenameArgs()
+    rename_args.put('archive', args.archive)
+    rename_args.put('files', args.files)
+    rename_args.put('backend', t_classifier.detect_format(args.backend, args.archive,
+        t_constants.OPERATION_RENAME))
+    t_gui.debug('rename_args', rename_args)
+
+    commands = rename_args.get('backend').rename_commands(rename_args)
+    t_executor.Executor().execute(commands, rename_args.get('backend').RENAME_PATTERNS,
+        rename_args.get('backend').parse_rename, rename_args)

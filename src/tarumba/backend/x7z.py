@@ -27,6 +27,8 @@ class X7z(t_backend.Backend):
     EXTRACT_PATTERNS = frozenset(['Enter password.*:'])
     # Particular patterns when testing files
     TEST_PATTERNS = frozenset(['Enter password.*:'])
+    # Particular patterns when renaming files
+    RENAME_PATTERNS = frozenset(['Enter password.*:'])
 
     # 7z uses this string to mark the start of the list of files
     LIST_START = '----------'
@@ -129,6 +131,18 @@ class X7z(t_backend.Backend):
 
         return [(self._7zip_bin, ['t', '-bb1', '-ba', '-bd', '--',
             test_args.get('archive'), *test_args.get('files')])]
+
+    @override
+    def rename_commands(self, rename_args):
+        """
+        Commands to rename the archive contents.
+
+        :param rename_args: RenameArgs object
+        :return: List of commands
+        """
+
+        return [(self._7zip_bin, ['rn', '-bb1', '-ba', '-bd', '--',
+            rename_args.get('archive'), *rename_args.get('files')])]
 
     def _parse_list_line(self, line):
         """
@@ -264,9 +278,29 @@ class X7z(t_backend.Backend):
         for pattern in self.TEST_PATTERNS:
             regex = re.compile(pattern)
             if regex.fullmatch(line):
+                extra.put('password', t_utils.get_password(archive=extra.get('archive')))
                 executor.send_line(extra.get('password'))
                 return
 
         if line.startswith('T '):
             t_gui.testing_msg(line[2:])
             t_gui.advance_progress()
+
+    @override
+    def parse_rename(self, executor, line_number, line, extra):
+        """
+        Parse the output when renaming files.
+
+        :param executor: Program executor
+        :param line_number: Line number
+        :param line: Line contents
+        :param extra: Extra data
+        """
+
+        # Password prompt
+        for pattern in self.TEST_PATTERNS:
+            regex = re.compile(pattern)
+            if regex.fullmatch(line):
+                extra.put('password', t_utils.get_password(archive=extra.get('archive')))
+                executor.send_line(extra.get('password'))
+                return

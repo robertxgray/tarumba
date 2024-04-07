@@ -93,9 +93,9 @@ class Backend(ABC):
     def test_commands(self, test_args):
         "Commands to test the archive contents"
 
-#    @abstractmethod
-#    def rename_commands(self, extract_args):
-#        "Commands to rename the archive contents"
+    @abstractmethod
+    def rename_commands(self, rename_args):
+        "Commands to rename the archive contents"
 
     @abstractmethod
     def parse_list(self, executor, line_number, line, extra):
@@ -113,6 +113,6 @@ class Backend(ABC):
     def parse_test(self, executor, line_number, line, extra):
         "Parse the output when testing files"
 
-#    @abstractmethod
-#    def parse_rename(self, executor, line_number, line, extra):
-#        "Parse the output when renaming files"
+    @abstractmethod
+    def parse_rename(self, executor, line_number, line, extra):
+        "Parse the output when renaming files"
