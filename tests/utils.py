@@ -57,6 +57,20 @@ def test_list(archive, files, extra_args):
     sys.argv += files
     main()
 
+def test_test(archive, files, extra_args):
+    """
+    Test test command.
+
+    :param archive: Archive path
+    :param archive: Files to test
+    :param extra_args: Extra arguments
+    """
+
+    sys.argv = ['tarumba', 't', *extra_args]
+    sys.argv.append(os.path.join(TEST_PATH, archive))
+    sys.argv += files
+    main()
+
 def test_extract(archive, files, extra_args):
     """
     Test extract command.
@@ -75,6 +89,20 @@ def test_extract(archive, files, extra_args):
         main()
     finally:
         os.chdir(cwd)
+
+def test_rename(archive, files, extra_args):
+    """
+    Test rename command.
+
+    :param archive: Archive path
+    :param archive: Files to rename
+    :param extra_args: Extra arguments
+    """
+
+    sys.argv = ['tarumba', 'r', *extra_args]
+    sys.argv.append(os.path.join(TEST_PATH, archive))
+    sys.argv += files
+    main()
 
 def _get_test_path(path, dest=None, archive_folder=None):
     """

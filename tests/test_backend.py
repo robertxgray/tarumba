@@ -194,6 +194,31 @@ class TestBackend:
             mocker.patch('rich.prompt.Prompt.ask', return_value=self.PASSWORD)
             test_utils.test_list('e_'+test_params.archive, [], ['-b',test_params.backend])
 
+    def test_test_one(self, test_params):
+        "Test one content"
+
+        backend = t_classifier.detect_format(
+            test_params.backend, test_params.archive, t_constants.OPERATION_TEST)
+        if backend.can_pack() or backend.mime[0] == t_constants.MIME_GZIP:
+            file_name = self.LINK2
+        else:
+            file_name = Path(test_params.archive).stem
+        test_utils.test_test(test_params.archive, [file_name], ['-b',test_params.backend])
+
+    def test_test_all(self, test_params):
+        "Test all contents"
+
+        test_utils.test_test(test_params.archive, [], ['-b',test_params.backend])
+
+    def test_test_encrypted(self, test_params, mocker):
+        "Tests an encrypted archive"
+
+        backend = t_classifier.detect_format(
+            test_params.backend, 'e_'+test_params.archive, t_constants.OPERATION_TEST)
+        if backend.can_encrypt():
+            mocker.patch('rich.prompt.Prompt.ask', return_value=self.PASSWORD)
+            test_utils.test_test('e_'+test_params.archive, [], ['-b',test_params.backend])
+
     def test_extract_one(self, test_params):
         "Extract one file from the archive"
 
@@ -331,6 +356,34 @@ class TestBackend:
             mocker.patch('rich.prompt.Prompt.ask', return_value=self.PASSWORD)
             test_utils.test_extract('e_'+test_params.archive, [], ['-b',test_params.backend,'-a'])
             test_utils.assert_dir_exists(self.DIR)
+
+    def test_rename(self, test_params):
+        "Rename files in the archive"
+
+        backend = t_classifier.detect_format(
+            test_params.backend, test_params.archive, t_constants.OPERATION_RENAME)
+        if test_params.backend == t_constants.BACKEND_7ZIP:
+            test_utils.test_rename(test_params.archive, [self.FILE1, f'{self.FILE1}_r'],
+                ['-b',test_params.backend])
+        else:
+            with pytest.raises(SystemExit):
+                test_utils.test_rename(test_params.archive, [self.FILE1, f'{self.FILE1}_r'],
+                    ['-b',test_params.backend])
+
+    def test_rename_encrypted(self, test_params, mocker):
+        "Rename files in an encrypted archive"
+
+        backend = t_classifier.detect_format(
+            test_params.backend, 'e_'+test_params.archive, t_constants.OPERATION_RENAME)
+        if backend.can_encrypt():
+            mocker.patch('rich.prompt.Prompt.ask', return_value=self.PASSWORD)
+            if test_params.backend == t_constants.BACKEND_7ZIP:
+                test_utils.test_rename(test_params.archive, [self.FILE1, f'{self.FILE1}_r'],
+                    ['-b',test_params.backend])
+            else:
+                with pytest.raises(SystemExit):
+                    test_utils.test_rename(test_params.archive, [self.FILE1, f'{self.FILE1}_r'],
+                        ['-b',test_params.backend])
 
     def test_cleanup(self, test_params):
         "Not a real test, just the cleanup"
