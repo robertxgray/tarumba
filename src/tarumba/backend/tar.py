@@ -35,7 +35,7 @@ class Tar(t_backend.Backend):
     @override
     def list_commands(self, list_args):
         """
-        Commands to list the archive contents.
+        Commands to list files in the archive.
 
         :param list_args: ListArgs object
         :return: List of commands
@@ -51,7 +51,7 @@ class Tar(t_backend.Backend):
     @override
     def add_commands(self, add_args, files):
         """
-        Commands to add files to an archive.
+        Commands to add files to the archive.
 
         :param add_args: AddArgs object
         :param files: List of files
@@ -70,7 +70,7 @@ class Tar(t_backend.Backend):
     @override
     def extract_commands(self, extract_args):
         """
-        Commands to extract files from an archive.
+        Commands to extract files from the archive.
 
         :param extract_args: ExtractArgs object
         :return: List of commands
@@ -83,21 +83,24 @@ class Tar(t_backend.Backend):
             [*params, '-xvf', extract_args.get('archive'), '--', *extract_args.get('files')])]
 
     @override
-    def test_commands(self, test_args):
+    def delete_commands(self, delete_args):
         """
-        Commands to test the archive contents.
+        Commands to delete files from the archive.
 
-        :param test_args: TestArgs object
+        :param delete_args: DeleteArgs object
         :return: List of commands
         """
 
-        return [(self._tar_bin,
-            ['-tf', test_args.get('archive'), '--', *test_args.get('files')])]
+        params = []
+        if delete_args.get('occurrence'):
+            params.append('--occurrence='+delete_args.get('occurrence'))
+        return [(self._tar_bin, [*params, '--delete', '-vf', delete_args.get('archive'), '--',
+            *delete_args.get('files')])]
 
     @override
     def rename_commands(self, rename_args):
         """
-        Commands to rename the archive contents.
+        Commands to rename files in the archive.
 
         :param rename_args: RenameArgs object
         :return: List of commands
@@ -106,6 +109,21 @@ class Tar(t_backend.Backend):
         raise NotImplementedError(
             _('the %(back1)s backend cannot rename files, but you can use %(back2)s instead') %
             {'back1': 'tar', 'back2': '7z'})
+
+    @override
+    def test_commands(self, test_args):
+        """
+        Commands to test files in the archive.
+
+        :param test_args: TestArgs object
+        :return: List of commands
+        """
+
+        params = []
+        if test_args.get('occurrence'):
+            params.append('--occurrence='+test_args.get('occurrence'))
+        return [(self._tar_bin,
+            [*params, '-tf', test_args.get('archive'), '--', *test_args.get('files')])]
 
     @override
     def parse_list(self, executor, line_number, line, extra):
@@ -189,6 +207,36 @@ class Tar(t_backend.Backend):
             t_file_utils.pop_and_move_extracted(extra)
 
     @override
+    def parse_delete(self, executor, line_number, line, extra):
+        """
+        Parse the output when deleting files.
+
+        :param executor: Program executor
+        :param line_number: Line number
+        :param line: Line contents
+        :param extra: Extra data
+        """
+
+        if line.startswith(self._error_prefix):
+            t_gui.warn(_('%(prog)s: warning: %(message)s\n') %
+                {'prog': 'tarumba', 'message': line[len(self._error_prefix):]})
+
+    @override
+    def parse_rename(self, executor, line_number, line, extra):
+        """
+        Parse the output when renaming files.
+
+        :param executor: Program executor
+        :param line_number: Line number
+        :param line: Line contents
+        :param extra: Extra data
+        """
+
+        raise NotImplementedError(
+            _('the %(back1)s backend cannot rename files, but you can use %(back2)s instead') %
+            {'back1': 'tar', 'back2': '7z'})
+
+    @override
     def parse_test(self, executor, line_number, line, extra):
         """
         Parse the output when testing files.
@@ -205,18 +253,3 @@ class Tar(t_backend.Backend):
         elif len(line) > 0:
             t_gui.testing_msg(line)
             t_gui.advance_progress()
-
-    @override
-    def parse_rename(self, executor, line_number, line, extra):
-        """
-        Parse the output when renaming files.
-
-        :param executor: Program executor
-        :param line_number: Line number
-        :param line: Line contents
-        :param extra: Extra data
-        """
-
-        raise NotImplementedError(
-            _('the %(back1)s backend cannot rename files, but you can use %(back2)s instead') %
-            {'back1': 'tar', 'back2': '7z'})

@@ -17,14 +17,14 @@ msgstr ""
 msgid "The universal archive manager"
 msgstr "El gestor de archivos universal"
 
-msgid "command: list, add, extract, test or rename"
-msgstr "commando: listar, añadir, extraer, comprobar o renombrar"
+msgid "command: list, add, extract, delete, rename or test"
+msgstr "commando: listar, añadir, extraer, borrar, renombrar o comprobar"
 
 msgid "archive file to process"
 msgstr "fichero de archivo a procesar"
 
-msgid "list of files to list, add, extract, test or rename"
-msgstr "lista de ficheros a listar, añadir, extraer, comprobar o renombrar"
+msgid "list of files to operate with"
+msgstr "lista de ficheros con los que operar"
 
 msgid "always overwrite existing files"
 msgstr "sobreescribe siempre los archivos existentes"
@@ -153,6 +153,9 @@ msgstr "extrayendo"
 msgid "extracting files from"
 msgstr "extrayendo ficheros de"
 
+msgid "deleting files from"
+msgstr "borrando ficheros de"
+
 msgid "testing"
 msgstr "comprobando"
 
@@ -161,6 +164,9 @@ msgstr "renombrando ficheros en"
 
 msgid "expected a list of files to add"
 msgstr "se espera la lista de ficheros a añadir"
+
+msgid "expected a list of files to delete"
+msgstr "se espera la lista de ficheros a borrar"
 
 msgid "renaming requires pairs of file names, the current name and the new name"
 msgstr "para renombrar se necesitan pares de nombres de fichero, el nombre actual y el nuevo"

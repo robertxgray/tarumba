@@ -37,12 +37,12 @@ def get_arguments():
     parser = ColouredArgumentParser(prog='tarumba',
                                     description=_('The universal archive manager'))
     parser.add_argument('command',
-        choices=['l','list','a','add','e','extract','t','test','r','rename'],
-        help=_('command: list, add, extract, test or rename'))
+        choices=['l','list','a','add','e','extract','d','delete','r','rename','t','test'],
+        help=_('command: list, add, extract, delete, rename or test'))
     parser.add_argument('archive',
         help=_('archive file to process'))
     parser.add_argument('files', nargs='*',
-        help=_('list of files to list, add, extract, test or rename'))
+        help=_('list of files to operate with'))
     parser.add_argument('-a', '--always-overwrite', action='store_true',
         help=_('always overwrite existing files'))
     parser.add_argument('-b', '--backend',

@@ -25,10 +25,12 @@ class X7z(t_backend.Backend):
     ADD_PATTERNS = frozenset(['Enter password.*:', 'Verify password.*:'])
     # Particular patterns when extracting files
     EXTRACT_PATTERNS = frozenset(['Enter password.*:'])
-    # Particular patterns when testing files
-    TEST_PATTERNS = frozenset(['Enter password.*:'])
+    # Particular patterns when deleting files
+    DELETE_PATTERNS = frozenset(['Enter password.*:'])
     # Particular patterns when renaming files
     RENAME_PATTERNS = frozenset(['Enter password.*:'])
+    # Particular patterns when testing files
+    TEST_PATTERNS = frozenset(['Enter password.*:'])
 
     # 7z uses this string to mark the start of the list of files
     LIST_START = '----------'
@@ -74,7 +76,7 @@ class X7z(t_backend.Backend):
     @override
     def list_commands(self, list_args):
         """
-        Commands to list the archive contents.
+        Commands to list files in the archive.
 
         :param list_args: ListArgs object
         :return: List of commands
@@ -86,7 +88,7 @@ class X7z(t_backend.Backend):
     @override
     def add_commands(self, add_args, files):
         """
-        Commands to add files to an archive.
+        Commands to add files to the archive.
 
         :param add_args: AddArgs object
         :param contents: Files root path
@@ -111,7 +113,7 @@ class X7z(t_backend.Backend):
     @override
     def extract_commands(self, extract_args):
         """
-        Commands to extract files from an archive.
+        Commands to extract files from the archive.
 
         :param extract_args: ExtractArgs object
         :return: List of commands
@@ -121,21 +123,21 @@ class X7z(t_backend.Backend):
             extract_args.get('archive'), *extract_args.get('files')])]
 
     @override
-    def test_commands(self, test_args):
+    def delete_commands(self, delete_args):
         """
-        Commands to test the archive contents.
+        Commands to delete files from the archive.
 
-        :param test_args: TestArgs object
+        :param extract_args: DeleteArgs object
         :return: List of commands
         """
 
-        return [(self._7zip_bin, ['t', '-bb1', '-ba', '-bd', '--',
-            test_args.get('archive'), *test_args.get('files')])]
+        return [(self._7zip_bin, ['d', '-bb1', '-ba', '-bd', '--',
+            delete_args.get('archive'), *delete_args.get('files')])]
 
     @override
     def rename_commands(self, rename_args):
         """
-        Commands to rename the archive contents.
+        Commands to rename files in the archive.
 
         :param rename_args: RenameArgs object
         :return: List of commands
@@ -143,6 +145,18 @@ class X7z(t_backend.Backend):
 
         return [(self._7zip_bin, ['rn', '-bb1', '-ba', '-bd', '--',
             rename_args.get('archive'), *rename_args.get('files')])]
+
+    @override
+    def test_commands(self, test_args):
+        """
+        Commands to test files in the archive.
+
+        :param test_args: TestArgs object
+        :return: List of commands
+        """
+
+        return [(self._7zip_bin, ['t', '-bb1', '-ba', '-bd', '--',
+            test_args.get('archive'), *test_args.get('files')])]
 
     def _parse_list_line(self, line):
         """
@@ -264,6 +278,44 @@ class X7z(t_backend.Backend):
             t_file_utils.pop_and_move_extracted(extra)
 
     @override
+    def parse_delete(self, executor, line_number, line, extra):
+        """
+        Parse the output when deleting files.
+
+        :param executor: Program executor
+        :param line_number: Line number
+        :param line: Line contents
+        :param extra: Extra data
+        """
+
+        # Password prompt
+        for pattern in self.TEST_PATTERNS:
+            regex = re.compile(pattern)
+            if regex.fullmatch(line):
+                extra.put('password', t_utils.get_password(archive=extra.get('archive')))
+                executor.send_line(extra.get('password'))
+                return
+
+    @override
+    def parse_rename(self, executor, line_number, line, extra):
+        """
+        Parse the output when renaming files.
+
+        :param executor: Program executor
+        :param line_number: Line number
+        :param line: Line contents
+        :param extra: Extra data
+        """
+
+        # Password prompt
+        for pattern in self.TEST_PATTERNS:
+            regex = re.compile(pattern)
+            if regex.fullmatch(line):
+                extra.put('password', t_utils.get_password(archive=extra.get('archive')))
+                executor.send_line(extra.get('password'))
+                return
+
+    @override
     def parse_test(self, executor, line_number, line, extra):
         """
         Parse the output when testing files.
@@ -285,22 +337,3 @@ class X7z(t_backend.Backend):
         if line.startswith('T '):
             t_gui.testing_msg(line[2:])
             t_gui.advance_progress()
-
-    @override
-    def parse_rename(self, executor, line_number, line, extra):
-        """
-        Parse the output when renaming files.
-
-        :param executor: Program executor
-        :param line_number: Line number
-        :param line: Line contents
-        :param extra: Extra data
-        """
-
-        # Password prompt
-        for pattern in self.TEST_PATTERNS:
-            regex = re.compile(pattern)
-            if regex.fullmatch(line):
-                extra.put('password', t_utils.get_password(archive=extra.get('archive')))
-                executor.send_line(extra.get('password'))
-                return

@@ -104,6 +104,20 @@ def test_rename(archive, files, extra_args):
     sys.argv += files
     main()
 
+def test_delete(archive, files, extra_args):
+    """
+    Test delete command.
+
+    :param archive: Archive path
+    :param archive: Files to delete
+    :param extra_args: Extra arguments
+    """
+
+    sys.argv = ['tarumba', 'd', *extra_args]
+    sys.argv.append(os.path.join(TEST_PATH, archive))
+    sys.argv += files
+    main()
+
 def _get_test_path(path, dest=None, archive_folder=None):
     """
     Returns paths in the tests dir.

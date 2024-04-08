@@ -17,10 +17,12 @@ class Backend(ABC):
     ADD_PATTERNS = None
     # Particular patterns when extracting files
     EXTRACT_PATTERNS = None
-    # Particular patterns when testing files
-    TEST_PATTERNS = None
+    # Particular patterns when deleting files
+    DELETE_PATTERNS = None
     # Particular patterns when renaming files
     RENAME_PATTERNS = None
+    # Particular patterns when testing files
+    TEST_PATTERNS = None
 
     def __init__(self, mime, operation):
         """
@@ -79,23 +81,27 @@ class Backend(ABC):
 
     @abstractmethod
     def list_commands(self, list_args):
-        "Commands to list the archive contents"
+        "Commands to list files in the archive"
 
     @abstractmethod
     def add_commands(self, add_args, files):
-        "Commands to add files to an archive"
+        "Commands to add files to the archive"
 
     @abstractmethod
     def extract_commands(self, extract_args):
-        "Commands to extract files from an archive"
+        "Commands to extract files from the archive"
 
     @abstractmethod
-    def test_commands(self, test_args):
-        "Commands to test the archive contents"
+    def delete_commands(self, delete_args):
+        "Commands to delete files in the archive"
 
     @abstractmethod
     def rename_commands(self, rename_args):
-        "Commands to rename the archive contents"
+        "Commands to rename files in the archive"
+
+    @abstractmethod
+    def test_commands(self, test_args):
+        "Commands to test files in the archive"
 
     @abstractmethod
     def parse_list(self, executor, line_number, line, extra):
@@ -110,9 +116,13 @@ class Backend(ABC):
         "Parse the output when extracting files"
 
     @abstractmethod
-    def parse_test(self, executor, line_number, line, extra):
-        "Parse the output when testing files"
+    def parse_delete(self, executor, line_number, line, extra):
+        "Parse the output when deleting files"
 
     @abstractmethod
     def parse_rename(self, executor, line_number, line, extra):
         "Parse the output when renaming files"
+
+    @abstractmethod
+    def parse_test(self, executor, line_number, line, extra):
+        "Parse the output when testing files"

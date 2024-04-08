@@ -84,11 +84,11 @@ def main():
                 t_manager.extract_archive(args)
                 t_gui.stop_progress()
 
-        # Test
-        if args.command in ('t', 'test'):
-            message = _('testing')
+        # Delete
+        if args.command in ('d', 'delete'):
+            message = _('deleting files from')
             with t_gui.start_progress(message, basename):
-                t_manager.test_archive(args)
+                t_manager.delete_archive(args)
                 t_gui.stop_progress()
 
         # Rename
@@ -96,6 +96,13 @@ def main():
             message = _('renaming files in')
             with t_gui.start_progress(message, basename):
                 t_manager.rename_archive(args)
+                t_gui.stop_progress()
+
+        # Test
+        if args.command in ('t', 'test'):
+            message = _('testing')
+            with t_gui.start_progress(message, basename):
+                t_manager.test_archive(args)
                 t_gui.stop_progress()
 
     # We get BrokenPipeError whenever the output is redirected, just ignore it

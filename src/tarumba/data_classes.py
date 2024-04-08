@@ -116,8 +116,8 @@ class ExtractArgs(Base):
             'tmp_dir': None
         }
 
-class TestArgs(Base):
-    "Arguments used when testing files"
+class DeleteArgs(Base):
+    "Arguments used when deleting files"
 
     def __init__(self):
         """
@@ -129,6 +129,7 @@ class TestArgs(Base):
             'archive': None,
             'backend': None,
             'files': None,
+            'occurrence': None,
             'password': None
         }
 
@@ -145,5 +146,23 @@ class RenameArgs(Base):
             'archive': None,
             'backend': None,
             'files': None,
+            'occurrence': None,
+            'password': None
+        }
+
+class TestArgs(Base):
+    "Arguments used when testing files"
+
+    def __init__(self):
+        """
+        Initialize the dictionary.
+        """
+
+        super().__init__()
+        self.dictionary = {
+            'archive': None,
+            'backend': None,
+            'files': None,
+            'occurrence': None,
             'password': None
         }

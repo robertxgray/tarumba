@@ -293,26 +293,29 @@ def extract_archive(args):
             t_gui.debug('rmdir', extract_args.get('tmp_dir'))
             t_file_utils.delete_folder(extract_args.get('tmp_dir'))
 
-def test_archive(args):
+def delete_archive(args):
     """
-    Test archive contents.
+    Delete archive contents.
 
     :param args: Input arguments
     """
 
-    t_file_utils.check_read_file(args.archive)
+    if len(args.files) < 1:
+        raise ArgumentError(None, _("expected a list of files to delete"))
 
-    test_args = t_data_classes.TestArgs()
-    test_args.put('archive', args.archive)
-    test_args.put('files', args.files)
-    test_args.put('backend', t_classifier.detect_format(args.backend, args.archive,
-        t_constants.OPERATION_TEST))
-    t_gui.debug('test_args', test_args)
+    t_file_utils.check_write_file(args.archive)
 
-    commands = test_args.get('backend').test_commands(test_args)
-    t_executor.Executor().execute(commands, test_args.get('backend').TEST_PATTERNS,
-        test_args.get('backend').parse_test, test_args)
+    delete_args = t_data_classes.DeleteArgs()
+    delete_args.put('archive', args.archive)
+    delete_args.put('files', args.files)
+    delete_args.put('backend', t_classifier.detect_format(args.backend, args.archive,
+        t_constants.OPERATION_RENAME))
+    delete_args.put('occurrence', args.occurrence)
+    t_gui.debug('delete_args', delete_args)
 
+    commands = delete_args.get('backend').delete_commands(delete_args)
+    t_executor.Executor().execute(commands, delete_args.get('backend').DELETE_PATTERNS,
+        delete_args.get('backend').parse_delete, delete_args)
 
 def rename_archive(args):
     """
@@ -332,8 +335,30 @@ def rename_archive(args):
     rename_args.put('files', args.files)
     rename_args.put('backend', t_classifier.detect_format(args.backend, args.archive,
         t_constants.OPERATION_RENAME))
+    rename_args.put('occurrence', args.occurrence)
     t_gui.debug('rename_args', rename_args)
 
     commands = rename_args.get('backend').rename_commands(rename_args)
     t_executor.Executor().execute(commands, rename_args.get('backend').RENAME_PATTERNS,
         rename_args.get('backend').parse_rename, rename_args)
+
+def test_archive(args):
+    """
+    Test archive contents.
+
+    :param args: Input arguments
+    """
+
+    t_file_utils.check_read_file(args.archive)
+
+    test_args = t_data_classes.TestArgs()
+    test_args.put('archive', args.archive)
+    test_args.put('files', args.files)
+    test_args.put('backend', t_classifier.detect_format(args.backend, args.archive,
+        t_constants.OPERATION_TEST))
+    test_args.put('occurrence', args.occurrence)
+    t_gui.debug('test_args', test_args)
+
+    commands = test_args.get('backend').test_commands(test_args)
+    t_executor.Executor().execute(commands, test_args.get('backend').TEST_PATTERNS,
+        test_args.get('backend').parse_test, test_args)
