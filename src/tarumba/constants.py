@@ -40,7 +40,7 @@ MIME_GZIP = 'application/gzip'
 MIME_LZMA = 'application/x-lzma'
 MIME_TAR = 'application/x-tar'
 MIME_ZIP = 'application/zip'
-MIME_XZ = 'applicaiton/x-xz'
+MIME_XZ = 'application/x-xz'
 
 # Backend operations
 OPERATION_LIST = 'LIST'

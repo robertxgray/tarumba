@@ -57,6 +57,9 @@ def list_archive(args):
         t_constants.OPERATION_LIST))
     list_args.put('occurrence', args.occurrence)
     list_args.put('output', [])
+    # Make sure the headers are added on empty archives
+    t_utils.get_list_columns(list_args.get('columns'), config.get('main_l_list_columns'),
+        list_args.get('output'))
     t_gui.debug('list_args', list_args)
 
     commands = list_args.get('backend').list_commands(list_args)
