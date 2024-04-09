@@ -16,9 +16,10 @@ class TestMain:
     def test_noargs(self):
         "Run the program without arguments"
 
+        sys.argv = []
         with pytest.raises(SystemExit) as e:
             main()
-        assert e.value.code == 1
+        assert e.value.code == 2
 
     def test_help(self):
         "Print the help"

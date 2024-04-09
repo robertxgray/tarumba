@@ -55,6 +55,20 @@ class Backend(ABC):
             return True
         return False
 
+    def can_name(self):
+        """
+        Returns true if the archive can store file names.
+
+        :return: True of False
+        """
+
+        # Same as pack except gzip
+        if self.mime[0] in (t_constants.MIME_BROTLI, t_constants.MIME_BZIP2,
+                            t_constants.MIME_COMPRESS, t_constants.MIME_LZMA,
+                            t_constants.MIME_XZ):
+            return False
+        return True
+
     def can_pack(self):
         """
         Returns true if the archive can store multiple files.

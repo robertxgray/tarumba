@@ -13,17 +13,22 @@ import tarumba.constants as t_constants
 from tarumba.config import current as config
 from tests import utils as test_utils
 
+# You may need to adjust these variables to your testing environment
+X7Z = '7zz' # 7-Zip
+P7ZIP = '7z' # p7zip
+GTAR = 'tar' # GNU Tar
+
 test_params_list = [
-    test_utils.TestParams(t_constants.BACKEND_7ZIP, '7zz', 'test_7zz.7z'),
-    test_utils.TestParams(t_constants.BACKEND_7ZIP, '7zz', 'test_7zz.tar'),
-    test_utils.TestParams(t_constants.BACKEND_7ZIP, '7zz', 'test_7zz.zip'),
-    test_utils.TestParams(t_constants.BACKEND_7ZIP, '7zz', 'test_7zz.gz'),
-    test_utils.TestParams(t_constants.BACKEND_7ZIP, '7zz', 'test_7zz.bz2'),
-    test_utils.TestParams(t_constants.BACKEND_7ZIP, '7zz', 'test_7zz.xz'),
-    test_utils.TestParams(t_constants.BACKEND_7ZIP, '7z', 'test_7z.7z'),
-    test_utils.TestParams(t_constants.BACKEND_7ZIP, '7z', 'test_7z.tar'),
-    test_utils.TestParams(t_constants.BACKEND_7ZIP, '7z', 'test_7z.zip'),
-    test_utils.TestParams(t_constants.BACKEND_TAR, 'tar', 'test_tar.tar')
+    test_utils.TestParams(t_constants.BACKEND_7ZIP, X7Z, 'test_7zz.7z'),
+    test_utils.TestParams(t_constants.BACKEND_7ZIP, X7Z, 'test_7zz.tar'),
+    test_utils.TestParams(t_constants.BACKEND_7ZIP, X7Z, 'test_7zz.zip'),
+    test_utils.TestParams(t_constants.BACKEND_7ZIP, X7Z, 'test_7zz.gz'),
+    test_utils.TestParams(t_constants.BACKEND_7ZIP, X7Z, 'test_7zz.bz2'),
+    test_utils.TestParams(t_constants.BACKEND_7ZIP, X7Z, 'test_7zz.xz'),
+    test_utils.TestParams(t_constants.BACKEND_7ZIP, P7ZIP, 'test_7z.7z'),
+    test_utils.TestParams(t_constants.BACKEND_7ZIP, P7ZIP, 'test_7z.tar'),
+    test_utils.TestParams(t_constants.BACKEND_7ZIP, P7ZIP, 'test_7z.zip'),
+    test_utils.TestParams(t_constants.BACKEND_TAR, GTAR, 'test_tar.tar')
 ]
 
 @pytest.fixture(scope="session", params=test_params_list)
@@ -384,7 +389,9 @@ class TestBackend:
     def test_rename(self, test_params):
         "Rename files in the archive"
 
-        if test_params.backend == t_constants.BACKEND_7ZIP:
+        backend = t_classifier.detect_format(
+            test_params.backend, self.ENC_PRE+test_params.archive, t_constants.OPERATION_RENAME)
+        if backend.can_name() and test_params.backend == t_constants.BACKEND_7ZIP:
             test_utils.test_rename(test_params.archive, [self.FILE1, self.FILE1_RN],
                 ['-b',test_params.backend])
         else:
@@ -397,7 +404,7 @@ class TestBackend:
 
         backend = t_classifier.detect_format(
             test_params.backend, self.ENC_PRE+test_params.archive, t_constants.OPERATION_RENAME)
-        if backend.can_encrypt():
+        if backend.can_encrypt(): # Naming is available whenever encryption is available
             mocker.patch('rich.prompt.Prompt.ask', return_value=self.PASSWORD)
             if test_params.backend == t_constants.BACKEND_7ZIP:
                 test_utils.test_rename(test_params.archive, [self.FILE1, self.FILE1_RN],
@@ -411,7 +418,7 @@ class TestBackend:
         "Delete one file from the archive with occurrence"
 
         backend = t_classifier.detect_format(
-            test_params.backend, test_params.archive, t_constants.OPERATION_EXTRACT)
+            test_params.backend, test_params.archive, t_constants.OPERATION_DELETE)
         if backend.can_duplicate():
             test_utils.test_delete(
                 test_params.archive, [self.FILE1], ['-b',test_params.backend,'-o','1'])
@@ -419,14 +426,21 @@ class TestBackend:
     def test_delete(self, test_params):
         "Delete one file from the archive"
 
-        test_utils.test_delete(test_params.archive, [self.FILE2], ['-b',test_params.backend])
+        backend = t_classifier.detect_format(
+            test_params.backend, test_params.archive, t_constants.OPERATION_DELETE)
+        if backend.can_pack():
+            test_utils.test_delete(test_params.archive, [self.FILE2], ['-b',test_params.backend])
+        else:
+            with pytest.raises(SystemExit):
+                test_utils.test_delete(test_params.archive, [self.FILE2],
+                    ['-b',test_params.backend])
 
     def test_delete_encrypted(self, test_params, mocker):
         "Delete one file from the encrypted archive"
 
         backend = t_classifier.detect_format(
-            test_params.backend, self.ENC_PRE+test_params.archive, t_constants.OPERATION_RENAME)
-        if backend.can_encrypt():
+            test_params.backend, self.ENC_PRE+test_params.archive, t_constants.OPERATION_DELETE)
+        if backend.can_encrypt(): # Packing is available whenever encryption is available
             mocker.patch('rich.prompt.Prompt.ask', return_value=self.PASSWORD)
             test_utils.test_delete(test_params.archive, [self.FILE2], ['-b',test_params.backend])
 

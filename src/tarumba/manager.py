@@ -312,9 +312,13 @@ def delete_archive(args):
     delete_args.put('archive', args.archive)
     delete_args.put('files', args.files)
     delete_args.put('backend', t_classifier.detect_format(args.backend, args.archive,
-        t_constants.OPERATION_RENAME))
+        t_constants.OPERATION_DELETE))
     delete_args.put('occurrence', args.occurrence)
     t_gui.debug('delete_args', delete_args)
+
+    if not delete_args.get('backend').can_pack():
+        raise ArgumentError(None,
+            _("files can't be deleted from this archive format, delete the archive instead"))
 
     commands = delete_args.get('backend').delete_commands(delete_args)
     t_executor.Executor().execute(commands, delete_args.get('backend').DELETE_PATTERNS,
@@ -340,6 +344,10 @@ def rename_archive(args):
         t_constants.OPERATION_RENAME))
     rename_args.put('occurrence', args.occurrence)
     t_gui.debug('rename_args', rename_args)
+
+    if not rename_args.get('backend').can_name():
+        raise ArgumentError(None,
+            _("files can't be renamed from this archive format, rename the archive instead"))
 
     commands = rename_args.get('backend').rename_commands(rename_args)
     t_executor.Executor().execute(commands, rename_args.get('backend').RENAME_PATTERNS,
