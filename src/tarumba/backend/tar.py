@@ -147,10 +147,8 @@ class Tar(t_backend.Backend):
 
         # List output
         if isinstance(output, list):
-            columns = t_utils.get_list_columns(
-                extra.get('columns'), config.get('main_l_list_columns'), output)
             row = []
-            for column in columns:
+            for column in extra.get('columns'):
                 if column == t_constants.COLUMN_PERMS:
                     row.append(elements[0])
                 elif column == t_constants.COLUMN_OWNER:

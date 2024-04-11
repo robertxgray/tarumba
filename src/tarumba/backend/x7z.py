@@ -213,15 +213,13 @@ class X7z(t_backend.Backend):
             # List output
             if isinstance(output, list):
                 if line == '': # End of file
-                    columns = t_utils.get_list_columns(
-                        extra.get('columns'), config.get('main_l_list_columns'), output)
 
                     # Some formats can't store the file name
                     if t_constants.COLUMN_NAME not in self._current_file:
                         self._current_file[t_constants.COLUMN_NAME] = t_file_utils.basename_noext(
                             extra.get('archive'))
 
-                    row = [self._current_file.get(column) for column in columns]
+                    row = [self._current_file.get(column) for column in extra.get('columns')]
                     output.append(row)
                     self._current_file = {}
 

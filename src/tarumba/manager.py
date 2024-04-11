@@ -49,17 +49,17 @@ def list_archive(args):
 
     t_file_utils.check_read_file(args.archive)
 
+    arg_columns = t_config.parse_columns(args.columns)
+    columns = t_utils.get_list_columns(arg_columns, config.get('main_l_list_columns'))
+
     list_args = t_data_classes.ListArgs()
     list_args.put('archive', args.archive)
-    list_args.put('columns', t_config.parse_columns(args.columns))
+    list_args.put('columns', columns)
     list_args.put('files', args.files)
     list_args.put('backend', t_classifier.detect_format(args.backend, args.archive,
         t_constants.OPERATION_LIST))
     list_args.put('occurrence', args.occurrence)
-    list_args.put('output', [])
-    # Make sure the headers are added on empty archives
-    t_utils.get_list_columns(list_args.get('columns'), config.get('main_l_list_columns'),
-        list_args.get('output'))
+    list_args.put('output', [columns])
     t_gui.debug('list_args', list_args)
 
     commands = list_args.get('backend').list_commands(list_args)
