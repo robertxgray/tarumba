@@ -42,6 +42,9 @@ class Tar(t_backend.Backend):
         """
 
         params = []
+        params.append('--quoting-style=literal')
+        params.append('--no-unquote')
+        params.append('--no-wildcards')
         params.append('--numeric-owner')
         if list_args.get('occurrence'):
             params.append('--occurrence='+list_args.get('occurrence'))
@@ -59,6 +62,9 @@ class Tar(t_backend.Backend):
         """
 
         params = []
+        params.append('--quoting-style=literal')
+        params.append('--no-unquote')
+        params.append('--no-wildcards')
         if add_args.get('follow_links'):
             params.append('-h')
         if not add_args.get('owner'):
@@ -77,6 +83,9 @@ class Tar(t_backend.Backend):
         """
 
         params = []
+        params.append('--quoting-style=literal')
+        params.append('--no-unquote')
+        params.append('--no-wildcards')
         if extract_args.get('occurrence'):
             params.append('--occurrence='+extract_args.get('occurrence'))
         return [(self._tar_bin,
@@ -92,6 +101,9 @@ class Tar(t_backend.Backend):
         """
 
         params = []
+        params.append('--quoting-style=literal')
+        params.append('--no-unquote')
+        params.append('--no-wildcards')
         if delete_args.get('occurrence'):
             params.append('--occurrence='+delete_args.get('occurrence'))
         return [(self._tar_bin, [*params, '--delete', '-vf', delete_args.get('archive'), '--',
@@ -120,6 +132,9 @@ class Tar(t_backend.Backend):
         """
 
         params = []
+        params.append('--quoting-style=literal')
+        params.append('--no-unquote')
+        params.append('--no-wildcards')
         if test_args.get('occurrence'):
             params.append('--occurrence='+test_args.get('occurrence'))
         return [(self._tar_bin,

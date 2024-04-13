@@ -19,16 +19,19 @@ P7ZIP = '7z' # p7zip
 GTAR = 'tar' # GNU Tar
 
 test_params_list = [
-    test_utils.TestParams(t_constants.BACKEND_7ZIP, X7Z, 'test_7zz.7z'),
-    test_utils.TestParams(t_constants.BACKEND_7ZIP, X7Z, 'test_7zz.tar'),
-    test_utils.TestParams(t_constants.BACKEND_7ZIP, X7Z, 'test_7zz.zip'),
-    test_utils.TestParams(t_constants.BACKEND_7ZIP, X7Z, 'test_7zz.gz'),
-    test_utils.TestParams(t_constants.BACKEND_7ZIP, X7Z, 'test_7zz.bz2'),
-    test_utils.TestParams(t_constants.BACKEND_7ZIP, X7Z, 'test_7zz.xz'),
-    test_utils.TestParams(t_constants.BACKEND_7ZIP, P7ZIP, 'test_7z.7z'),
-    test_utils.TestParams(t_constants.BACKEND_7ZIP, P7ZIP, 'test_7z.tar'),
-    test_utils.TestParams(t_constants.BACKEND_7ZIP, P7ZIP, 'test_7z.zip'),
-    test_utils.TestParams(t_constants.BACKEND_TAR, GTAR, 'test_tar.tar')
+    test_utils.TestParams(t_constants.BACKEND_7ZIP, X7Z, 'test_x7z.7z'),
+    test_utils.TestParams(t_constants.BACKEND_7ZIP, X7Z, 'test_x7z.tar'),
+    test_utils.TestParams(t_constants.BACKEND_7ZIP, X7Z, 'test_x7z.zip'),
+    test_utils.TestParams(t_constants.BACKEND_7ZIP, X7Z, 'test_x7z.gz'),
+    test_utils.TestParams(t_constants.BACKEND_7ZIP, X7Z, 'test_x7z.bz2'),
+    test_utils.TestParams(t_constants.BACKEND_7ZIP, X7Z, 'test_x7z.xz'),
+    test_utils.TestParams(t_constants.BACKEND_7ZIP, P7ZIP, 'test_p7zip.7z'),
+    test_utils.TestParams(t_constants.BACKEND_7ZIP, P7ZIP, 'test_p7zip.tar'),
+    test_utils.TestParams(t_constants.BACKEND_7ZIP, P7ZIP, 'test_p7zip.zip'),
+    test_utils.TestParams(t_constants.BACKEND_7ZIP, P7ZIP, 'test_p7zip.gz'),
+    test_utils.TestParams(t_constants.BACKEND_7ZIP, P7ZIP, 'test_p7zip.bz2'),
+    test_utils.TestParams(t_constants.BACKEND_7ZIP, P7ZIP, 'test_p7zip.xz'),
+    test_utils.TestParams(t_constants.BACKEND_TAR, GTAR, 'test_gtar.tar')
 ]
 
 @pytest.fixture(scope="session", params=test_params_list)
@@ -44,7 +47,7 @@ class TestBackend:
     FILE1_RN='README2.md'
     FILE2='COPYING'
     LINK1='link1'
-    LINK2='link2'
+    LINK2="link2_¡!\\<>'\"#$%&()=¿?*" # Testing difficult names here
     PASSWORD='password'
     PATH1='path1'
     PATH2='path2'

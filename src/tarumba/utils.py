@@ -171,4 +171,4 @@ def output_2_contents(output):
     :return: List of contents
     """
 
-    return [out[0] for out in output[1:]]
+    return [out[0] for out in output]
