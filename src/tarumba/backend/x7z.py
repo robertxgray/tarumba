@@ -82,7 +82,7 @@ class X7z(t_backend.Backend):
         :return: List of commands
         """
 
-        return [(self._7zip_bin, ['l', '-slt', '--',
+        return [(self._7zip_bin, ['l', '-spd', '-slt', '--',
             list_args.get('archive'), *list_args.get('files')])]
 
     @override
@@ -95,7 +95,7 @@ class X7z(t_backend.Backend):
         :return: List of commands
         """
 
-        params = ['a', '-bb1', '-ba', '-bd']
+        params = ['a', '-spd', '-bb1', '-ba', '-bd']
         if add_args.get('password'):
             params.append('-p')
             if self.mime[0] == t_constants.MIME_7Z:
@@ -119,7 +119,7 @@ class X7z(t_backend.Backend):
         :return: List of commands
         """
 
-        return [(self._7zip_bin, ['x', '-y', '-bb1', '-ba', '-bd', '--',
+        return [(self._7zip_bin, ['x', '-spd', '-y', '-bb1', '-ba', '-bd', '--',
             extract_args.get('archive'), *extract_args.get('files')])]
 
     @override
@@ -131,7 +131,7 @@ class X7z(t_backend.Backend):
         :return: List of commands
         """
 
-        return [(self._7zip_bin, ['d', '-bb1', '-ba', '-bd', '--',
+        return [(self._7zip_bin, ['d', '-spd', '-bb1', '-ba', '-bd', '--',
             delete_args.get('archive'), *delete_args.get('files')])]
 
     @override
@@ -143,7 +143,7 @@ class X7z(t_backend.Backend):
         :return: List of commands
         """
 
-        return [(self._7zip_bin, ['rn', '-bb1', '-ba', '-bd', '--',
+        return [(self._7zip_bin, ['rn', '-spd', '-bb1', '-ba', '-bd', '--',
             rename_args.get('archive'), *rename_args.get('files')])]
 
     @override
@@ -155,7 +155,7 @@ class X7z(t_backend.Backend):
         :return: List of commands
         """
 
-        return [(self._7zip_bin, ['t', '-bb1', '-ba', '-bd', '--',
+        return [(self._7zip_bin, ['t', '-spd', '-bb1', '-ba', '-bd', '--',
             test_args.get('archive'), *test_args.get('files')])]
 
     def _parse_list_line(self, line):

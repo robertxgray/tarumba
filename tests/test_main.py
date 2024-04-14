@@ -5,7 +5,7 @@
 
 import sys
 
-import pytest
+import pytest  # pylint: disable=import-error
 
 from tarumba.__main__ import main
 
@@ -17,9 +17,9 @@ class TestMain:
         "Run the program without arguments"
 
         sys.argv = []
-        with pytest.raises(SystemExit) as e:
+        with pytest.raises(SystemExit) as err:
             main()
-        assert e.value.code == 2
+        assert err.value.code == 2
 
     def test_help(self):
         "Print the help"
@@ -28,9 +28,9 @@ class TestMain:
             'tarumba',
             '-h'
         ]
-        with pytest.raises(SystemExit) as e:
+        with pytest.raises(SystemExit) as err:
             main()
-        assert e.value.code == 0
+        assert err.value.code == 0
 
     def test_help_nocolor(self):
         "Print the help without color"
@@ -40,9 +40,9 @@ class TestMain:
             '-h',
             '-m'
         ]
-        with pytest.raises(SystemExit) as e:
+        with pytest.raises(SystemExit) as err:
             main()
-        assert e.value.code == 0
+        assert err.value.code == 0
 
     def test_help_debug(self):
         "Print the help with debugging"
@@ -52,6 +52,6 @@ class TestMain:
             '-h',
             '-d'
         ]
-        with pytest.raises(SystemExit) as e:
+        with pytest.raises(SystemExit) as err:
             main()
-        assert e.value.code == 0
+        assert err.value.code == 0

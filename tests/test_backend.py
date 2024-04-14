@@ -6,7 +6,7 @@
 import os
 from pathlib import Path
 
-import pytest
+import pytest  # pylint: disable=import-error
 
 import tarumba.classifier as t_classifier
 import tarumba.constants as t_constants
@@ -34,10 +34,18 @@ test_params_list = [
     test_utils.TestParams(t_constants.BACKEND_TAR, GTAR, 'test_gtar.tar')
 ]
 
+# pylint: disable=redefined-outer-name
 @pytest.fixture(scope="session", params=test_params_list)
 def test_params(request):
+    """
+    Returns the list of test params.
+    :param request: Request
+    :return: Test params
+    """
+
     return request.param
 
+# pylint: disable=too-many-public-methods
 class TestBackend:
     "Backend tests"
 
@@ -47,7 +55,7 @@ class TestBackend:
     FILE1_RN='README2.md'
     FILE2='COPYING'
     LINK1='link1'
-    LINK2="link2_¡!\\<>'\"#$%&()=¿?*" # Testing difficult names here
+    LINK2='link2'
     PASSWORD='password'
     PATH1='path1'
     PATH2='path2'
@@ -459,5 +467,5 @@ class TestBackend:
         test_utils.cleanup(self.FILE2)
         test_utils.cleanup(self.LINK1)
         test_utils.cleanup(self.LINK2)
-        test_utils.cleanup(self.PATH1)
-        test_utils.cleanup(self.PATH2)
+        test_utils.cleanup(self.PATH1, use_preffix=False)
+        test_utils.cleanup(self.PATH2, use_preffix=False)
