@@ -63,9 +63,13 @@ class Backend(ABC):
         """
 
         # Same as pack except gzip
-        if self.mime[0] in (t_constants.MIME_BROTLI, t_constants.MIME_BZIP2,
-                            t_constants.MIME_COMPRESS, t_constants.MIME_LZMA,
-                            t_constants.MIME_XZ):
+        if self.mime[0] in (
+            t_constants.MIME_BROTLI,
+            t_constants.MIME_BZIP2,
+            t_constants.MIME_COMPRESS,
+            t_constants.MIME_LZMA,
+            t_constants.MIME_XZ,
+        ):
             return False
         return True
 
@@ -76,9 +80,14 @@ class Backend(ABC):
         :return: True of False
         """
 
-        if self.mime[0] in (t_constants.MIME_BROTLI, t_constants.MIME_BZIP2,
-                            t_constants.MIME_COMPRESS, t_constants.MIME_GZIP,
-                            t_constants.MIME_LZMA, t_constants.MIME_XZ):
+        if self.mime[0] in (
+            t_constants.MIME_BROTLI,
+            t_constants.MIME_BZIP2,
+            t_constants.MIME_COMPRESS,
+            t_constants.MIME_GZIP,
+            t_constants.MIME_LZMA,
+            t_constants.MIME_XZ,
+        ):
             return False
         return True
 

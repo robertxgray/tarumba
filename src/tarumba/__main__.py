@@ -22,34 +22,35 @@ def _main_options(args):
 
     # Debug option
     if args.debug:
-        config.put('main_b_debug', args.debug)
-        t_gui.debug('args', args)
+        config.put("main_b_debug", args.debug)
+        t_gui.debug("args", args)
     else:
-        config.put('main_b_debug', False)
+        config.put("main_b_debug", False)
 
     # Verbose option
     if args.verbose:
-        config.put('main_b_verbose', args.verbose)
+        config.put("main_b_verbose", args.verbose)
     else:
-        config.put('main_b_verbose', False)
+        config.put("main_b_verbose", False)
 
     # Create folder option
     if args.create_folder:
-        config.put('main_s_create_folder', args.create_folder)
+        config.put("main_s_create_folder", args.create_folder)
     else:
-        config.put('main_s_create_folder', 'auto')
+        config.put("main_s_create_folder", "auto")
 
     # Follow links option
     if args.follow_links:
-        config.put('main_b_follow_links', args.follow_links)
+        config.put("main_b_follow_links", args.follow_links)
     else:
-        config.put('main_b_follow_links', False)
+        config.put("main_b_follow_links", False)
 
     # No color option
     if args.no_color:
         t_gui.disable_color()
     else:
         t_gui.enable_color()
+
 
 def main():
     """
@@ -63,44 +64,44 @@ def main():
         basename = os.path.basename(args.archive)
 
         # List
-        if args.command in ('l', 'list'):
-            message = _('reading')
+        if args.command in ("l", "list"):
+            message = _("reading")
             with t_gui.start_progress(message, basename):
                 listing = t_manager.list_archive(args)
                 t_gui.print_listing(listing)
                 t_gui.stop_progress()
 
         # Compress
-        if args.command in ('a', 'add'):
-            message = _('adding files to')
+        if args.command in ("a", "add"):
+            message = _("adding files to")
             with t_gui.start_progress(message, basename):
                 t_manager.add_archive(args)
                 t_gui.stop_progress()
 
         # Extract
-        if args.command in ('e', 'extract'):
-            message = _('extracting files from')
+        if args.command in ("e", "extract"):
+            message = _("extracting files from")
             with t_gui.start_progress(message, basename):
                 t_manager.extract_archive(args)
                 t_gui.stop_progress()
 
         # Delete
-        if args.command in ('d', 'delete'):
-            message = _('deleting files from')
+        if args.command in ("d", "delete"):
+            message = _("deleting files from")
             with t_gui.start_progress(message, basename):
                 t_manager.delete_archive(args)
                 t_gui.stop_progress()
 
         # Rename
-        if args.command in ('r', 'rename'):
-            message = _('renaming files in')
+        if args.command in ("r", "rename"):
+            message = _("renaming files in")
             with t_gui.start_progress(message, basename):
                 t_manager.rename_archive(args)
                 t_gui.stop_progress()
 
         # Test
-        if args.command in ('t', 'test'):
-            message = _('testing')
+        if args.command in ("t", "test"):
+            message = _("testing")
             with t_gui.start_progress(message, basename):
                 t_manager.test_archive(args)
                 t_gui.stop_progress()
@@ -112,11 +113,12 @@ def main():
         t_gui.stop_progress()
         sys.exit(130)
     # ruff: noqa: BLE001
-    except Exception as ex: # pylint: disable=broad-except
+    except Exception as ex:  # pylint: disable=broad-except
         t_gui.stop_progress(True)
-        t_gui.error(_('%(prog)s: error: %(message)s\n') % {'prog': 'tarumba', 'message': str(ex)})
+        t_gui.error(_("%(prog)s: error: %(message)s\n") % {"prog": "tarumba", "message": str(ex)})
         t_gui.print_exception()
         sys.exit(1)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

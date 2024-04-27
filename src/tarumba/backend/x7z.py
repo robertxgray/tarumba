@@ -5,7 +5,7 @@
 
 import re
 
-from typing_extensions import override  # pylint: disable=import-error
+from typing_extensions import override
 
 import tarumba.constants as t_constants
 import tarumba.file_utils as t_file_utils
@@ -20,20 +20,20 @@ class X7z(t_backend.Backend):
     "7z archiver backend"
 
     # Particular patterns when listing files
-    LIST_PATTERNS = frozenset(['Enter password.*:'])
+    LIST_PATTERNS = frozenset(["Enter password.*:"])
     # Particular patterns when adding files
-    ADD_PATTERNS = frozenset(['Enter password.*:', 'Verify password.*:'])
+    ADD_PATTERNS = frozenset(["Enter password.*:", "Verify password.*:"])
     # Particular patterns when extracting files
-    EXTRACT_PATTERNS = frozenset(['Enter password.*:'])
+    EXTRACT_PATTERNS = frozenset(["Enter password.*:"])
     # Particular patterns when deleting files
-    DELETE_PATTERNS = frozenset(['Enter password.*:'])
+    DELETE_PATTERNS = frozenset(["Enter password.*:"])
     # Particular patterns when renaming files
-    RENAME_PATTERNS = frozenset(['Enter password.*:'])
+    RENAME_PATTERNS = frozenset(["Enter password.*:"])
     # Particular patterns when testing files
-    TEST_PATTERNS = frozenset(['Enter password.*:'])
+    TEST_PATTERNS = frozenset(["Enter password.*:"])
 
     # 7z uses this string to mark the start of the list of files
-    LIST_START = '----------'
+    LIST_START = "----------"
     # Minimum lenght of attributes when including permissions
     PERMS_MIN_LEN = 22
 
@@ -47,7 +47,7 @@ class X7z(t_backend.Backend):
         """
 
         super().__init__(mime, operation)
-        self._7zip_bin = t_utils.check_installed(config.get('backends_l_7zip_bin'))
+        self._7zip_bin = t_utils.check_installed(config.get("backends_l_7zip_bin"))
         _7z_info = t_executor.Executor().execute_simple(self._7zip_bin)
         self._p7zip = self._check_p7zip(_7z_info)
         self._list_started = False
@@ -61,7 +61,7 @@ class X7z(t_backend.Backend):
         :return: True if p7zip is detected
         """
 
-        return _7z_info[2].startswith('p7zip')
+        return _7z_info[2].startswith("p7zip")
 
     @override
     def can_duplicate(self):
@@ -71,7 +71,7 @@ class X7z(t_backend.Backend):
         :return: True of False
         """
 
-        return False # 7z can't manage duplicates, even in tarfiles
+        return False  # 7z can't manage duplicates, even in tarfiles
 
     @override
     def list_commands(self, list_args):
@@ -82,8 +82,7 @@ class X7z(t_backend.Backend):
         :return: List of commands
         """
 
-        return [(self._7zip_bin, ['l', '-spd', '-slt', '--',
-            list_args.get('archive'), *list_args.get('files')])]
+        return [(self._7zip_bin, ["l", "-spd", "-slt", "--", list_args.get("archive"), *list_args.get("files")])]
 
     @override
     def add_commands(self, add_args, files):
@@ -95,20 +94,20 @@ class X7z(t_backend.Backend):
         :return: List of commands
         """
 
-        params = ['a', '-spd', '-bb1', '-ba', '-bd']
-        if add_args.get('password'):
-            params.append('-p')
+        params = ["a", "-spd", "-bb1", "-ba", "-bd"]
+        if add_args.get("password"):
+            params.append("-p")
             if self.mime[0] == t_constants.MIME_7Z:
-                params.append('-mhe')
-        if add_args.get('follow_links'):
-            params.append('-snh')
+                params.append("-mhe")
+        if add_args.get("follow_links"):
+            params.append("-snh")
             if self._p7zip:
-                params.append('-l')
+                params.append("-l")
         else:
-            params.append('-snl')
-        if add_args.get('level'):
+            params.append("-snl")
+        if add_args.get("level"):
             params.append(f"-mx={add_args.get('level')}")
-        return [(self._7zip_bin, [*params, '--', add_args.get('archive'), files])]
+        return [(self._7zip_bin, [*params, "--", add_args.get("archive"), files])]
 
     @override
     def extract_commands(self, extract_args):
@@ -119,8 +118,22 @@ class X7z(t_backend.Backend):
         :return: List of commands
         """
 
-        return [(self._7zip_bin, ['x', '-spd', '-y', '-bb1', '-ba', '-bd', '--',
-            extract_args.get('archive'), *extract_args.get('files')])]
+        return [
+            (
+                self._7zip_bin,
+                [
+                    "x",
+                    "-spd",
+                    "-y",
+                    "-bb1",
+                    "-ba",
+                    "-bd",
+                    "--",
+                    extract_args.get("archive"),
+                    *extract_args.get("files"),
+                ],
+            )
+        ]
 
     @override
     def delete_commands(self, delete_args):
@@ -131,8 +144,12 @@ class X7z(t_backend.Backend):
         :return: List of commands
         """
 
-        return [(self._7zip_bin, ['d', '-spd', '-bb1', '-ba', '-bd', '--',
-            delete_args.get('archive'), *delete_args.get('files')])]
+        return [
+            (
+                self._7zip_bin,
+                ["d", "-spd", "-bb1", "-ba", "-bd", "--", delete_args.get("archive"), *delete_args.get("files")],
+            )
+        ]
 
     @override
     def rename_commands(self, rename_args):
@@ -143,8 +160,12 @@ class X7z(t_backend.Backend):
         :return: List of commands
         """
 
-        return [(self._7zip_bin, ['rn', '-spd', '-bb1', '-ba', '-bd', '--',
-            rename_args.get('archive'), *rename_args.get('files')])]
+        return [
+            (
+                self._7zip_bin,
+                ["rn", "-spd", "-bb1", "-ba", "-bd", "--", rename_args.get("archive"), *rename_args.get("files")],
+            )
+        ]
 
     @override
     def test_commands(self, test_args):
@@ -155,8 +176,12 @@ class X7z(t_backend.Backend):
         :return: List of commands
         """
 
-        return [(self._7zip_bin, ['t', '-spd', '-bb1', '-ba', '-bd', '--',
-            test_args.get('archive'), *test_args.get('files')])]
+        return [
+            (
+                self._7zip_bin,
+                ["t", "-spd", "-bb1", "-ba", "-bd", "--", test_args.get("archive"), *test_args.get("files")],
+            )
+        ]
 
     def _parse_list_line(self, line):
         """
@@ -165,24 +190,24 @@ class X7z(t_backend.Backend):
         :param line: Line
         """
 
-        if line.startswith('Path = '):
+        if line.startswith("Path = "):
             self._current_file[t_constants.COLUMN_NAME] = line[7:]
-        elif line.startswith('Size = '):
+        elif line.startswith("Size = "):
             self._current_file[t_constants.COLUMN_SIZE] = line[7:]
-        elif line.startswith('Packed Size = '):
+        elif line.startswith("Packed Size = "):
             self._current_file[t_constants.COLUMN_PACKED] = line[14:]
-        elif line.startswith('Modified = '):
+        elif line.startswith("Modified = "):
             self._current_file[t_constants.COLUMN_DATE] = line[11:27]
-        elif line.startswith('Mode = '):
+        elif line.startswith("Mode = "):
             self._current_file[t_constants.COLUMN_PERMS] = line[7:]
-        elif line.startswith('Attributes = '):
+        elif line.startswith("Attributes = "):
             if len(line) > self.PERMS_MIN_LEN:
                 self._current_file[t_constants.COLUMN_PERMS] = line[-10:]
-        elif line.startswith('Encrypted = '):
+        elif line.startswith("Encrypted = "):
             self._current_file[t_constants.COLUMN_ENC] = line[12:]
-        elif line.startswith('CRC = '):
+        elif line.startswith("CRC = "):
             self._current_file[t_constants.COLUMN_CRC] = line[6:]
-        elif line.startswith('Method = '):
+        elif line.startswith("Method = "):
             self._current_file[t_constants.COLUMN_METHOD] = line[9:]
 
     @override
@@ -200,26 +225,24 @@ class X7z(t_backend.Backend):
         for pattern in self.LIST_PATTERNS:
             regex = re.compile(pattern)
             if regex.fullmatch(line):
-                extra.put('password', t_utils.get_password(archive=extra.get('archive')))
-                executor.send_line(extra.get('password'))
+                extra.put("password", t_utils.get_password(archive=extra.get("archive")))
+                executor.send_line(extra.get("password"))
                 return
 
         if not self._list_started:
             if line == self.LIST_START:
                 self._list_started = True
         else:
-            output = extra.get('output')
+            output = extra.get("output")
 
             # List output
             if isinstance(output, list):
-                if line == '': # End of file
-
+                if line == "":  # End of file
                     # Some formats can't store the file name
                     if t_constants.COLUMN_NAME not in self._current_file:
-                        self._current_file[t_constants.COLUMN_NAME] = t_file_utils.basename_noext(
-                            extra.get('archive'))
+                        self._current_file[t_constants.COLUMN_NAME] = t_file_utils.basename_noext(extra.get("archive"))
 
-                    row = [self._current_file.get(column) for column in extra.get('columns')]
+                    row = [self._current_file.get(column) for column in extra.get("columns")]
                     output.append(row)
                     self._current_file = {}
 
@@ -227,7 +250,7 @@ class X7z(t_backend.Backend):
                     self._parse_list_line(line)
 
             # Set output
-            elif isinstance(output, set) and line.startswith('Path = '):
+            elif isinstance(output, set) and line.startswith("Path = "):
                 output.add(line[7:])
 
     @override
@@ -245,10 +268,10 @@ class X7z(t_backend.Backend):
         for pattern in self.ADD_PATTERNS:
             regex = re.compile(pattern)
             if regex.fullmatch(line):
-                executor.send_line(extra.get('password'))
+                executor.send_line(extra.get("password"))
                 return
 
-        if line.startswith(('+ ', 'U ')):
+        if line.startswith(("+ ", "U ")):
             t_gui.adding_msg(line[2:])
             t_gui.advance_progress()
 
@@ -267,12 +290,12 @@ class X7z(t_backend.Backend):
         for pattern in self.EXTRACT_PATTERNS:
             regex = re.compile(pattern)
             if regex.fullmatch(line):
-                if not extra.get('password'):
-                    extra.put('password', t_utils.get_password(archive=extra.get('archive')))
-                executor.send_line(extra.get('password'))
+                if not extra.get("password"):
+                    extra.put("password", t_utils.get_password(archive=extra.get("archive")))
+                executor.send_line(extra.get("password"))
                 return
 
-        if line.startswith('- '):
+        if line.startswith("- "):
             t_file_utils.pop_and_move_extracted(extra)
 
     @override
@@ -290,8 +313,8 @@ class X7z(t_backend.Backend):
         for pattern in self.TEST_PATTERNS:
             regex = re.compile(pattern)
             if regex.fullmatch(line):
-                extra.put('password', t_utils.get_password(archive=extra.get('archive')))
-                executor.send_line(extra.get('password'))
+                extra.put("password", t_utils.get_password(archive=extra.get("archive")))
+                executor.send_line(extra.get("password"))
                 return
 
     @override
@@ -309,8 +332,8 @@ class X7z(t_backend.Backend):
         for pattern in self.TEST_PATTERNS:
             regex = re.compile(pattern)
             if regex.fullmatch(line):
-                extra.put('password', t_utils.get_password(archive=extra.get('archive')))
-                executor.send_line(extra.get('password'))
+                extra.put("password", t_utils.get_password(archive=extra.get("archive")))
+                executor.send_line(extra.get("password"))
                 return
 
     @override
@@ -328,10 +351,10 @@ class X7z(t_backend.Backend):
         for pattern in self.TEST_PATTERNS:
             regex = re.compile(pattern)
             if regex.fullmatch(line):
-                extra.put('password', t_utils.get_password(archive=extra.get('archive')))
-                executor.send_line(extra.get('password'))
+                extra.put("password", t_utils.get_password(archive=extra.get("archive")))
+                executor.send_line(extra.get("password"))
                 return
 
-        if line.startswith('T '):
+        if line.startswith("T "):
             t_gui.testing_msg(line[2:])
             t_gui.advance_progress()

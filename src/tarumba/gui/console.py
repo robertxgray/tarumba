@@ -14,7 +14,7 @@ from rich import prompt as r_prompt
 from rich import table as r_table
 from rich import text as r_text
 from rich import theme as r_theme
-from typing_extensions import override  # pylint: disable=import-error
+from typing_extensions import override
 
 import tarumba.constants as t_constants
 from tarumba.config import current as config
@@ -29,18 +29,20 @@ class Console(t_gui.Gui):
     CLEAR = "\x1b[2K"
 
     def __init__(self):
-        self.theme = r_theme.Theme({
-            'bar.back': config.get('colors_s_progress_back'),
-            'bar.complete': config.get('colors_s_progress_complete'),
-            'bar.finished': config.get('colors_s_progress_finished'),
-            'bar.pulse': config.get('colors_s_progress_pulse'),
-            'progress.percentage': config.get('colors_s_progress_percentage'),
-            'prompt': config.get('colors_s_prompt'),
-            'prompt.choices': config.get('colors_s_prompt_choices'),
-            'prompt.default': config.get('colors_s_prompt_default'),
-            'prompt.invalid': config.get('colors_s_prompt_invalid'),
-            'prompt.invalid.choice': config.get('colors_s_prompt_invalid_choice'),
-        })
+        self.theme = r_theme.Theme(
+            {
+                "bar.back": config.get("colors_s_progress_back"),
+                "bar.complete": config.get("colors_s_progress_complete"),
+                "bar.finished": config.get("colors_s_progress_finished"),
+                "bar.pulse": config.get("colors_s_progress_pulse"),
+                "progress.percentage": config.get("colors_s_progress_percentage"),
+                "prompt": config.get("colors_s_prompt"),
+                "prompt.choices": config.get("colors_s_prompt_choices"),
+                "prompt.default": config.get("colors_s_prompt_default"),
+                "prompt.invalid": config.get("colors_s_prompt_invalid"),
+                "prompt.invalid.choice": config.get("colors_s_prompt_invalid_choice"),
+            }
+        )
         self.out_c = None
         self.err_c = None
         self.progress = None
@@ -57,8 +59,8 @@ class Console(t_gui.Gui):
         :param message: Message to print
         """
 
-        if config.get('main_b_debug'):
-            self.out_c.out((f'{key.upper()}: {value}').rstrip(), style=config.get('colors_s_debug'))
+        if config.get("main_b_debug"):
+            self.out_c.out((f"{key.upper()}: {value}").rstrip(), style=config.get("colors_s_debug"))
 
     @override
     def info(self, message):
@@ -68,7 +70,7 @@ class Console(t_gui.Gui):
         :param message: Message to print
         """
 
-        self.out_c.out(message.rstrip(), style=config.get('colors_s_info'))
+        self.out_c.out(message.rstrip(), style=config.get("colors_s_info"))
 
     @override
     def warn(self, message):
@@ -78,7 +80,7 @@ class Console(t_gui.Gui):
         :param message: Message to print
         """
 
-        self.out_c.out(message.rstrip(), style=config.get('colors_s_warn'))
+        self.out_c.out(message.rstrip(), style=config.get("colors_s_warn"))
 
     @override
     def error(self, message):
@@ -88,7 +90,7 @@ class Console(t_gui.Gui):
         :param message: Message to print
         """
 
-        self.err_c.out(message.rstrip(), style=config.get('colors_s_error'))
+        self.err_c.out(message.rstrip(), style=config.get("colors_s_error"))
 
     @override
     def adding_msg(self, file):
@@ -98,10 +100,10 @@ class Console(t_gui.Gui):
         :param file: File name
         """
 
-        if config.get('main_b_verbose'):
+        if config.get("main_b_verbose"):
             text = r_text.Text()
-            text.append(_('adding') + ': ')
-            text.append(file, style=config.get('colors_s_list_name'))
+            text.append(_("adding") + ": ")
+            text.append(file, style=config.get("colors_s_list_name"))
             self.out_c.print(text)
 
     @override
@@ -112,10 +114,10 @@ class Console(t_gui.Gui):
         :param file: File name
         """
 
-        if config.get('main_b_verbose'):
+        if config.get("main_b_verbose"):
             text = r_text.Text()
-            text.append(_('extracting') + ': ')
-            text.append(file, style=config.get('colors_s_list_name'))
+            text.append(_("extracting") + ": ")
+            text.append(file, style=config.get("colors_s_list_name"))
             self.out_c.print(text)
 
     @override
@@ -126,10 +128,10 @@ class Console(t_gui.Gui):
         :param file: File name
         """
 
-        if config.get('main_b_verbose'):
+        if config.get("main_b_verbose"):
             text = r_text.Text()
-            text.append(_('testing') + ': ')
-            text.append(file, style=config.get('colors_s_list_name'))
+            text.append(_("testing") + ": ")
+            text.append(file, style=config.get("colors_s_list_name"))
             self.out_c.print(text)
 
     @override
@@ -145,7 +147,7 @@ class Console(t_gui.Gui):
 
         params = self._prompt_params(filename, archive)
         self._pause_progress()
-        password = r_prompt.Prompt.ask(message%params, console=self.out_c, password=True)
+        password = r_prompt.Prompt.ask(message % params, console=self.out_c, password=True)
         self._resume_progress()
         return password
 
@@ -162,16 +164,15 @@ class Console(t_gui.Gui):
 
         params = self._prompt_params(filename, archive)
         self._pause_progress()
-        choices = [_('yes'), _('no'), _('all'), _('none')]
-        answer = r_prompt.Prompt.ask(
-            message%params, console=self.out_c, choices=choices, default=_('no'))
+        choices = [_("yes"), _("no"), _("all"), _("none")]
+        answer = r_prompt.Prompt.ask(message % params, console=self.out_c, choices=choices, default=_("no"))
         self._resume_progress()
 
-        if answer == _('yes'):
+        if answer == _("yes"):
             return self.YES
-        if answer == _('no'):
+        if answer == _("no"):
             return self.NO
-        if answer == _('all'):
+        if answer == _("all"):
             return self.ALL
         return self.NONE
 
@@ -187,14 +188,15 @@ class Console(t_gui.Gui):
         """
 
         if self.progress is not None:
-            raise AssertionError(_('a progress bar is already running'))
+            raise AssertionError(_("a progress bar is already running"))
         self.progress = r_progress.Progress(
             r_progress.TextColumn("[progress.description]{task.description}"),
             r_progress.BarColumn(),
             r_progress.TaskProgressColumn(),
-            console=self.out_c)
-        color = config.get('colors_s_list_header')
-        description = message+' ['+color+']'+r_markup.escape(file)+'[/'+color+']'
+            console=self.out_c,
+        )
+        color = config.get("colors_s_list_header")
+        description = message + " [" + color + "]" + r_markup.escape(file) + "[/" + color + "]"
         self.task = self.progress.add_task(description, total=None, transient=True)
         return self.progress
 
@@ -223,7 +225,7 @@ class Console(t_gui.Gui):
         """
 
         if self.progress is None:
-            raise AssertionError(_('a progress bar is not running'))
+            raise AssertionError(_("a progress bar is not running"))
         self.progress.update(self.task, total=total)
 
     @override
@@ -236,7 +238,7 @@ class Console(t_gui.Gui):
         """
 
         if self.progress is None:
-            raise AssertionError(_('a progress bar is not running'))
+            raise AssertionError(_("a progress bar is not running"))
         self.progress.advance(self.task)
 
     # CONSOLE SPECIFIC FUNCTIONS
@@ -252,11 +254,11 @@ class Console(t_gui.Gui):
 
         params = {}
         if filename:
-            color = config.get('colors_s_list_name')
-            params['filename'] = '['+color+']'+r_markup.escape(filename)+'[/'+color+']'
+            color = config.get("colors_s_list_name")
+            params["filename"] = "[" + color + "]" + r_markup.escape(filename) + "[/" + color + "]"
         if archive:
-            color = config.get('colors_s_list_header')
-            params['archive'] = '['+color+']'+r_markup.escape(archive)+'[/'+color+']'
+            color = config.get("colors_s_list_header")
+            params["archive"] = "[" + color + "]" + r_markup.escape(archive) + "[/" + color + "]"
         return params
 
     def _pause_progress(self):
@@ -288,17 +290,15 @@ class Console(t_gui.Gui):
         Restart the console with a configurable color system.
         """
 
-        self.out_c = r_console.Console(
-            color_system=color_system, highlight=False, theme=self.theme)
-        self.err_c = r_console.Console(
-            color_system=color_system, highlight=False, theme=self.theme, stderr=True)
+        self.out_c = r_console.Console(color_system=color_system, highlight=False, theme=self.theme)
+        self.err_c = r_console.Console(color_system=color_system, highlight=False, theme=self.theme, stderr=True)
 
     def enable_color(self):
         """
         Enables the colored output.
         """
 
-        self._set_console_color_system(config.get('colors_s_system'))
+        self._set_console_color_system(config.get("colors_s_system"))
 
     def disable_color(self):
         """
@@ -312,7 +312,7 @@ class Console(t_gui.Gui):
         Prints a traceback for the current exception.
         """
 
-        if config.get('main_b_debug'):
+        if config.get("main_b_debug"):
             self.err_c.print_exception(show_locals=True)
 
     def print_listing(self, listing):
@@ -322,21 +322,23 @@ class Console(t_gui.Gui):
         :param listing: Archive listing
         """
 
-        table = r_table.Table(box=r_box.SIMPLE, header_style=config.get('colors_s_list_header'),
-            border_style=config.get('colors_s_list_border'))
+        table = r_table.Table(
+            box=r_box.SIMPLE,
+            header_style=config.get("colors_s_list_header"),
+            border_style=config.get("colors_s_list_border"),
+        )
 
         col_name = None
         idx = 0
         for idx in range(len(listing[0])):
             column = listing[0][idx]
             if column == t_constants.COLUMN_NAME:
-                table.add_column(_(column), style=config.get('colors_s_list_name'))
+                table.add_column(_(column), style=config.get("colors_s_list_name"))
                 col_name = idx
             elif column == t_constants.COLUMN_SIZE:
-                table.add_column(_(column), style=config.get('colors_s_list_default'),
-                justify='right')
+                table.add_column(_(column), style=config.get("colors_s_list_default"), justify="right")
             else:
-                table.add_column(_(column), style=config.get('colors_s_list_default'))
+                table.add_column(_(column), style=config.get("colors_s_list_default"))
 
         for row in listing[1:]:
             if col_name is not None:

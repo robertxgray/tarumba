@@ -22,7 +22,8 @@ def encode(text):
     :return: Encoded text
     """
 
-    return text.encode(sys.getfilesystemencoding(), 'replace')
+    return text.encode(sys.getfilesystemencoding(), "replace")
+
 
 def decode(text):
     """
@@ -33,7 +34,8 @@ def decode(text):
     :return: Decoded text
     """
 
-    return text.decode(sys.getfilesystemencoding(), 'replace')
+    return text.decode(sys.getfilesystemencoding(), "replace")
+
 
 def is_multivolume(archive):
     """
@@ -43,9 +45,10 @@ def is_multivolume(archive):
     :return: True if it's a multivolume
     """
 
-    if re.match(r'.*\.[0-9]+$', archive):
+    if re.match(r".*\.[0-9]+$", archive):
         return True
     return False
+
 
 def get_volumes(archive):
     """
@@ -56,9 +59,9 @@ def get_volumes(archive):
     """
 
     if is_multivolume(archive):
-        dot_position = archive.rfind('.') + 1
+        dot_position = archive.rfind(".") + 1
         len_suffix = len(archive[dot_position:])
-        suffix_mask = '%0' + str(len_suffix) + 'i'
+        suffix_mask = "%0" + str(len_suffix) + "i"
         prefix = archive[:dot_position]
         # Cycle through the existing files
         idx = 0
@@ -72,6 +75,7 @@ def get_volumes(archive):
     # If not multivolume, return None
     return None
 
+
 def safe_filelist(files):
     """
     Sanitizes a list of files.
@@ -83,10 +87,11 @@ def safe_filelist(files):
     safe_list = []
     for file in files:
         # Remove duplicate and trailing slashes
-        safe_file = re.sub('/+', '/', file).rstrip('/')
+        safe_file = re.sub("/+", "/", file).rstrip("/")
         if safe_file not in safe_list:
             safe_list.append(safe_file)
     return safe_list
+
 
 def new_password(archive):
     """
@@ -99,15 +104,15 @@ def new_password(archive):
     password = None
     while password is None:
         basename = os.path.basename(archive)
-        password1 = t_gui.prompt_password(_('Enter a password for %(archive)s'), archive=basename)
-        password2 = t_gui.prompt_password(_('Reenter the password'))
+        password1 = t_gui.prompt_password(_("Enter a password for %(archive)s"), archive=basename)
+        password2 = t_gui.prompt_password(_("Reenter the password"))
         if password1 == password2:
             password = password1
         else:
             message = _("the passwords don't match, please try again")
-            t_gui.warn(_('%(prog)s: warning: %(message)s\n') %
-                {'prog': 'tarumba', 'message': message})
+            t_gui.warn(_("%(prog)s: warning: %(message)s\n") % {"prog": "tarumba", "message": message})
     return password
+
 
 def get_password(archive=None, file=None):
     """
@@ -120,16 +125,17 @@ def get_password(archive=None, file=None):
 
     if archive:
         basename = os.path.basename(archive)
-        message = _('%(archive)s is encrypted, enter the password')
+        message = _("%(archive)s is encrypted, enter the password")
         return t_gui.prompt_password(message, archive=basename)
 
     if file:
         basename = os.path.basename(file)
-        message = _('%(file)s is encrypted, enter the password')
+        message = _("%(file)s is encrypted, enter the password")
         return t_gui.prompt_password(message, filename=basename)
 
-    message = _('enter the password')
+    message = _("enter the password")
     return t_gui.prompt_password(message)
+
 
 def get_list_columns(input_cols, default_cols):
     """
@@ -145,6 +151,7 @@ def get_list_columns(input_cols, default_cols):
         columns = default_cols
     return columns
 
+
 def check_installed(executables):
     """
     Checks if any of the program aliases is available. Returns the first coincidence.
@@ -158,10 +165,15 @@ def check_installed(executables):
         path = pexpect.which(executable)
         if path:
             return path
-    raise FileNotFoundError(_("operation not available because the %(executable)s program "
-        "can't be found, please make sure it's installed and available in the $PATH or "
-        "enter the full path to the program in the configuration") %
-        {'executable': executables[0]})
+    raise FileNotFoundError(
+        _(
+            "operation not available because the %(executable)s program "
+            "can't be found, please make sure it's installed and available in the $PATH or "
+            "enter the full path to the program in the configuration"
+        )
+        % {"executable": executables[0]}
+    )
+
 
 def output_2_contents(output):
     """

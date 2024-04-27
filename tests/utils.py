@@ -11,8 +11,9 @@ import sys
 
 from tarumba.__main__ import main
 
-TEST_PATH = 'test_files'
-PREFFIX="¡!|\\<>'\"^#$%&@€(){}[]=¿?*-+_" # Testing problematic chars
+TEST_PATH = "test_files"
+PREFFIX = "¡!|\\<>'\"^#$%&@€(){}[]=¿?*-+_"  # Testing problematic chars
+
 
 @dataclasses.dataclass
 class TestParams:
@@ -22,6 +23,7 @@ class TestParams:
     binary: str
     archive: str
 
+
 def _add_preffix_to_files(files):
     """
     Adds the preffix to a list of files.
@@ -29,7 +31,8 @@ def _add_preffix_to_files(files):
     :return: Lis of files with preffix
     """
 
-    return [PREFFIX+file for file in files]
+    return [PREFFIX + file for file in files]
+
 
 def test_add(archive, files, extra_args):
     """
@@ -43,12 +46,13 @@ def test_add(archive, files, extra_args):
     cwd = os.getcwd()
     os.chdir(TEST_PATH)
     try:
-        sys.argv = ['tarumba', 'a', '-v', *extra_args]
-        sys.argv.append(PREFFIX+archive)
+        sys.argv = ["tarumba", "a", "-v", *extra_args]
+        sys.argv.append(PREFFIX + archive)
         sys.argv += _add_preffix_to_files(files)
         main()
     finally:
         os.chdir(cwd)
+
 
 def test_list(archive, files, extra_args):
     """
@@ -59,10 +63,11 @@ def test_list(archive, files, extra_args):
     :param extra_args: Extra arguments
     """
 
-    sys.argv = ['tarumba', 'l', *extra_args]
-    sys.argv.append(os.path.join(TEST_PATH, PREFFIX+archive))
+    sys.argv = ["tarumba", "l", *extra_args]
+    sys.argv.append(os.path.join(TEST_PATH, PREFFIX + archive))
     sys.argv += _add_preffix_to_files(files)
     main()
+
 
 def test_test(archive, files, extra_args):
     """
@@ -73,10 +78,11 @@ def test_test(archive, files, extra_args):
     :param extra_args: Extra arguments
     """
 
-    sys.argv = ['tarumba', 't', *extra_args]
-    sys.argv.append(os.path.join(TEST_PATH, PREFFIX+archive))
+    sys.argv = ["tarumba", "t", *extra_args]
+    sys.argv.append(os.path.join(TEST_PATH, PREFFIX + archive))
     sys.argv += _add_preffix_to_files(files)
     main()
+
 
 def test_extract(archive, files, extra_args):
     """
@@ -90,12 +96,13 @@ def test_extract(archive, files, extra_args):
     cwd = os.getcwd()
     os.chdir(TEST_PATH)
     try:
-        sys.argv = ['tarumba', 'e', '-v', *extra_args]
-        sys.argv.append(PREFFIX+archive)
+        sys.argv = ["tarumba", "e", "-v", *extra_args]
+        sys.argv.append(PREFFIX + archive)
         sys.argv += _add_preffix_to_files(files)
         main()
     finally:
         os.chdir(cwd)
+
 
 def test_rename(archive, files, extra_args):
     """
@@ -106,10 +113,11 @@ def test_rename(archive, files, extra_args):
     :param extra_args: Extra arguments
     """
 
-    sys.argv = ['tarumba', 'r', *extra_args]
-    sys.argv.append(os.path.join(TEST_PATH, PREFFIX+archive))
+    sys.argv = ["tarumba", "r", *extra_args]
+    sys.argv.append(os.path.join(TEST_PATH, PREFFIX + archive))
     sys.argv += _add_preffix_to_files(files)
     main()
+
 
 def test_delete(archive, files, extra_args):
     """
@@ -120,10 +128,11 @@ def test_delete(archive, files, extra_args):
     :param extra_args: Extra arguments
     """
 
-    sys.argv = ['tarumba', 'd', *extra_args]
-    sys.argv.append(os.path.join(TEST_PATH, PREFFIX+archive))
+    sys.argv = ["tarumba", "d", *extra_args]
+    sys.argv.append(os.path.join(TEST_PATH, PREFFIX + archive))
     sys.argv += _add_preffix_to_files(files)
     main()
+
 
 def _get_test_path(path, dest=None, *, archive_folder=None, use_preffix=True):
     """
@@ -138,20 +147,21 @@ def _get_test_path(path, dest=None, *, archive_folder=None, use_preffix=True):
     if archive_folder is not None:
         archive_base = pathlib.Path(archive_folder).stem
         if use_preffix:
-            test_dir = os.path.join(TEST_PATH, PREFFIX+archive_base)
+            test_dir = os.path.join(TEST_PATH, PREFFIX + archive_base)
         else:
             test_dir = os.path.join(TEST_PATH, archive_base)
     else:
         test_dir = TEST_PATH
     if dest:
         if use_preffix:
-            return os.path.join(test_dir, PREFFIX+dest)
+            return os.path.join(test_dir, PREFFIX + dest)
         return os.path.join(test_dir, dest)
     if use_preffix:
         base_name = os.path.basename(path)
         dir_name = os.path.dirname(path)
-        return os.path.join(test_dir, os.path.join(dir_name, PREFFIX+base_name))
+        return os.path.join(test_dir, os.path.join(dir_name, PREFFIX + base_name))
     return os.path.join(test_dir, path)
+
 
 def copy(path, dest=None, *, use_preffix=True):
     """
@@ -168,6 +178,7 @@ def copy(path, dest=None, *, use_preffix=True):
     else:
         shutil.copy2(path, test_path, follow_symlinks=False)
 
+
 def link(path, dest=None, *, use_preffix=True):
     """
     Creates a symbolic link in the tests dir.
@@ -179,9 +190,10 @@ def link(path, dest=None, *, use_preffix=True):
 
     test_path = _get_test_path(path, dest, use_preffix=use_preffix)
     if use_preffix:
-        os.symlink(PREFFIX+path, test_path)
+        os.symlink(PREFFIX + path, test_path)
     else:
         os.symlink(path, test_path)
+
 
 def cleanup(path, *, archive_folder=None, use_preffix=True):
     """
@@ -198,6 +210,7 @@ def cleanup(path, *, archive_folder=None, use_preffix=True):
     elif os.path.lexists(test_path):
         os.remove(test_path)
 
+
 def assert_file_exists(path, *, archive_folder=None, use_preffix=True):
     """
     Asserts that a file exists in the tests dir.
@@ -211,6 +224,7 @@ def assert_file_exists(path, *, archive_folder=None, use_preffix=True):
     assert os.path.isfile(test_path)
     assert not os.path.islink(test_path)
 
+
 def assert_dir_exists(path, *, archive_folder=None, use_preffix=True):
     """
     Asserts that a directory exists in the tests dir.
@@ -223,6 +237,7 @@ def assert_dir_exists(path, *, archive_folder=None, use_preffix=True):
     test_path = _get_test_path(path, archive_folder=archive_folder, use_preffix=use_preffix)
     assert os.path.isdir(test_path)
     assert not os.path.islink(test_path)
+
 
 def assert_link_exists(path, *, archive_folder=None, use_preffix=True):
     """

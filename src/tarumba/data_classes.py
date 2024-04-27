@@ -26,7 +26,7 @@ class Base:
         """
 
         if key not in self.dictionary:
-            raise KeyError(_('invalid configuration key: %(key)s'))
+            raise KeyError(_("invalid configuration key: %(key)s"))
         return self.dictionary.get(key)
 
     def put(self, key, value):
@@ -39,7 +39,7 @@ class Base:
         """
 
         if key not in self.dictionary:
-            raise KeyError(_('invalid configuration key: %(key)s'))
+            raise KeyError(_("invalid configuration key: %(key)s"))
         self.dictionary[key] = value
 
     def __str__(self):
@@ -51,6 +51,7 @@ class Base:
 
         return str(self.dictionary)
 
+
 class ListArgs(Base):
     "Arguments used when listing files"
 
@@ -61,14 +62,15 @@ class ListArgs(Base):
 
         super().__init__()
         self.dictionary = {
-            'archive': None,
-            'columns': None,
-            'files': None,
-            'backend': None,
-            'occurrence': None,
-            'output': None,
-            'password': None
+            "archive": None,
+            "columns": None,
+            "files": None,
+            "backend": None,
+            "occurrence": None,
+            "output": None,
+            "password": None,
         }
+
 
 class AddArgs(Base):
     "Arguments used when adding files"
@@ -80,18 +82,19 @@ class AddArgs(Base):
 
         super().__init__()
         self.dictionary = {
-            'archive': None,
-            'contents': None,
-            'files': None,
-            'follow_links': None,
-            'backend': None,
-            'level': None,
-            'overwrite': None,
-            'owner': None,
-            'password': None,
-            'path': None,
-            'tmp_dirs': None
+            "archive": None,
+            "contents": None,
+            "files": None,
+            "follow_links": None,
+            "backend": None,
+            "level": None,
+            "overwrite": None,
+            "owner": None,
+            "password": None,
+            "path": None,
+            "tmp_dirs": None,
         }
+
 
 class ExtractArgs(Base):
     "Arguments used when extracting files"
@@ -103,18 +106,19 @@ class ExtractArgs(Base):
 
         super().__init__()
         self.dictionary = {
-            'archive': None,
-            'contents': None,
-            'create_folder': None,
-            'destination': None,
-            'files': None,
-            'backend': None,
-            'occurrence': None,
-            'overwrite': None,
-            'password': None,
-            'path': None,
-            'tmp_dir': None
+            "archive": None,
+            "contents": None,
+            "create_folder": None,
+            "destination": None,
+            "files": None,
+            "backend": None,
+            "occurrence": None,
+            "overwrite": None,
+            "password": None,
+            "path": None,
+            "tmp_dir": None,
         }
+
 
 class DeleteArgs(Base):
     "Arguments used when deleting files"
@@ -125,13 +129,8 @@ class DeleteArgs(Base):
         """
 
         super().__init__()
-        self.dictionary = {
-            'archive': None,
-            'backend': None,
-            'files': None,
-            'occurrence': None,
-            'password': None
-        }
+        self.dictionary = {"archive": None, "backend": None, "files": None, "occurrence": None, "password": None}
+
 
 class RenameArgs(Base):
     "Arguments used when renaming files"
@@ -142,13 +141,8 @@ class RenameArgs(Base):
         """
 
         super().__init__()
-        self.dictionary = {
-            'archive': None,
-            'backend': None,
-            'files': None,
-            'occurrence': None,
-            'password': None
-        }
+        self.dictionary = {"archive": None, "backend": None, "files": None, "occurrence": None, "password": None}
+
 
 class TestArgs(Base):
     "Arguments used when testing files"
@@ -159,10 +153,4 @@ class TestArgs(Base):
         """
 
         super().__init__()
-        self.dictionary = {
-            'archive': None,
-            'backend': None,
-            'files': None,
-            'occurrence': None,
-            'password': None
-        }
+        self.dictionary = {"archive": None, "backend": None, "files": None, "occurrence": None, "password": None}

@@ -13,9 +13,10 @@ from tarumba import utils as t_utils
 from tarumba.gui import current as t_gui
 
 # Pseudo-command to change the working directory
-CHDIR = 'CHDIR'
+CHDIR = "CHDIR"
 # Index of the first extra pattern
 EXTRA_PATTERNS_IDX = 3
+
 
 class Executor:
     "Class implementing the programs executor"
@@ -31,8 +32,8 @@ class Executor:
         """
 
         output = t_utils.decode(pexpect.run(command))
-        t_gui.debug('output', output)
-        return output.split('\r\n')
+        t_gui.debug("output", output)
+        return output.split("\r\n")
 
     def execute(self, commands, patterns, parser, extra):
         """
@@ -48,7 +49,7 @@ class Executor:
         old_cwd = os.getcwd()
 
         for command in commands:
-            t_gui.debug('command', command)
+            t_gui.debug("command", command)
 
             # Process directory changes
             if command[0] == CHDIR:
@@ -66,13 +67,13 @@ class Executor:
             buffer = deque(maxlen=5)
             line = 1
             while case > 0:
-                case = self.subprocess.expect([pexpect.EOF, '\r\n', '\n', *patterns])
-                t_gui.debug('case', case)
+                case = self.subprocess.expect([pexpect.EOF, "\r\n", "\n", *patterns])
+                t_gui.debug("case", case)
                 if case > 0 or len(self.subprocess.before):
                     sub_output = t_utils.decode(self.subprocess.before)
                     if case >= EXTRA_PATTERNS_IDX:
                         sub_output += t_utils.decode(self.subprocess.after)
-                    t_gui.debug('sub_output', sub_output)
+                    t_gui.debug("sub_output", sub_output)
                     buffer.append(sub_output)
                     parser(self, line, sub_output, extra)
                     line += 1
@@ -83,9 +84,9 @@ class Executor:
 
             # Stop on error
             if error:
-                message=_('failure in program %(program)s') % {'program': command[0]} + '\n'
+                message = _("failure in program %(program)s") % {"program": command[0]} + "\n"
                 if buffer:
-                    message += '\n'.join(buffer)
+                    message += "\n".join(buffer)
                 raise ChildProcessError(message)
 
         # Restore the current working directory
@@ -99,7 +100,7 @@ class Executor:
         :raises AssertionError: An archiver process is not running
         """
 
-        t_gui.debug('send_line', line)
+        t_gui.debug("send_line", line)
         if self.subprocess is None:
-            raise AssertionError(_('an archiver process is not running'))
+            raise AssertionError(_("an archiver process is not running"))
         self.subprocess.sendline(line)

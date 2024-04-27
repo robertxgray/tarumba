@@ -5,7 +5,7 @@
 
 from gettext import gettext as _
 
-from typing_extensions import override  # pylint: disable=import-error
+from typing_extensions import override
 
 import tarumba.constants as t_constants
 import tarumba.file_utils as t_file_utils
@@ -15,6 +15,7 @@ from tarumba.config import current as config
 from tarumba.gui import current as t_gui
 
 LIST_ELEMENTS = 5
+
 
 class Tar(t_backend.Backend):
     "Tar archiver backend"
@@ -29,8 +30,8 @@ class Tar(t_backend.Backend):
         """
 
         super().__init__(mime, operation)
-        self._tar_bin = t_utils.check_installed(config.get('backends_l_tar_bin'))
-        self._error_prefix = f'{self._tar_bin}: '
+        self._tar_bin = t_utils.check_installed(config.get("backends_l_tar_bin"))
+        self._error_prefix = f"{self._tar_bin}: "
 
     @override
     def list_commands(self, list_args):
@@ -42,14 +43,13 @@ class Tar(t_backend.Backend):
         """
 
         params = []
-        params.append('--quoting-style=literal')
-        params.append('--no-unquote')
-        params.append('--no-wildcards')
-        params.append('--numeric-owner')
-        if list_args.get('occurrence'):
-            params.append('--occurrence='+list_args.get('occurrence'))
-        return [(self._tar_bin,
-            [*params, '-tvf', list_args.get('archive'), '--', *list_args.get('files')])]
+        params.append("--quoting-style=literal")
+        params.append("--no-unquote")
+        params.append("--no-wildcards")
+        params.append("--numeric-owner")
+        if list_args.get("occurrence"):
+            params.append("--occurrence=" + list_args.get("occurrence"))
+        return [(self._tar_bin, [*params, "-tvf", list_args.get("archive"), "--", *list_args.get("files")])]
 
     @override
     def add_commands(self, add_args, files):
@@ -62,16 +62,15 @@ class Tar(t_backend.Backend):
         """
 
         params = []
-        params.append('--quoting-style=literal')
-        params.append('--no-unquote')
-        params.append('--no-wildcards')
-        if add_args.get('follow_links'):
-            params.append('-h')
-        if not add_args.get('owner'):
-            params.append('--owner=0')
-            params.append('--group=0')
-        return [(self._tar_bin,
-            [*params, '-rvSf', add_args.get('archive'), '--', files])]
+        params.append("--quoting-style=literal")
+        params.append("--no-unquote")
+        params.append("--no-wildcards")
+        if add_args.get("follow_links"):
+            params.append("-h")
+        if not add_args.get("owner"):
+            params.append("--owner=0")
+            params.append("--group=0")
+        return [(self._tar_bin, [*params, "-rvSf", add_args.get("archive"), "--", files])]
 
     @override
     def extract_commands(self, extract_args):
@@ -83,13 +82,12 @@ class Tar(t_backend.Backend):
         """
 
         params = []
-        params.append('--quoting-style=literal')
-        params.append('--no-unquote')
-        params.append('--no-wildcards')
-        if extract_args.get('occurrence'):
-            params.append('--occurrence='+extract_args.get('occurrence'))
-        return [(self._tar_bin,
-            [*params, '-xvf', extract_args.get('archive'), '--', *extract_args.get('files')])]
+        params.append("--quoting-style=literal")
+        params.append("--no-unquote")
+        params.append("--no-wildcards")
+        if extract_args.get("occurrence"):
+            params.append("--occurrence=" + extract_args.get("occurrence"))
+        return [(self._tar_bin, [*params, "-xvf", extract_args.get("archive"), "--", *extract_args.get("files")])]
 
     @override
     def delete_commands(self, delete_args):
@@ -101,13 +99,14 @@ class Tar(t_backend.Backend):
         """
 
         params = []
-        params.append('--quoting-style=literal')
-        params.append('--no-unquote')
-        params.append('--no-wildcards')
-        if delete_args.get('occurrence'):
-            params.append('--occurrence='+delete_args.get('occurrence'))
-        return [(self._tar_bin, [*params, '--delete', '-vf', delete_args.get('archive'), '--',
-            *delete_args.get('files')])]
+        params.append("--quoting-style=literal")
+        params.append("--no-unquote")
+        params.append("--no-wildcards")
+        if delete_args.get("occurrence"):
+            params.append("--occurrence=" + delete_args.get("occurrence"))
+        return [
+            (self._tar_bin, [*params, "--delete", "-vf", delete_args.get("archive"), "--", *delete_args.get("files")])
+        ]
 
     @override
     def rename_commands(self, rename_args):
@@ -119,8 +118,9 @@ class Tar(t_backend.Backend):
         """
 
         raise NotImplementedError(
-            _('the %(back1)s backend cannot rename files, but you can use %(back2)s instead') %
-            {'back1': 'tar', 'back2': '7z'})
+            _("the %(back1)s backend cannot rename files, but you can use %(back2)s instead")
+            % {"back1": "tar", "back2": "7z"}
+        )
 
     @override
     def test_commands(self, test_args):
@@ -132,13 +132,12 @@ class Tar(t_backend.Backend):
         """
 
         params = []
-        params.append('--quoting-style=literal')
-        params.append('--no-unquote')
-        params.append('--no-wildcards')
-        if test_args.get('occurrence'):
-            params.append('--occurrence='+test_args.get('occurrence'))
-        return [(self._tar_bin,
-            [*params, '-tf', test_args.get('archive'), '--', *test_args.get('files')])]
+        params.append("--quoting-style=literal")
+        params.append("--no-unquote")
+        params.append("--no-wildcards")
+        if test_args.get("occurrence"):
+            params.append("--occurrence=" + test_args.get("occurrence"))
+        return [(self._tar_bin, [*params, "-tf", test_args.get("archive"), "--", *test_args.get("files")])]
 
     @override
     def parse_list(self, executor, line_number, line, extra):
@@ -152,18 +151,19 @@ class Tar(t_backend.Backend):
         """
 
         if line.startswith(self._error_prefix):
-            t_gui.warn(_('%(prog)s: warning: %(message)s\n') %
-                {'prog': 'tarumba', 'message': line[len(self._error_prefix):]})
+            t_gui.warn(
+                _("%(prog)s: warning: %(message)s\n") % {"prog": "tarumba", "message": line[len(self._error_prefix) :]}
+            )
 
         elements = line.split(None, 4)
         if len(elements) < LIST_ELEMENTS:
             return
-        output = extra.get('output')
+        output = extra.get("output")
 
         # List output
         if isinstance(output, list):
             row = []
-            for column in extra.get('columns'):
+            for column in extra.get("columns"):
                 if column == t_constants.COLUMN_PERMS:
                     row.append(elements[0])
                 elif column == t_constants.COLUMN_OWNER:
@@ -171,10 +171,10 @@ class Tar(t_backend.Backend):
                 elif column == t_constants.COLUMN_SIZE:
                     row.append(elements[2])
                 elif column == t_constants.COLUMN_DATE:
-                    row.append(f'{elements[3]} {elements[4][:5]}')
+                    row.append(f"{elements[3]} {elements[4][:5]}")
                 elif column == t_constants.COLUMN_NAME:
                     name = elements[4][6:]
-                    link_pos = name.find(' -> ')
+                    link_pos = name.find(" -> ")
                     if link_pos >= 0:
                         row.append(name[:link_pos])
                     else:
@@ -196,8 +196,9 @@ class Tar(t_backend.Backend):
         """
 
         if line.startswith(self._error_prefix):
-            t_gui.warn(_('%(prog)s: warning: %(message)s\n') %
-                {'prog': 'tarumba', 'message': line[len(self._error_prefix):]})
+            t_gui.warn(
+                _("%(prog)s: warning: %(message)s\n") % {"prog": "tarumba", "message": line[len(self._error_prefix) :]}
+            )
         elif len(line) > 0:
             t_gui.adding_msg(line)
             t_gui.advance_progress()
@@ -214,8 +215,9 @@ class Tar(t_backend.Backend):
         """
 
         if line.startswith(self._error_prefix):
-            t_gui.warn(_('%(prog)s: warning: %(message)s\n') %
-                {'prog': 'tarumba', 'message': line[len(self._error_prefix):]})
+            t_gui.warn(
+                _("%(prog)s: warning: %(message)s\n") % {"prog": "tarumba", "message": line[len(self._error_prefix) :]}
+            )
         elif len(line) > 0:
             t_file_utils.pop_and_move_extracted(extra)
 
@@ -231,8 +233,9 @@ class Tar(t_backend.Backend):
         """
 
         if line.startswith(self._error_prefix):
-            t_gui.warn(_('%(prog)s: warning: %(message)s\n') %
-                {'prog': 'tarumba', 'message': line[len(self._error_prefix):]})
+            t_gui.warn(
+                _("%(prog)s: warning: %(message)s\n") % {"prog": "tarumba", "message": line[len(self._error_prefix) :]}
+            )
 
     @override
     def parse_rename(self, executor, line_number, line, extra):
@@ -246,8 +249,9 @@ class Tar(t_backend.Backend):
         """
 
         raise NotImplementedError(
-            _('the %(back1)s backend cannot rename files, but you can use %(back2)s instead') %
-            {'back1': 'tar', 'back2': '7z'})
+            _("the %(back1)s backend cannot rename files, but you can use %(back2)s instead")
+            % {"back1": "tar", "back2": "7z"}
+        )
 
     @override
     def parse_test(self, executor, line_number, line, extra):
@@ -261,8 +265,9 @@ class Tar(t_backend.Backend):
         """
 
         if line.startswith(self._error_prefix):
-            t_gui.warn(_('%(prog)s: warning: %(message)s\n') %
-                {'prog': 'tarumba', 'message': line[len(self._error_prefix):]})
+            t_gui.warn(
+                _("%(prog)s: warning: %(message)s\n") % {"prog": "tarumba", "message": line[len(self._error_prefix) :]}
+            )
         elif len(line) > 0:
             t_gui.testing_msg(line)
             t_gui.advance_progress()

@@ -4,19 +4,19 @@
 "Tarumba's constants"
 
 # Supported backends
-BACKEND_7ZIP = '7zip'
-BACKEND_TAR = 'tar'
+BACKEND_7ZIP = "7zip"
+BACKEND_TAR = "tar"
 
 # Columns in archive contents
-COLUMN_CRC = 'CRC'
-COLUMN_DATE = 'DATE'
-COLUMN_ENC = 'ENCRYPTED'
-COLUMN_METHOD = 'METHOD'
-COLUMN_NAME = 'NAME'
-COLUMN_OWNER = 'OWNER'
-COLUMN_PACKED = 'PACKED'
-COLUMN_PERMS = 'PERMISSIONS'
-COLUMN_SIZE = 'SIZE'
+COLUMN_CRC = "CRC"
+COLUMN_DATE = "DATE"
+COLUMN_ENC = "ENCRYPTED"
+COLUMN_METHOD = "METHOD"
+COLUMN_NAME = "NAME"
+COLUMN_OWNER = "OWNER"
+COLUMN_PACKED = "PACKED"
+COLUMN_PERMS = "PERMISSIONS"
+COLUMN_SIZE = "SIZE"
 
 # Set to check if a column exists
 COLUMNS_SET = {
@@ -28,24 +28,24 @@ COLUMNS_SET = {
     COLUMN_OWNER,
     COLUMN_PACKED,
     COLUMN_PERMS,
-    COLUMN_SIZE
+    COLUMN_SIZE,
 }
 
 # Mime types
-MIME_7Z = 'application/x-7z-compressed'
-MIME_BROTLI = 'application/x-brotli'
-MIME_BZIP2 = 'application/x-bzip2'
-MIME_COMPRESS = 'application/x-compress'
-MIME_GZIP = 'application/gzip'
-MIME_LZMA = 'application/x-lzma'
-MIME_TAR = 'application/x-tar'
-MIME_ZIP = 'application/zip'
-MIME_XZ = 'application/x-xz'
+MIME_7Z = "application/x-7z-compressed"
+MIME_BROTLI = "application/x-brotli"
+MIME_BZIP2 = "application/x-bzip2"
+MIME_COMPRESS = "application/x-compress"
+MIME_GZIP = "application/gzip"
+MIME_LZMA = "application/x-lzma"
+MIME_TAR = "application/x-tar"
+MIME_ZIP = "application/zip"
+MIME_XZ = "application/x-xz"
 
 # Backend operations
-OPERATION_LIST = 'LIST'
-OPERATION_ADD = 'ADD'
-OPERATION_EXTRACT = 'EXTRACT'
-OPERATION_DELETE = 'DELETE'
-OPERATION_RENAME = 'RENAME'
-OPERATION_TEST = 'TEST'
+OPERATION_LIST = "LIST"
+OPERATION_ADD = "ADD"
+OPERATION_EXTRACT = "EXTRACT"
+OPERATION_DELETE = "DELETE"
+OPERATION_RENAME = "RENAME"
+OPERATION_TEST = "TEST"

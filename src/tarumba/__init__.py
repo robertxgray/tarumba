@@ -9,5 +9,5 @@ import os
 from tarumba import config as t_config
 
 # Init locale
-gettext.bindtextdomain('tarumba', os.path.join(t_config.BASE_PATH, 'locale'))
-gettext.textdomain('tarumba')
+gettext.bindtextdomain("tarumba", os.path.join(t_config.BASE_PATH, "locale"))
+gettext.textdomain("tarumba")

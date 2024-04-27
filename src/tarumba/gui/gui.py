@@ -10,10 +10,10 @@ class Gui(ABC):
     "Abstract parent class for GUIs"
 
     # Answers
-    YES = 'YES'
-    NO = 'NO'
-    ALL = 'ALL'
-    NONE = 'NONE'
+    YES = "YES"
+    NO = "NO"
+    ALL = "ALL"
+    NONE = "NONE"
 
     @abstractmethod
     def debug(self, key, value):
