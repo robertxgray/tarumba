@@ -16,6 +16,7 @@ from tests import utils as test_utils
 # You may need to adjust these variables to your testing environment
 X7Z = "7zz"  # 7-Zip
 P7ZIP = "7z"  # p7zip
+GZIP = "gzip"  # Gzip
 GTAR = "tar"  # GNU Tar
 
 test_params_list = [
@@ -31,6 +32,7 @@ test_params_list = [
     test_utils.TestParams(t_constants.BACKEND_7ZIP, P7ZIP, "test_p7zip.gz"),
     test_utils.TestParams(t_constants.BACKEND_7ZIP, P7ZIP, "test_p7zip.bz2"),
     test_utils.TestParams(t_constants.BACKEND_7ZIP, P7ZIP, "test_p7zip.xz"),
+    test_utils.TestParams(t_constants.BACKEND_GZIP, GZIP, "test_gzip.gz"),
     test_utils.TestParams(t_constants.BACKEND_TAR, GTAR, "test_gtar.tar"),
 ]
 

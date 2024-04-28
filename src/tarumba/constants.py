@@ -5,6 +5,7 @@
 
 # Supported backends
 BACKEND_7ZIP = "7zip"
+BACKEND_GZIP = "gzip"
 BACKEND_TAR = "tar"
 
 # Columns in archive contents
@@ -30,6 +31,9 @@ COLUMNS_SET = {
     COLUMN_PERMS,
     COLUMN_SIZE,
 }
+
+# Date format
+DATE_FORMAT = "%Y-%m-%d %H:%M"
 
 # Mime types
 MIME_7Z = "application/x-7z-compressed"

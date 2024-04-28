@@ -10,6 +10,7 @@ from gettext import gettext as _
 import magic
 
 import tarumba.constants as t_constants
+from tarumba.backend import gzip as t_gzip
 from tarumba.backend import tar as t_tar
 from tarumba.backend import x7z as t_x7z
 from tarumba.gui import current as t_gui
@@ -69,9 +70,32 @@ def detect_format(backend, archive, operation):
     if backend:
         if backend == t_constants.BACKEND_7ZIP:
             return t_x7z.X7z(mime, operation)
+        if backend == t_constants.BACKEND_GZIP:
+            return t_gzip.Gzip(mime, operation)
         if backend == t_constants.BACKEND_TAR:
             return t_tar.Tar(mime, operation)
 
+    if mime[0] == t_constants.MIME_GZIP:
+        try:
+            return t_gzip.Gzip(mime, operation)
+        except FileNotFoundError:
+            t_gui.debug("debug", _("%(backend) backend not available") % {"backend": t_constants.BACKEND_GZIP})
+
     if mime[0] == t_constants.MIME_TAR and operation != t_constants.OPERATION_RENAME:
-        return t_tar.Tar(mime, operation)
-    return t_x7z.X7z(mime, operation)
+        try:
+            return t_tar.Tar(mime, operation)
+        except FileNotFoundError:
+            t_gui.debug("debug", _("%(backend) backend not available") % {"backend": t_constants.BACKEND_TAR})
+
+    try:
+        return t_x7z.X7z(mime, operation)
+    except FileNotFoundError:
+        t_gui.debug("debug", _("%(backend) backend not available") % {"backend": t_constants.BACKEND_7ZIP})
+
+    raise FileNotFoundError(
+        _(
+            "a program compatible with this archive format can't be found, "
+            "please make sure it's installed and available in the $PATH or enter the full path "
+            "to the program in the configuration"
+        )
+    )

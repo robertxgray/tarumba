@@ -35,10 +35,12 @@ class Config(t_data_classes.Base):
                 t_constants.COLUMN_DATE,
                 t_constants.COLUMN_NAME,
             ],
+            "main_s_shell": ["bash"],
             "main_s_tmp_path": tempfile.gettempdir(),
             "main_b_verbose": False,
             # Backends
             "backends_l_7zip_bin": ["7zz", "7zzs", "7z", "7za"],
+            "backends_l_gzip_bin": ["gzip"],
             "backends_l_tar_bin": ["tar", "bsdtar"],
             # Colors
             "colors_s_system": "auto",
