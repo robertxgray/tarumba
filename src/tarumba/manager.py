@@ -11,6 +11,7 @@ import tarumba.constants as t_constants
 from tarumba import classifier as t_classifier
 from tarumba import config as t_config
 from tarumba import data_classes as t_data_classes
+from tarumba import errors as t_errors
 from tarumba import executor as t_executor
 from tarumba import file_utils as t_file_utils
 from tarumba import utils as t_utils
@@ -92,7 +93,7 @@ def _add_archive_get_password(backend, archive, encrypt):
 
     :param encrypt: Encryption flag
     :param backend: Archive backend
-    :raises ArgumentError: Encryption not available
+    :raises InvalidOperationError: The archive cannot be encrypted
     """
 
     password = None
@@ -100,7 +101,7 @@ def _add_archive_get_password(backend, archive, encrypt):
         if backend.can_encrypt():
             password = t_utils.new_password(archive)
         else:
-            raise ArgumentError(None, _("this archive format can't encrypt contents"))
+            raise t_errors.InvalidOperationError(None, _("this archive format can't encrypt contents"))
     return password
 
 
@@ -109,7 +110,7 @@ def _add_archive_check_multiple(add_args):
     Checks if the archive can store multiple and the operation is valid.
 
     :param add_args: AddArgs object
-    :raises ArgumentError: Invalid operation
+    :raises InvalidOperationError: The archive cannot store the information
     """
 
     if not add_args.get("backend").can_pack():
@@ -118,11 +119,11 @@ def _add_archive_check_multiple(add_args):
             or len(add_args.get("files")) > 1
             or os.path.isdir(add_args.get("files")[0])
         ):
-            raise ArgumentError(None, _("this archive format can't store more than one file"))
+            raise t_errors.InvalidOperationError(None, _("this archive format can't store more than one file"))
         if add_args.get("path"):
-            raise ArgumentError(None, _("this archive format can't store file paths"))
+            raise t_errors.InvalidOperationError(None, _("this archive format can't store file paths"))
         if not add_args.get("follow_links") and os.path.islink(add_args.get("files")[0]):
-            raise ArgumentError(None, _("this archive format can't store links"))
+            raise t_errors.InvalidOperationError(None, _("this archive format can't store links"))
 
 
 def _add_archive_check(add_args):
@@ -192,6 +193,7 @@ def add_archive(args):
     Add files to an archive.
 
     :param args: Input arguments
+    :raises ArgumentError: No list of files to add
     """
 
     if len(args.files) < 1:
@@ -319,6 +321,8 @@ def delete_archive(args):
     Delete archive contents.
 
     :param args: Input arguments
+    :raises ArgumentError: No list of files to delete
+    :raises InvalidOperationError: Files cannot be deleted from the archive
     """
 
     if len(args.files) < 1:
@@ -334,7 +338,9 @@ def delete_archive(args):
     t_gui.debug("delete_args", delete_args)
 
     if not delete_args.get("backend").can_pack():
-        raise ArgumentError(None, _("files can't be deleted from this archive format, delete the archive instead"))
+        raise t_errors.InvalidOperationError(
+            None, _("files can't be deleted from this archive format, delete the archive instead")
+        )
 
     commands = delete_args.get("backend").delete_commands(delete_args)
     t_executor.Executor().execute(
@@ -347,6 +353,8 @@ def rename_archive(args):
     Rename archive contents.
 
     :param args: Input arguments
+    :raises ArgumentError: Missing pairs of file names
+    :raises InvalidOperationError: Files cannot be renamed in the archive
     """
 
     if len(args.files) < PAIR or len(args.files) % PAIR != 0:
@@ -362,7 +370,9 @@ def rename_archive(args):
     t_gui.debug("rename_args", rename_args)
 
     if not rename_args.get("backend").can_name():
-        raise ArgumentError(None, _("files can't be renamed from this archive format, rename the archive instead"))
+        raise t_errors.InvalidOperationError(
+            None, _("files can't be renamed from this archive format, rename the archive instead")
+        )
 
     commands = rename_args.get("backend").rename_commands(rename_args)
     t_executor.Executor().execute(

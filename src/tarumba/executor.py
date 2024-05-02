@@ -43,6 +43,7 @@ class Executor:
         :param patterns: Particular patterns
         :param parser: Line parser
         :param extra: Extra data
+        :raises ChildProcessError: Error in program
         """
 
         # Save the current working directory

@@ -18,6 +18,7 @@ def makedirs(path):
     Recursive directory creation function.
 
     :param path: Path
+    :raises NotADirectoryError: The folder cannot be created
     """
 
     try:

@@ -10,6 +10,7 @@ from gettext import gettext as _
 
 import pexpect
 
+import tarumba.errors as t_errors
 from tarumba.gui import current as t_gui
 
 
@@ -158,14 +159,14 @@ def check_installed(executables):
 
     :param programs: List of executable names or paths
     :return: First alias found
-    :raises FileNotFoundError: The program is not available
+    :raises BackendUnavailableError: The backend is not available
     """
 
     for executable in executables:
         path = pexpect.which(executable)
         if path:
             return path
-    raise FileNotFoundError(
+    raise t_errors.BackendUnavailableError(
         _(
             "operation not available because the %(executable)s program "
             "can't be found, please make sure it's installed and available in the $PATH or "

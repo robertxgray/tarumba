@@ -10,6 +10,7 @@ from gettext import gettext as _
 import magic
 
 import tarumba.constants as t_constants
+import tarumba.errors as t_errors
 from tarumba.backend import gzip as t_gzip
 from tarumba.backend import tar as t_tar
 from tarumba.backend import x7z as t_x7z
@@ -50,7 +51,7 @@ def detect_format(backend, archive, operation):
     :param archive: Archive file name
     :param operation: Backend operation
     :return: Backend
-    :raises TypeError: If the format is unknown
+    :raises BackendUnavailableError: The backend is not available
     """
 
     name_mime = _sanitize_mime(mimetypes.guess_type(archive, strict=False))
@@ -78,21 +79,21 @@ def detect_format(backend, archive, operation):
     if mime[0] == t_constants.MIME_GZIP:
         try:
             return t_gzip.Gzip(mime, operation)
-        except FileNotFoundError:
+        except t_errors.BackendUnavailableError:
             t_gui.debug("debug", _("%(backend)s backend not available") % {"backend": t_constants.BACKEND_GZIP})
 
     if mime[0] == t_constants.MIME_TAR and operation != t_constants.OPERATION_RENAME:
         try:
             return t_tar.Tar(mime, operation)
-        except FileNotFoundError:
+        except t_errors.BackendUnavailableError:
             t_gui.debug("debug", _("%(backend)s backend not available") % {"backend": t_constants.BACKEND_TAR})
 
     try:
         return t_x7z.X7z(mime, operation)
-    except FileNotFoundError:
+    except t_errors.BackendUnavailableError:
         t_gui.debug("debug", _("%(backend)s backend not available") % {"backend": t_constants.BACKEND_7ZIP})
 
-    raise FileNotFoundError(
+    raise t_errors.BackendUnavailableError(
         _(
             "a program compatible with this archive format can't be found, "
             "please make sure it's installed and available in the $PATH or enter the full path "
