@@ -3,6 +3,8 @@
 
 "Tarumba's tar backend support"
 
+import os
+import shlex
 from gettext import gettext as _
 
 from typing_extensions import override
@@ -33,6 +35,11 @@ class Tar(t_backend.Backend):
         self._tar_bin = t_utils.check_installed(config.get("backends_l_tar_bin"))
         self._error_prefix = f"{self._tar_bin}: "
 
+        self._compressor_bin = None
+        self._compressor_mime = mime[1]
+        if self._compressor_mime == t_constants.MIME_GZIP:
+            self._compressor_bin = t_utils.check_installed(config.get("backends_l_gzip_bin"))
+
     @override
     def list_commands(self, list_args):
         """
@@ -43,13 +50,17 @@ class Tar(t_backend.Backend):
         """
 
         params = []
+        if self._compressor_bin:
+            params.append("-I")
+            params.append(shlex.quote(self._compressor_bin))
+        if list_args.get("occurrence"):
+            params.append("--occurrence=" + list_args.get("occurrence"))
         params.append("--quoting-style=literal")
         params.append("--no-unquote")
         params.append("--no-wildcards")
         params.append("--numeric-owner")
-        if list_args.get("occurrence"):
-            params.append("--occurrence=" + list_args.get("occurrence"))
-        return [(self._tar_bin, [*params, "-tvf", list_args.get("archive"), "--", *list_args.get("files")])]
+        params.append("-tvf")
+        return [(self._tar_bin, [*params, list_args.get("archive"), "--", *list_args.get("files")])]
 
     @override
     def add_commands(self, add_args, files):
@@ -62,15 +73,23 @@ class Tar(t_backend.Backend):
         """
 
         params = []
-        params.append("--quoting-style=literal")
-        params.append("--no-unquote")
-        params.append("--no-wildcards")
+        if self._compressor_bin:
+            level = f" -{add_args.get('level')}" if add_args.get("level") else ""
+            params.append("-I")
+            params.append(f"{shlex.quote(self._compressor_bin)}{level}")
         if add_args.get("follow_links"):
             params.append("-h")
         if not add_args.get("owner"):
             params.append("--owner=0")
             params.append("--group=0")
-        return [(self._tar_bin, [*params, "-rvSf", add_args.get("archive"), "--", files])]
+        params.append("--quoting-style=literal")
+        params.append("--no-unquote")
+        params.append("--no-wildcards")
+        if os.path.exists(add_args.get("archive")):
+            params.append("-rvSf")
+        else:
+            params.append("-cvSf")
+        return [(self._tar_bin, [*params, add_args.get("archive"), "--", files])]
 
     @override
     def extract_commands(self, extract_args):
@@ -82,12 +101,16 @@ class Tar(t_backend.Backend):
         """
 
         params = []
+        if self._compressor_bin:
+            params.append("-I")
+            params.append(shlex.quote(self._compressor_bin))
+        if extract_args.get("occurrence"):
+            params.append("--occurrence=" + extract_args.get("occurrence"))
         params.append("--quoting-style=literal")
         params.append("--no-unquote")
         params.append("--no-wildcards")
-        if extract_args.get("occurrence"):
-            params.append("--occurrence=" + extract_args.get("occurrence"))
-        return [(self._tar_bin, [*params, "-xvf", extract_args.get("archive"), "--", *extract_args.get("files")])]
+        params.append("-xvf")
+        return [(self._tar_bin, [*params, extract_args.get("archive"), "--", *extract_args.get("files")])]
 
     @override
     def delete_commands(self, delete_args):
@@ -99,14 +122,14 @@ class Tar(t_backend.Backend):
         """
 
         params = []
+        if delete_args.get("occurrence"):
+            params.append("--occurrence=" + delete_args.get("occurrence"))
         params.append("--quoting-style=literal")
         params.append("--no-unquote")
         params.append("--no-wildcards")
-        if delete_args.get("occurrence"):
-            params.append("--occurrence=" + delete_args.get("occurrence"))
-        return [
-            (self._tar_bin, [*params, "--delete", "-vf", delete_args.get("archive"), "--", *delete_args.get("files")])
-        ]
+        params.append("--delete")
+        params.append("-vf")
+        return [(self._tar_bin, [*params, delete_args.get("archive"), "--", *delete_args.get("files")])]
 
     @override
     def rename_commands(self, rename_args):
@@ -132,12 +155,16 @@ class Tar(t_backend.Backend):
         """
 
         params = []
+        if self._compressor_bin:
+            params.append("-I")
+            params.append(shlex.quote(self._compressor_bin))
+        if test_args.get("occurrence"):
+            params.append("--occurrence=" + test_args.get("occurrence"))
         params.append("--quoting-style=literal")
         params.append("--no-unquote")
         params.append("--no-wildcards")
-        if test_args.get("occurrence"):
-            params.append("--occurrence=" + test_args.get("occurrence"))
-        return [(self._tar_bin, [*params, "-tf", test_args.get("archive"), "--", *test_args.get("files")])]
+        params.append("-tf")
+        return [(self._tar_bin, [*params, test_args.get("archive"), "--", *test_args.get("files")])]
 
     def _parse_list_row(self, elements, extra):
         """

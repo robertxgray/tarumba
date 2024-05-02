@@ -7,8 +7,8 @@ import sys
 
 import pytest
 
-from tarumba.config import current as config
 from tarumba.__main__ import main
+from tarumba.config import current as config
 from tests import utils as test_utils
 
 
