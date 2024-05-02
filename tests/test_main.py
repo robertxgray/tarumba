@@ -7,11 +7,15 @@ import sys
 
 import pytest
 
+from tarumba.config import current as config
 from tarumba.__main__ import main
+from tests import utils as test_utils
 
 
 class TestMain:
     "Main function tests"
+
+    INVALID_ARCHIVE = "README.md"
 
     def test_noargs(self):
         "Run the program without arguments"
@@ -44,3 +48,13 @@ class TestMain:
         with pytest.raises(SystemExit) as err:
             main()
         assert err.value.code == 0
+
+    def test_unknown_archive(self):
+        "Error due to unknown archive type"
+
+        config.put("backends_l_7zip_bin", [""])
+        test_utils.copy(self.INVALID_ARCHIVE)
+        with pytest.raises(SystemExit) as err:
+            test_utils.test_list(self.INVALID_ARCHIVE, [], [])
+        assert err.value.code == 1
+        test_utils.cleanup(self.INVALID_ARCHIVE)

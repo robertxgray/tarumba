@@ -39,7 +39,7 @@ class Gzip(t_backend.Backend):
         super().__init__(mime, operation)
         self._gzip_bin = t_utils.check_installed(config.get("backends_l_gzip_bin"))
         if operation in [t_constants.OPERATION_ADD, t_constants.OPERATION_EXTRACT]:
-            self._shell = t_utils.check_installed(config.get("main_s_shell"))
+            self._shell = t_utils.check_installed(config.get("main_l_shell"))
 
     @override
     def list_commands(self, list_args):

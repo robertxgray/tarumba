@@ -79,18 +79,18 @@ def detect_format(backend, archive, operation):
         try:
             return t_gzip.Gzip(mime, operation)
         except FileNotFoundError:
-            t_gui.debug("debug", _("%(backend) backend not available") % {"backend": t_constants.BACKEND_GZIP})
+            t_gui.debug("debug", _("%(backend)s backend not available") % {"backend": t_constants.BACKEND_GZIP})
 
     if mime[0] == t_constants.MIME_TAR and operation != t_constants.OPERATION_RENAME:
         try:
             return t_tar.Tar(mime, operation)
         except FileNotFoundError:
-            t_gui.debug("debug", _("%(backend) backend not available") % {"backend": t_constants.BACKEND_TAR})
+            t_gui.debug("debug", _("%(backend)s backend not available") % {"backend": t_constants.BACKEND_TAR})
 
     try:
         return t_x7z.X7z(mime, operation)
     except FileNotFoundError:
-        t_gui.debug("debug", _("%(backend) backend not available") % {"backend": t_constants.BACKEND_7ZIP})
+        t_gui.debug("debug", _("%(backend)s backend not available") % {"backend": t_constants.BACKEND_7ZIP})
 
     raise FileNotFoundError(
         _(

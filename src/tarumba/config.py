@@ -35,7 +35,7 @@ class Config(t_data_classes.Base):
                 t_constants.COLUMN_DATE,
                 t_constants.COLUMN_NAME,
             ],
-            "main_s_shell": ["bash"],
+            "main_l_shell": ["bash"],
             "main_s_tmp_path": tempfile.gettempdir(),
             "main_b_verbose": False,
             # Backends

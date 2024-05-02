@@ -68,6 +68,7 @@ class TestBackend:
         "Not a real test, just configuration"
 
         config.put("backends_l_7zip_bin", [test_params.binary])
+        config.put("backends_l_gzip_bin", [test_params.binary])
         config.put("backends_l_tar_bin", [test_params.binary])
         self.test_cleanup(test_params)
         test_utils.copy(self.DIR)

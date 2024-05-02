@@ -107,8 +107,8 @@ msgstr "no se encuentra un programa compatible con este formato de archivo, "
        "por favor compruebe que está instalado y disponible en el $PATH o introduzca "
        "la ruta completa al programa en la configuración"
 
-msgid "%(backend) backend not available"
-msgstr "el backend %(backend) no está disponible"
+msgid "%(backend)s backend not available"
+msgstr "el backend %(backend)s no está disponible"
 
 msgid "this archive format can't store the special file %(filename)s"
 msgstr "este formato de archivo no puede almacenar el fichero especial %(filename)s"
