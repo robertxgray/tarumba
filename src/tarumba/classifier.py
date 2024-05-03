@@ -45,7 +45,7 @@ def _sanitize_mime(mime):
 
 def detect_format(backend, archive, operation):
     """
-    Detect the archive format and returns a backend to handle it.
+    Detects the archive format and returns a backend to handle it.
 
     :param backend: Selected backend
     :param archive: Archive file name
@@ -83,6 +83,12 @@ def detect_format(backend, archive, operation):
             t_gui.debug("debug", _("%(backend)s backend not available") % {"backend": t_constants.BACKEND_GZIP})
 
     if mime[0] == t_constants.MIME_TAR and operation != t_constants.OPERATION_RENAME:
+        # Tar cannot update compressed files
+        if mime[1] and (
+            (operation == t_constants.OPERATION_ADD and os.path.exists(archive))
+            or (operation in [t_constants.OPERATION_DELETE, t_constants.OPERATION_RENAME])
+        ):
+            raise t_errors.UpdateTarCompressedError(_("tar compressed archives cannot be updated"))
         try:
             return t_tar.Tar(mime, operation)
         except t_errors.BackendUnavailableError:
@@ -90,6 +96,39 @@ def detect_format(backend, archive, operation):
 
     try:
         return t_x7z.X7z(mime, operation)
+    except t_errors.BackendUnavailableError:
+        t_gui.debug("debug", _("%(backend)s backend not available") % {"backend": t_constants.BACKEND_7ZIP})
+
+    raise t_errors.BackendUnavailableError(
+        _(
+            "a program compatible with this archive format can't be found, "
+            "please make sure it's installed and available in the $PATH or enter the full path "
+            "to the program in the configuration"
+        )
+    )
+
+
+def get_tar_compressor(archive, operation):
+    """
+    Returns a backend to re-compress tar archives.
+
+    :param archive: Archive file name
+    :param operation: Backend operation
+    :return: Backend
+    :raises BackendUnavailableError: The backend is not available
+    """
+
+    magic_mime = magic.Magic(mime=True)
+    archive_mime = magic_mime.from_file(archive)
+
+    if archive_mime == t_constants.MIME_GZIP:
+        try:
+            return t_gzip.Gzip((archive_mime, None), operation)
+        except t_errors.BackendUnavailableError:
+            t_gui.debug("debug", _("%(backend)s backend not available") % {"backend": t_constants.BACKEND_GZIP})
+
+    try:
+        return t_x7z.X7z((archive_mime, None), operation)
     except t_errors.BackendUnavailableError:
         t_gui.debug("debug", _("%(backend)s backend not available") % {"backend": t_constants.BACKEND_7ZIP})
 

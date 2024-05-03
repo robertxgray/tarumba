@@ -200,6 +200,9 @@ msgstr "no se pueden renombrar ficheros en este formato de archivo, renombre el 
 msgid "the %(back1)s backend cannot rename files, but you can use %(back2)s instead"
 msgstr "el backend %(back1)s no puede renombrar archivos, pero puede utilizar %(back2)s en su lugar"
 
+msgid "tar compressed archives cannot be updated"
+msgstr "no se pueden actualizar archivos tar comprimidos"
+
 msgid "a progress bar is already running"
 msgstr "ya se ejecuta una barra de progreso"
 

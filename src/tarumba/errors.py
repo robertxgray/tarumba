@@ -10,3 +10,7 @@ class BackendUnavailableError(Exception):
 
 class InvalidOperationError(Exception):
     "The user requested an invalid operation"
+
+
+class UpdateTarCompressedError(Exception):
+    "Compressed tar archives cannot be updated"
