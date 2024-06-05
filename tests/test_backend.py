@@ -56,8 +56,9 @@ class TestBackend:
     DIR = "src"
     ENC_PRE = "e_"
     FILE1 = "README.md"
-    FILE1_RN = "README2.md"
     FILE2 = "COPYING"
+    FILE_ABS = "/etc/fstab"
+    FILE_RN = "README2.md"
     LINK1 = "link1"
     LINK2 = "link2"
     PASSWORD = "password"
@@ -82,7 +83,7 @@ class TestBackend:
 
         backend = t_classifier.detect_format(test_params.backend, test_params.archive, t_constants.OPERATION_ADD)
         if backend.can_pack():
-            test_utils.test_add(test_params.archive, [self.DIR], ["-b", test_params.backend])
+            test_utils.test_add(test_params.archive, [self.DIR, self.FILE_ABS], ["-b", test_params.backend])
             test_utils.assert_file_exists(test_params.archive)
         else:
             with pytest.raises(SystemExit):
@@ -308,6 +309,9 @@ class TestBackend:
             if test_params.binary != "7z":
                 test_utils.assert_link_exists(self.LINK1, archive_folder=test_params.archive)
             test_utils.assert_file_exists(self.LINK2, archive_folder=test_params.archive)
+            test_utils.assert_file_exists(
+                self.FILE_ABS.lstrip("/"), archive_folder=test_params.archive, use_preffix=False
+            )
         elif backend.mime[0] == t_constants.MIME_GZIP:
             test_utils.assert_file_exists(self.LINK2)
         else:
@@ -336,6 +340,7 @@ class TestBackend:
             if test_params.binary != "7z":
                 test_utils.assert_link_exists(self.LINK1)
             test_utils.assert_file_exists(self.LINK2)
+            test_utils.assert_file_exists(self.FILE_ABS.lstrip("/"), use_preffix=False)
         elif backend.mime[0] == t_constants.MIME_GZIP:
             test_utils.assert_file_exists(self.LINK2)
         else:
@@ -357,6 +362,9 @@ class TestBackend:
             if test_params.binary != "7z":
                 test_utils.assert_link_exists(self.LINK1, archive_folder=test_params.archive)
             test_utils.assert_file_exists(self.LINK2, archive_folder=test_params.archive)
+            test_utils.assert_file_exists(
+                self.FILE_ABS.lstrip("/"), archive_folder=test_params.archive, use_preffix=False
+            )
         elif backend.mime[0] == t_constants.MIME_GZIP:
             test_utils.assert_file_exists(self.LINK2)
         else:
@@ -381,10 +389,10 @@ class TestBackend:
             test_params.backend, self.ENC_PRE + test_params.archive, t_constants.OPERATION_RENAME
         )
         if backend.can_name() and test_params.backend == t_constants.BACKEND_7ZIP:
-            test_utils.test_rename(test_params.archive, [self.FILE1, self.FILE1_RN], ["-b", test_params.backend])
+            test_utils.test_rename(test_params.archive, [self.FILE1, self.FILE_RN], ["-b", test_params.backend])
         else:
             with pytest.raises(SystemExit):
-                test_utils.test_rename(test_params.archive, [self.FILE1, self.FILE1_RN], ["-b", test_params.backend])
+                test_utils.test_rename(test_params.archive, [self.FILE1, self.FILE_RN], ["-b", test_params.backend])
 
     def test_rename_encrypted(self, test_params, mocker):
         "Rename files in the encrypted archive"
@@ -395,12 +403,10 @@ class TestBackend:
         if backend.can_encrypt():  # Naming is available whenever encryption is available
             mocker.patch("rich.prompt.Prompt.ask", return_value=self.PASSWORD)
             if test_params.backend == t_constants.BACKEND_7ZIP:
-                test_utils.test_rename(test_params.archive, [self.FILE1, self.FILE1_RN], ["-b", test_params.backend])
+                test_utils.test_rename(test_params.archive, [self.FILE1, self.FILE_RN], ["-b", test_params.backend])
             else:
                 with pytest.raises(SystemExit):
-                    test_utils.test_rename(
-                        test_params.archive, [self.FILE1, self.FILE1_RN], ["-b", test_params.backend]
-                    )
+                    test_utils.test_rename(test_params.archive, [self.FILE1, self.FILE_RN], ["-b", test_params.backend])
 
     def test_delete_occurrence(self, test_params):
         "Delete one file from the archive with occurrence"
@@ -443,3 +449,4 @@ class TestBackend:
         test_utils.cleanup(self.LINK2)
         test_utils.cleanup(self.PATH1, use_preffix=False)
         test_utils.cleanup(self.PATH2, use_preffix=False)
+        test_utils.cleanup(os.path.dirname(self.FILE_ABS.lstrip("/")), use_preffix=False)

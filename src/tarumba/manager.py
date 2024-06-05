@@ -138,17 +138,21 @@ def _add_archive_check(add_args):
 
     target_files = []
     total = 0
-    # Copy is required for custom paths and exclusions
+    # Copy is required for absolute paths, custom paths and exclusions
     copy = add_args.get("path") or add_args.get("contents") is not None
+    if not copy:
+        for file in add_args.get("files"):
+            if file[0] == "/":
+                copy = True
+                break
+    if copy:
+        tmp_dir = t_file_utils.tmp_folder_same_fs(add_args.get("files"))
+        t_gui.debug("mkdir", tmp_dir)
+        add_args.put("tmp_dir", tmp_dir)
     safe_files = t_utils.safe_filelist(add_args.get("files"))
     for file in safe_files:
         t_gui.debug("file", file)
-        tmp_dir = None
-        if copy:
-            tmp_dir = t_file_utils.tmp_folder_same_fs(file)
-            t_gui.debug("mkdir", tmp_dir)
-            add_args.get("tmp_dirs").append(tmp_dir[0])
-        numfiles = t_file_utils.check_add_filesystem_tree(add_args, file, tmp_dir)
+        numfiles = t_file_utils.check_add_filesystem_tree(add_args, file)
         if numfiles > 0:
             target_files.append(file)
             total += numfiles
@@ -164,27 +168,25 @@ def _add_archive_commands(add_args, files):
     :return: List of commands
     """
 
-    cwd = os.getcwd()
-    commands = []
+    safe_files = []
     index = 0
     for file in files:
         safe_file = file.lstrip("/")
         # Add the extra path
         if add_args.get("path"):
             safe_file = os.path.join(add_args.get("path"), safe_file)
-        # Move to the temporary folders
-        if add_args.get("tmp_dirs"):
-            commands.append((t_executor.CHDIR, [add_args.get("tmp_dirs")[index]]))
-            commands += add_args.get("backend").add_commands(add_args, safe_file)
-            commands.append((t_executor.CHDIR, [cwd]))
-        # Move to the root when dealing with absolute paths
-        elif file.startswith("/"):
-            commands.append((t_executor.CHDIR, ["/"]))
-            commands += add_args.get("backend").add_commands(add_args, safe_file)
-            commands.append((t_executor.CHDIR, [cwd]))
-        else:
-            commands += add_args.get("backend").add_commands(add_args, safe_file)
-        index += 1
+        safe_files.append(safe_file)
+
+    cwd = os.getcwd()
+    commands = []
+    # Move to the temporary folders
+    if add_args.get("tmp_dir"):
+        commands.append((t_executor.CHDIR, [add_args.get("tmp_dir")[index]]))
+        commands += add_args.get("backend").add_commands(add_args, safe_files)
+        commands.append((t_executor.CHDIR, [cwd]))
+    else:
+        commands += add_args.get("backend").add_commands(add_args, safe_files)
+
     return commands
 
 
@@ -212,7 +214,6 @@ def add_archive(args):
     add_args.put("owner", args.owner)
     add_args.put("password", _add_archive_get_password(backend, args.archive, args.encrypt))
     add_args.put("path", args.path.strip("/") if args.path else None)
-    add_args.put("tmp_dirs", [])
     t_gui.debug("add_args", add_args)
 
     _add_archive_check_multiple(add_args)
@@ -234,9 +235,9 @@ def add_archive(args):
 
     # Temporary folders must be deleted
     finally:
-        for tmp_dir in add_args.get("tmp_dirs"):
-            t_gui.debug("rmdir", tmp_dir)
-            t_file_utils.delete_folder(tmp_dir)
+        if add_args.get("tmp_dir"):
+            t_gui.debug("rmdir", add_args.get("tmp_dir"))
+            t_file_utils.delete_folder(add_args.get("tmp_dir")[0])
 
 
 def _extract_archive_commands(extract_args):

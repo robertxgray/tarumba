@@ -89,7 +89,7 @@ class Tar(t_backend.Backend):
             params.append("-rvSf")
         else:
             params.append("-cvSf")
-        return [(self._tar_bin, [*params, add_args.get("archive"), "--", files])]
+        return [(self._tar_bin, [*params, add_args.get("archive"), "--", *files])]
 
     @override
     def extract_commands(self, extract_args):

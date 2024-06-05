@@ -127,23 +127,30 @@ def tmp_folder(path):
     return tempfile.mkdtemp(prefix=".tar", dir=path)
 
 
-def tmp_folder_same_fs(path):
+def tmp_folder_same_fs(paths):
     """
-    Creates a temporary folder in the same file system (when possible) as the requested path.
+    Creates a temporary folder in the same file system (when possible) as the requested list of paths.
     Returns a tuple with the path and a flag indicating if using the same FS was viable.
     When follow_links is enabled, we can always pretend to be in the same FS.
 
-    :param path: Reference path
+    :param path: Reference paths
     :return: Tuple with temporary path and flag
     """
 
-    base_path = os.path.dirname(os.path.abspath(path))
-    path_fs = get_filesystem(base_path)
+    common_fs = None
+    for path in paths:
+        base_path = os.path.dirname(os.path.abspath(path))
+        path_fs = get_filesystem(base_path)
+        if common_fs is None:
+            common_fs = path_fs
+        elif common_fs != path_fs:
+            common_fs = None
+            break
 
     default_tmp = config.get("main_s_tmp_path")
     default_tmp_fs = get_filesystem(default_tmp)
     # Prefer the default tmp
-    if config.get("main_b_follow_links") or path_fs == default_tmp_fs:
+    if config.get("main_b_follow_links") or (common_fs is not None and common_fs == default_tmp_fs):
         return (tmp_folder(default_tmp), True)
     # Use a hidden folder in the same path as an alternative
     if os.access(base_path, os.W_OK):
@@ -195,23 +202,22 @@ def _check_add_file(add_args, path):
     return copy
 
 
-def _check_add_file_copy(add_args, path, tmp_dir, copy):
+def _check_add_file_copy(add_args, path, copy):
     """
     Copies a file if a temporary path is given.
 
     :param add_args: AddArgs object
     :param path: File path
-    :param tmp_dir: Tuple with temporary path and same FS flag
     :param copy: If false, skip this file
     :return: Number of files processed: 0 or 1
     """
 
-    if tmp_dir and copy:
+    if add_args.get("tmp_dir") and copy:
         file_path = path.lstrip("/")
         # Add the extra path
         if add_args.get("path"):
             file_path = os.path.join(add_args.get("path"), file_path)
-        dest_path = os.path.join(tmp_dir[0], file_path)
+        dest_path = os.path.join(add_args.get("tmp_dir")[0], file_path)
 
         makedirs(os.path.dirname(dest_path))
         if add_args.get("follow_links"):
@@ -220,7 +226,7 @@ def _check_add_file_copy(add_args, path, tmp_dir, copy):
                 os.symlink(link_path, dest_path)
             else:
                 os.symlink(os.path.abspath(path), dest_path)
-        elif tmp_dir[1]:
+        elif add_args.get("tmp_dir")[1]:
             try:
                 os.link(path, dest_path, follow_symlinks=False)
             except PermissionError:
@@ -231,50 +237,48 @@ def _check_add_file_copy(add_args, path, tmp_dir, copy):
     return 1 if copy else 0
 
 
-def _check_add_folder_copy(add_args, path, tmp_dir):
+def _check_add_folder_copy(add_args, path):
     """
     Copies a folder if a temporary path is given.
 
     :param add_args: AddArgs object
     :param path: Folder path
-    :param tmp_dir: Tuple with temporary path and same FS flag
     :return: Number of folders, always 1
     """
 
-    if tmp_dir:
+    if add_args.get("tmp_dir"):
         dir_path = path.lstrip("/")
         # Add the extra path
         if add_args.get("path"):
             dir_path = os.path.join(add_args.get("path"), dir_path)
-        dest_path = os.path.join(tmp_dir[0], dir_path)
+        dest_path = os.path.join(add_args.get("tmp_dir")[0], dir_path)
         makedirs(dest_path)
         shutil.copystat(path, dest_path)
     return 1
 
 
-def check_add_filesystem_tree(add_args, path, tmp_dir):
+def check_add_filesystem_tree(add_args, path):
     """
     Returns all the files and folders under a filesystem path.
 
     :param add_args: AddArgs object
     :param path: Filesystem path to walk
-    :param tmp_dir: Tuple with temporary path and same FS flag
     :return: Number of files and folders
     """
 
     if os.path.isdir(path) and (add_args.get("follow_links") or not os.path.islink(path)):
-        total = _check_add_folder_copy(add_args, path, tmp_dir)
+        total = _check_add_folder_copy(add_args, path)
         for root, dirs, files in os.walk(path, topdown=True, followlinks=add_args.get("follow_links")):
             for name in dirs:
                 dirpath = os.path.join(root, name)
-                total += _check_add_folder_copy(add_args, dirpath, tmp_dir)
+                total += _check_add_folder_copy(add_args, dirpath)
             for name in files:
                 filepath = os.path.join(root, name)
                 copy = _check_add_file(add_args, filepath)
-                total += _check_add_file_copy(add_args, filepath, tmp_dir, copy)
+                total += _check_add_file_copy(add_args, filepath, copy)
     else:
         copy = _check_add_file(add_args, path)
-        total = _check_add_file_copy(add_args, path, tmp_dir, copy)
+        total = _check_add_file_copy(add_args, path, copy)
     return total
 
 

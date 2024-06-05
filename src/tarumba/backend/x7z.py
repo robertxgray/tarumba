@@ -107,7 +107,7 @@ class X7z(t_backend.Backend):
             params.append("-snl")
         if add_args.get("level"):
             params.append(f"-mx={add_args.get('level')}")
-        return [(self._7zip_bin, [*params, "--", add_args.get("archive"), files])]
+        return [(self._7zip_bin, [*params, "--", add_args.get("archive"), *files])]
 
     @override
     def extract_commands(self, extract_args):

@@ -31,7 +31,13 @@ def _add_preffix_to_files(files):
     :return: Lis of files with preffix
     """
 
-    return [PREFFIX + file for file in files]
+    out = []
+    for file in files:
+        if file[0] == "/":
+            out.append(file)
+        else:
+            out.append(PREFFIX + file)
+    return out
 
 
 def test_add(archive, files, extra_args):
@@ -146,10 +152,7 @@ def _get_test_path(path, dest=None, *, archive_folder=None, use_preffix=True):
 
     if archive_folder is not None:
         archive_base = pathlib.Path(archive_folder).stem
-        if use_preffix:
-            test_dir = os.path.join(TEST_PATH, PREFFIX + archive_base)
-        else:
-            test_dir = os.path.join(TEST_PATH, archive_base)
+        test_dir = os.path.join(TEST_PATH, PREFFIX + archive_base)
     else:
         test_dir = TEST_PATH
     if dest:

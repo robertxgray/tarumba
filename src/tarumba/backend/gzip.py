@@ -64,7 +64,7 @@ class Gzip(t_backend.Backend):
 
         archive_quot = shlex.quote(add_args.get("archive"))
         level = f" -{add_args.get('level')}" if add_args.get("level") else ""
-        command = f"{shlex.quote(self._gzip_bin)} -cfN{level} {shlex.quote(files)} > {archive_quot}"
+        command = f"{shlex.quote(self._gzip_bin)} -cfN{level} {shlex.quote(files[0])} > {archive_quot}"
         return [(self._shell, ["-c", command])]
 
     @override

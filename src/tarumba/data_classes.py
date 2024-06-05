@@ -92,7 +92,7 @@ class AddArgs(Base):
             "owner": None,
             "password": None,
             "path": None,
-            "tmp_dirs": None,
+            "tmp_dir": None,
         }
 
 
