@@ -116,6 +116,18 @@ def delete_folder(path):
         shutil.rmtree(path, ignore_errors=True)
 
 
+def tmp_file(path, suffix=None):
+    """
+    Creates and returns a temporary file in the requested root path.
+
+    :param path: Root path
+    :param suffix: Optional name suffix
+    :return: Temporary file path
+    """
+
+    return tempfile.mkstemp(prefix=".tar", dir=path, suffix=suffix)[1]
+
+
 def tmp_folder(path):
     """
     Creates and returns a temporary folder in the requested root path.

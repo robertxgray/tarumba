@@ -14,6 +14,7 @@ from tarumba import data_classes as t_data_classes
 from tarumba import errors as t_errors
 from tarumba import executor as t_executor
 from tarumba import file_utils as t_file_utils
+from tarumba import recompressor as t_recompressor
 from tarumba import utils as t_utils
 from tarumba.config import current as config
 from tarumba.gui import current as t_gui
@@ -32,8 +33,8 @@ def _list_archive_2set(backend, archive):
 
     list_args = t_data_classes.ListArgs()
     list_args.put("archive", archive)
-    list_args.put("files", [])
     list_args.put("backend", backend)
+    list_args.put("files", [])
     list_args.put("output", set())
     t_gui.debug("list_args", list_args)
 
@@ -58,9 +59,9 @@ def list_archive(args):
 
     list_args = t_data_classes.ListArgs()
     list_args.put("archive", args.archive)
+    list_args.put("backend", t_classifier.detect_format(args.backend, args.archive, t_constants.OPERATION_LIST))
     list_args.put("columns", columns)
     list_args.put("files", args.files)
-    list_args.put("backend", t_classifier.detect_format(args.backend, args.archive, t_constants.OPERATION_LIST))
     list_args.put("occurrence", args.occurrence)
     list_args.put("output", [columns])
     t_gui.debug("list_args", list_args)
@@ -101,7 +102,7 @@ def _add_archive_get_password(backend, archive, encrypt):
         if backend.can_encrypt():
             password = t_utils.new_password(archive)
         else:
-            raise t_errors.InvalidOperationError(None, _("this archive format can't encrypt contents"))
+            raise t_errors.InvalidOperationError(_("this archive format can't encrypt contents"))
     return password
 
 
@@ -119,11 +120,11 @@ def _add_archive_check_multiple(add_args):
             or len(add_args.get("files")) > 1
             or os.path.isdir(add_args.get("files")[0])
         ):
-            raise t_errors.InvalidOperationError(None, _("this archive format can't store more than one file"))
+            raise t_errors.InvalidOperationError(_("this archive format can't store more than one file"))
         if add_args.get("path"):
-            raise t_errors.InvalidOperationError(None, _("this archive format can't store file paths"))
+            raise t_errors.InvalidOperationError(_("this archive format can't store file paths"))
         if not add_args.get("follow_links") and os.path.islink(add_args.get("files")[0]):
-            raise t_errors.InvalidOperationError(None, _("this archive format can't store links"))
+            raise t_errors.InvalidOperationError(_("this archive format can't store links"))
 
 
 def _add_archive_check(add_args):
@@ -206,23 +207,31 @@ def add_archive(args):
     backend = t_classifier.detect_format(args.backend, args.archive, t_constants.OPERATION_ADD)
     add_args = t_data_classes.AddArgs()
     add_args.put("archive", args.archive)
+    add_args.put("backend", backend)
     add_args.put("files", args.files)
     add_args.put("follow_links", config.get("main_b_follow_links"))
-    add_args.put("backend", backend)
     add_args.put("level", args.level)
     add_args.put("overwrite", _get_overwrite(args))
     add_args.put("owner", args.owner)
     add_args.put("password", _add_archive_get_password(backend, args.archive, args.encrypt))
     add_args.put("path", args.path.strip("/") if args.path else None)
     t_gui.debug("add_args", add_args)
+    original_args = add_args
 
     _add_archive_check_multiple(add_args)
 
     # Do we need to warn before overwrite?
-    if not add_args.get("backend").can_duplicate() and os.path.isfile(add_args.get("archive")):
+    file_exists = os.path.isfile(add_args.get("archive"))
+    if not add_args.get("backend").can_duplicate() and file_exists:
         add_args.put("contents", _list_archive_2set(add_args.get("backend"), add_args.get("archive")))
 
     try:
+        # Decompress tar archives
+        recompress = False
+        if t_recompressor.is_tar_compressed(original_args) and file_exists:
+            add_args = t_recompressor.tar_decompress(original_args, args.backend, t_constants.OPERATION_ADD)
+            recompress = True
+
         # Process the files to add
         target_files, total = _add_archive_check(add_args)
         t_gui.debug("total", total)
@@ -232,6 +241,10 @@ def add_archive(args):
             t_executor.Executor().execute(
                 commands, add_args.get("backend").ADD_PATTERNS, add_args.get("backend").parse_add, add_args
             )
+
+        # Re-compress tar archives
+        if recompress:
+            t_recompressor.tar_compress(original_args, add_args.get("archive"))
 
     # Temporary folders must be deleted
     finally:
@@ -268,18 +281,18 @@ def extract_archive(args):
 
     list_args = t_data_classes.ListArgs()
     list_args.put("archive", args.archive)
+    list_args.put("backend", backend)
     list_args.put("columns", [t_constants.COLUMN_NAME])
     list_args.put("files", args.files)
-    list_args.put("backend", backend)
     list_args.put("output", [])
     t_gui.debug("list_args", list_args)
 
     extract_args = t_data_classes.ExtractArgs()
     extract_args.put("archive", args.archive)
-    extract_args.put("destination", os.getcwd())
-    extract_args.put("create_folder", config.get("main_s_create_folder"))
-    extract_args.put("files", args.files)
     extract_args.put("backend", backend)
+    extract_args.put("create_folder", config.get("main_s_create_folder"))
+    extract_args.put("destination", os.getcwd())
+    extract_args.put("files", args.files)
     extract_args.put("occurrence", args.occurrence)
     extract_args.put("overwrite", _get_overwrite(args))
     extract_args.put("path", args.path.strip("/") if args.path else None)
@@ -333,20 +346,32 @@ def delete_archive(args):
 
     delete_args = t_data_classes.DeleteArgs()
     delete_args.put("archive", args.archive)
-    delete_args.put("files", args.files)
     delete_args.put("backend", t_classifier.detect_format(args.backend, args.archive, t_constants.OPERATION_DELETE))
+    delete_args.put("files", args.files)
     delete_args.put("occurrence", args.occurrence)
     t_gui.debug("delete_args", delete_args)
+    original_args = delete_args
 
+    # Simple compressors
     if not delete_args.get("backend").can_pack():
         raise t_errors.InvalidOperationError(
-            None, _("files can't be deleted from this archive format, delete the archive instead")
+            _("files can't be deleted from this archive format, delete the archive instead")
         )
+
+    # Decompress tar archives
+    recompress = False
+    if t_recompressor.is_tar_compressed(original_args):
+        delete_args = t_recompressor.tar_decompress(original_args, args.backend, t_constants.OPERATION_DELETE)
+        recompress = True
 
     commands = delete_args.get("backend").delete_commands(delete_args)
     t_executor.Executor().execute(
         commands, delete_args.get("backend").DELETE_PATTERNS, delete_args.get("backend").parse_delete, delete_args
     )
+
+    # Re-compress tar archives
+    if recompress:
+        t_recompressor.tar_compress(original_args, delete_args.get("archive"))
 
 
 def rename_archive(args):
@@ -365,20 +390,31 @@ def rename_archive(args):
 
     rename_args = t_data_classes.RenameArgs()
     rename_args.put("archive", args.archive)
-    rename_args.put("files", args.files)
     rename_args.put("backend", t_classifier.detect_format(args.backend, args.archive, t_constants.OPERATION_RENAME))
+    rename_args.put("files", args.files)
     rename_args.put("occurrence", args.occurrence)
     t_gui.debug("rename_args", rename_args)
+    original_args = rename_args
 
     if not rename_args.get("backend").can_name():
         raise t_errors.InvalidOperationError(
-            None, _("files can't be renamed from this archive format, rename the archive instead")
+            _("files can't be renamed in this archive format, rename the archive instead")
         )
+
+    # Decompress tar archives
+    recompress = False
+    if t_recompressor.is_tar_compressed(original_args):
+        rename_args = t_recompressor.tar_decompress(original_args, args.backend, t_constants.OPERATION_RENAME)
+        recompress = True
 
     commands = rename_args.get("backend").rename_commands(rename_args)
     t_executor.Executor().execute(
         commands, rename_args.get("backend").RENAME_PATTERNS, rename_args.get("backend").parse_rename, rename_args
     )
+
+    # Re-compress tar archives
+    if recompress:
+        t_recompressor.tar_compress(original_args, rename_args.get("archive"))
 
 
 def test_archive(args):
@@ -392,8 +428,8 @@ def test_archive(args):
 
     test_args = t_data_classes.TestArgs()
     test_args.put("archive", args.archive)
-    test_args.put("files", args.files)
     test_args.put("backend", t_classifier.detect_format(args.backend, args.archive, t_constants.OPERATION_TEST))
+    test_args.put("files", args.files)
     test_args.put("occurrence", args.occurrence)
     t_gui.debug("test_args", test_args)
 

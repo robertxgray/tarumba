@@ -36,20 +36,21 @@ def _sanitize_mime(mime):
     """
 
     _type, _encoding = mime
-    if _type == t_constants.MIME_TAR:
+    if _type == t_constants.MIME_TAR and _encoding != t_constants.MIME_TAR:
         return mime
     if _encoding is not None:
         return (_encoding, None)
     return (_type, None)
 
 
-def detect_format(backend, archive, operation):
+def detect_format(backend, archive, operation, *, decompress=True):
     """
     Detects the archive format and returns a backend to handle it.
 
     :param backend: Selected backend
     :param archive: Archive file name
     :param operation: Backend operation
+    :param decompress: Decompress archives
     :return: Backend
     :raises BackendUnavailableError: The backend is not available
     """
@@ -68,6 +69,10 @@ def detect_format(backend, archive, operation):
             t_gui.warn(_("%(prog)s: warning: %(message)s\n") % {"prog": "tarumba", "message": message})
         mime = file_mime
 
+    # Ignore decompressed mime
+    if not decompress and mime[1]:
+        mime = (mime[1], None)
+
     if backend:
         if backend == t_constants.BACKEND_7ZIP:
             return t_x7z.X7z(mime, operation)
@@ -83,12 +88,6 @@ def detect_format(backend, archive, operation):
             t_gui.debug("debug", _("%(backend)s backend not available") % {"backend": t_constants.BACKEND_GZIP})
 
     if mime[0] == t_constants.MIME_TAR and operation != t_constants.OPERATION_RENAME:
-        # Tar cannot update compressed files
-        if mime[1] and (
-            (operation == t_constants.OPERATION_ADD and os.path.exists(archive))
-            or (operation in [t_constants.OPERATION_DELETE, t_constants.OPERATION_RENAME])
-        ):
-            raise t_errors.UpdateTarCompressedError(_("tar compressed archives cannot be updated"))
         try:
             return t_tar.Tar(mime, operation)
         except t_errors.BackendUnavailableError:

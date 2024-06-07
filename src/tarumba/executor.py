@@ -76,7 +76,8 @@ class Executor:
                         sub_output += t_utils.decode(self.subprocess.after)
                     t_gui.debug("sub_output", sub_output)
                     buffer.append(sub_output)
-                    parser(self, line, sub_output, extra)
+                    if parser is not None:
+                        parser(self, line, sub_output, extra)
                     line += 1
 
             self.subprocess.close()

@@ -58,7 +58,7 @@ class Gzip(t_backend.Backend):
         Commands to add files to the archive.
 
         :param add_args: AddArgs object
-        :param contents: Files root path
+        :param files: List of files
         :return: List of commands
         """
 
