@@ -37,6 +37,8 @@ def tar_compress(args, tar_file):
     :param tar_file: Temporary tar file
     """
 
+    t_gui.update_progress_message(_("compressing"), os.path.basename(args.get("archive")))
+
     archive_folder = os.path.dirname(args.get("archive"))
     if not os.access(archive_folder, os.W_OK):
         raise PermissionError(_("can't write %(filename)s") % {"filename": archive_folder})
@@ -74,6 +76,8 @@ def tar_decompress(args, backend, operation):
     :return: Modified operation args
     """
 
+    t_gui.update_progress_message(_("decompressing"), os.path.basename(args.get("archive")))
+
     archive_folder = os.path.dirname(args.get("archive"))
     if not os.access(archive_folder, os.W_OK):
         raise PermissionError(_("can't write %(filename)s") % {"filename": archive_folder})
@@ -106,4 +110,25 @@ def tar_decompress(args, backend, operation):
     new_args.put("backend", t_classifier.detect_format(backend, new_archive, operation))
     t_gui.debug("new_args", new_args)
 
+    _restore_progress_message(args, operation)
+
     return new_args
+
+
+def _restore_progress_message(args, operation):
+    """
+    Restore the original progress message.
+
+    :param args: Original operation args
+    :param operation: Input operation
+    """
+
+    message = ""
+    if operation == t_constants.OPERATION_ADD:
+        message = _("adding files to")
+    elif operation == t_constants.OPERATION_DELETE:
+        message = _("deleting files from")
+    elif operation == t_constants.OPERATION_RENAME:
+        message = _("renaming files in")
+
+    t_gui.update_progress_message(message, os.path.basename(args.get("archive")))

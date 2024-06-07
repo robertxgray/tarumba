@@ -60,6 +60,10 @@ class Gui(ABC):
         "Stops a progress bar"
 
     @abstractmethod
+    def update_progress_message(self, message, file):
+        "Update the progress bar message"
+
+    @abstractmethod
     def update_progress_total(self, total):
         "Update the progress bar total"
 

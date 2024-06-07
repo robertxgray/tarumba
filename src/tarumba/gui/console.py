@@ -216,6 +216,23 @@ class Console(t_gui.Gui):
                 self._clear_line()
 
     @override
+    def update_progress_message(self, message, file):
+        """
+        Update the progress bar message.
+
+        :param message: Message to include in the task
+        :param file: File name
+        :raises AssertionError: A progress bar is not running
+        """
+
+        if self.progress is None:
+            raise AssertionError(_("a progress bar is not running"))
+        color = config.get("colors_s_list_header")
+        description = message + " [" + color + "]" + r_markup.escape(file) + "[/" + color + "]"
+        self.progress.remove_task(self.task)
+        self.task = self.progress.add_task(description, total=None, transient=True)
+
+    @override
     def update_progress_total(self, total):
         """
         Update the progress bar total.
