@@ -11,6 +11,7 @@ import magic
 
 import tarumba.constants as t_constants
 import tarumba.errors as t_errors
+from tarumba.backend import bzip2 as t_bzip2
 from tarumba.backend import gzip as t_gzip
 from tarumba.backend import tar as t_tar
 from tarumba.backend import x7z as t_x7z
@@ -43,6 +44,52 @@ def _sanitize_mime(mime):
     return (_type, None)
 
 
+def _detect_format_arguments(mime, operation, backend):
+    """
+    Returns the backend requested via arguments.
+
+    :param backend: Requested backend
+    :returns: Backend
+    :raises BackendUnavailableError: The backend is not available
+    """
+
+    backend_obj = None
+    if backend == t_constants.BACKEND_7ZIP:
+        backend_obj = t_x7z.X7z(mime, operation)
+    if backend == t_constants.BACKEND_BZIP2:
+        backend_obj = t_bzip2.Bzip2(mime, operation)
+    if backend == t_constants.BACKEND_GZIP:
+        backend_obj = t_gzip.Gzip(mime, operation)
+    if backend == t_constants.BACKEND_TAR:
+        backend_obj = t_tar.Tar(mime, operation)
+    return backend_obj
+
+
+def _detect_format_autodetect(mime, operation):
+    """
+    Returns the autodetected backend.
+
+    :param mime: Tuple (type, encoding)
+    :returns: Backend
+    """
+
+    backend_name = ""
+    backend_obj = None
+    try:
+        if mime[0] == t_constants.MIME_GZIP:
+            backend_name = t_constants.BACKEND_GZIP
+            backend_obj = t_gzip.Gzip(mime, operation)
+        elif mime[0] == t_constants.MIME_BZIP2:
+            backend_name = t_constants.BACKEND_BZIP2
+            backend_obj = t_bzip2.Bzip2(mime, operation)
+        elif mime[0] == t_constants.MIME_TAR and operation != t_constants.OPERATION_RENAME:
+            backend_name = t_constants.BACKEND_TAR
+            backend_obj = t_tar.Tar(mime, operation)
+    except t_errors.BackendUnavailableError:
+        t_gui.debug("debug", _("%(backend)s backend not available") % {"backend": backend_name})
+    return backend_obj
+
+
 def detect_format(backend, archive, operation, *, decompress=True):
     """
     Detects the archive format and returns a backend to handle it.
@@ -73,26 +120,16 @@ def detect_format(backend, archive, operation, *, decompress=True):
     if not decompress and mime[1]:
         mime = (mime[1], None)
 
+    # Backend requested via arguments
     if backend:
-        if backend == t_constants.BACKEND_7ZIP:
-            return t_x7z.X7z(mime, operation)
-        if backend == t_constants.BACKEND_GZIP:
-            return t_gzip.Gzip(mime, operation)
-        if backend == t_constants.BACKEND_TAR:
-            return t_tar.Tar(mime, operation)
+        return _detect_format_arguments(mime, operation, backend)
 
-    if mime[0] == t_constants.MIME_GZIP:
-        try:
-            return t_gzip.Gzip(mime, operation)
-        except t_errors.BackendUnavailableError:
-            t_gui.debug("debug", _("%(backend)s backend not available") % {"backend": t_constants.BACKEND_GZIP})
+    # Auto-detect backend
+    detected_backend = _detect_format_autodetect(mime, operation)
+    if detected_backend:
+        return detected_backend
 
-    if mime[0] == t_constants.MIME_TAR and operation != t_constants.OPERATION_RENAME:
-        try:
-            return t_tar.Tar(mime, operation)
-        except t_errors.BackendUnavailableError:
-            t_gui.debug("debug", _("%(backend)s backend not available") % {"backend": t_constants.BACKEND_TAR})
-
+    # Use 7zip as default, as it can deal with most formats
     try:
         return t_x7z.X7z(mime, operation)
     except t_errors.BackendUnavailableError:

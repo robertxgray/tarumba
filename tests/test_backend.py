@@ -16,6 +16,7 @@ from tests import utils as test_utils
 # You may need to adjust these variables to your testing environment
 X7Z = "7zz"  # 7-Zip
 P7ZIP = "7z"  # p7zip
+BZIP2 = "bzip2"  # Bzip2
 GZIP = "gzip"  # Gzip
 GTAR = "tar"  # GNU Tar
 
@@ -32,8 +33,13 @@ test_params_list = [
     test_utils.TestParams(t_constants.BACKEND_7ZIP, P7ZIP, "test_p7zip.gz"),
     test_utils.TestParams(t_constants.BACKEND_7ZIP, P7ZIP, "test_p7zip.bz2"),
     test_utils.TestParams(t_constants.BACKEND_7ZIP, P7ZIP, "test_p7zip.xz"),
+    test_utils.TestParams(t_constants.BACKEND_BZIP2, BZIP2, "test_gzip.bz2"),
     test_utils.TestParams(t_constants.BACKEND_GZIP, GZIP, "test_gzip.gz"),
     test_utils.TestParams(t_constants.BACKEND_TAR, GTAR, "test_gtar.tar"),
+    test_utils.TestParams(t_constants.BACKEND_TAR, GTAR, "test_gtar.tar.gz"),
+    test_utils.TestParams(t_constants.BACKEND_TAR, GTAR, "test_gtar.tgz"),
+    test_utils.TestParams(t_constants.BACKEND_TAR, GTAR, "test_gtar.tar.bz2"),
+    test_utils.TestParams(t_constants.BACKEND_TAR, GTAR, "test_gtar.tbz2"),
 ]
 
 
@@ -69,8 +75,9 @@ class TestBackend:
         "Not a real test, just configuration"
 
         config.put("backends_l_7zip_bin", [test_params.binary])
-        config.put("backends_l_gzip_bin", [test_params.binary])
         config.put("backends_l_tar_bin", [test_params.binary])
+        config.put("backends_l_bzip2_bin", [BZIP2])
+        config.put("backends_l_gzip_bin", [GZIP])
         self.test_cleanup(test_params)
         test_utils.copy(self.DIR)
         test_utils.copy(self.FILE1)

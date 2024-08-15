@@ -37,7 +37,9 @@ class Tar(t_backend.Backend):
 
         self._compressor_bin = None
         self._compressor_mime = mime[1]
-        if self._compressor_mime == t_constants.MIME_GZIP:
+        if self._compressor_mime == t_constants.MIME_BZIP2:
+            self._compressor_bin = t_utils.check_installed(config.get("backends_l_bzip2_bin"))
+        elif self._compressor_mime == t_constants.MIME_GZIP:
             self._compressor_bin = t_utils.check_installed(config.get("backends_l_gzip_bin"))
 
     @override

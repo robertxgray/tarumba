@@ -5,6 +5,7 @@
 
 # Supported backends
 BACKEND_7ZIP = "7zip"
+BACKEND_BZIP2 = "bzip2"
 BACKEND_GZIP = "gzip"
 BACKEND_TAR = "tar"
 

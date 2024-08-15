@@ -47,7 +47,12 @@ def get_arguments():
     parser.add_argument(
         "-b",
         "--backend",
-        choices=[t_constants.BACKEND_7ZIP, t_constants.BACKEND_GZIP, t_constants.BACKEND_TAR],
+        choices=[
+            t_constants.BACKEND_7ZIP,
+            t_constants.BACKEND_BZIP2,
+            t_constants.BACKEND_GZIP,
+            t_constants.BACKEND_TAR,
+        ],
         help=_("force a specific backend"),
     )
     parser.add_argument("-c", "--columns", help=_("comma separated columns to include in the listing"))

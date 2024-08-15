@@ -14,6 +14,8 @@ from tarumba.gui import current as t_gui
 
 # Pseudo-command to change the working directory
 CHDIR = "CHDIR"
+# Minimum parameters
+MIN_PARAMS = 2
 # Index of the first extra pattern
 EXTRA_PATTERNS_IDX = 3
 
@@ -51,6 +53,12 @@ class Executor:
 
         for command in commands:
             t_gui.debug("command", command)
+
+            # If not enoght parameters, just call the parser
+            if len(command) < MIN_PARAMS:
+                if parser is not None:
+                    parser(self, 0, None, extra)
+                continue
 
             # Process directory changes
             if command[0] == CHDIR:
