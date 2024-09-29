@@ -41,6 +41,8 @@ class Tar(t_backend.Backend):
             self._compressor_bin = t_utils.check_installed(config.get("backends_l_bzip2_bin"))
         elif self._compressor_mime == t_constants.MIME_GZIP:
             self._compressor_bin = t_utils.check_installed(config.get("backends_l_gzip_bin"))
+        elif self._compressor_mime in (t_constants.MIME_LZMA, t_constants.MIME_XZ):
+            self._compressor_bin = t_utils.check_installed(config.get("backends_l_xz_bin"))
 
     @override
     def list_commands(self, list_args):

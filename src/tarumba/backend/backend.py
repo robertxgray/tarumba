@@ -3,7 +3,11 @@
 
 "Tarumba's base archive backend"
 
+import datetime
+import stat
 from abc import ABC, abstractmethod
+
+import tzlocal
 
 import tarumba.constants as t_constants
 
@@ -101,6 +105,26 @@ class Backend(ABC):
         if self.mime[0] == t_constants.MIME_TAR:
             return True
         return False
+
+    def listing_from_archive_stat(self, archive_stat, column):
+        """
+        Returns listing info obtained from the archive stats.
+
+        :param archive_stat: Archive stats
+        :param column: Requested column
+        :return: Listing info
+        """
+
+        if column == t_constants.COLUMN_DATE:
+            date_time = datetime.datetime.fromtimestamp(archive_stat.st_mtime, tz=tzlocal.get_localzone())
+            return date_time.strftime(t_constants.DATE_FORMAT)
+        if column == t_constants.COLUMN_OWNER:
+            return f"{archive_stat.st_uid}/{archive_stat.st_gid}"
+        if column == t_constants.COLUMN_PACKED:
+            return str(archive_stat.st_size)
+        if column == t_constants.COLUMN_PERMS:
+            return stat.filemode(archive_stat.st_mode)
+        return None
 
     @abstractmethod
     def list_commands(self, list_args):

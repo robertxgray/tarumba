@@ -3,14 +3,10 @@
 
 "Tarumba's Bzip2 backend support"
 
-import datetime
 import os
 import re
 import shlex
-import stat
-from gettext import gettext as _
 
-import tzlocal
 from typing_extensions import override
 
 import tarumba.constants as t_constants
@@ -116,10 +112,7 @@ class Bzip2(t_backend.Backend):
         :return: List of commands
         """
 
-        raise NotImplementedError(
-            _("the %(back1)s backend cannot rename files, but you can use %(back2)s instead")
-            % {"back1": "bzip2", "back2": "7z"}
-        )
+        return []
 
     @override
     def test_commands(self, test_args):
@@ -154,15 +147,8 @@ class Bzip2(t_backend.Backend):
             for column in extra.get("columns"):
                 if column == t_constants.COLUMN_NAME:
                     row.append(file_name)
-                elif column == t_constants.COLUMN_OWNER:
-                    row.append(f"{archive_stat.st_uid}/{archive_stat.st_gid}")
-                elif column == t_constants.COLUMN_PERMS:
-                    row.append(stat.filemode(archive_stat.st_mode))
-                elif column == t_constants.COLUMN_DATE:
-                    date_time = datetime.datetime.fromtimestamp(archive_stat.st_mtime, tz=tzlocal.get_localzone())
-                    row.append(date_time.strftime(t_constants.DATE_FORMAT))
                 else:
-                    row.append(None)
+                    row.append(self.listing_from_archive_stat(archive_stat, column))
             output.append(row)
         # Set output
         elif isinstance(output, set):
@@ -213,11 +199,6 @@ class Bzip2(t_backend.Backend):
         :param line: Line contents
         :param extra: Extra data
         """
-
-        raise NotImplementedError(
-            _("the %(back1)s backend cannot rename files, but you can use %(back2)s instead")
-            % {"back1": "bzip2", "back2": "7z"}
-        )
 
     @override
     def parse_test(self, executor, line_number, line, extra):

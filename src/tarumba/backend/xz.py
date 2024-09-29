@@ -1,12 +1,10 @@
 # Copyright: (c) 2024, Félix Medrano
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
-"Tarumba's Gzip backend support"
+"Tarumba's XZ Utils backend support"
 
 import os
-import re
 import shlex
-from gettext import gettext as _
 
 from typing_extensions import override
 
@@ -17,12 +15,37 @@ from tarumba.backend import backend as t_backend
 from tarumba.config import current as config
 from tarumba.gui import current as t_gui
 
+LIST_ELEMENTS = 9
 
-class Gzip(t_backend.Backend):
-    "Gzip archiver backend"
 
-    ERROR_PREFIX = "gzip: "
-    LIST_ELEMENTS = 8
+class Xz(t_backend.Backend):
+    "XZ Utils archiver backend"
+
+    def _get_file_name(self, archive_name):
+        """
+        Calculates the file name from the archive name.
+
+        :param archive_name: Archive name
+        :returns: File name
+        """
+
+        archive_name_lower = archive_name.lower()
+        if archive_name_lower.endswith((".lzma", ".xz")):
+            return t_file_utils.basename_noext(archive_name)
+        if archive_name_lower.endswith((".tlz", ".txz")):
+            return t_file_utils.basename_noext(archive_name) + ".tar"
+        return os.path.basename(archive_name)
+
+    def _get_format(self):
+        """
+        Returns the file format option corresponding to the mime type.
+
+        :returns: Format option
+        """
+
+        if self.mime[0] == t_constants.MIME_LZMA:
+            return "lzma"
+        return "xz"
 
     @override
     def __init__(self, mime, operation):
@@ -34,7 +57,7 @@ class Gzip(t_backend.Backend):
         """
 
         super().__init__(mime, operation)
-        self._gzip_bin = t_utils.check_installed(config.get("backends_l_gzip_bin"))
+        self._xz_bin = t_utils.check_installed(config.get("backends_l_xz_bin"))
         if operation in [t_constants.OPERATION_ADD, t_constants.OPERATION_EXTRACT]:
             self._shell = t_utils.check_installed(config.get("main_l_shell"))
 
@@ -47,7 +70,9 @@ class Gzip(t_backend.Backend):
         :return: List of commands
         """
 
-        return [(self._gzip_bin, ["-lvN", "--", list_args.get("archive")])]
+        if self._get_format() == "xz":  # list works only on .xz files
+            return [(self._xz_bin, ["-l", "--robot", "--", list_args.get("archive")])]
+        return [()]
 
     @override
     def add_commands(self, add_args, files):
@@ -61,7 +86,9 @@ class Gzip(t_backend.Backend):
 
         archive_quot = shlex.quote(add_args.get("archive"))
         level = f" -{add_args.get('level')}" if add_args.get("level") else ""
-        command = f"{shlex.quote(self._gzip_bin)} -cfN{level} {shlex.quote(files[0])} > {archive_quot}"
+        command = (
+            f"{shlex.quote(self._xz_bin)} -zcf{level} -F {self._get_format()} {shlex.quote(files[0])} > {archive_quot}"
+        )
         return [(self._shell, ["-c", command])]
 
     @override
@@ -77,7 +104,7 @@ class Gzip(t_backend.Backend):
         if contents:
             archive_quot = shlex.quote(extract_args.get("archive"))
             content_quot = shlex.quote(contents[0])
-            command = f"{shlex.quote(self._gzip_bin)} -dcfN {archive_quot} > {content_quot}"
+            command = f"{shlex.quote(self._xz_bin)} -dcf {archive_quot} > {content_quot}"
             return [(self._shell, ["-c", command]), (self._shell, ["-c", "echo ''"])]
         return []
 
@@ -101,10 +128,7 @@ class Gzip(t_backend.Backend):
         :return: List of commands
         """
 
-        raise NotImplementedError(
-            _("the %(back1)s backend cannot rename files, but you can use %(back2)s instead")
-            % {"back1": "gzip", "back2": "7z"}
-        )
+        return []
 
     @override
     def test_commands(self, test_args):
@@ -115,35 +139,7 @@ class Gzip(t_backend.Backend):
         :return: List of commands
         """
 
-        return [(self._gzip_bin, ["-tvN", "--", test_args.get("archive")])]
-
-    def _parse_list_row(self, file_name, elements, extra):
-        """
-        Builds an output row using the listing elements.
-
-        :params file_name: File name
-        :param elements: Listing elements
-        :param extra: Extra data
-        :return: Output row
-        """
-
-        archive_stat = os.stat(extra.get("archive"))
-
-        row = []
-        for column in extra.get("columns"):
-            if column == t_constants.COLUMN_METHOD:
-                row.append(elements[0])
-            elif column == t_constants.COLUMN_CRC:
-                row.append(elements[1])
-            elif column == t_constants.COLUMN_PACKED:
-                row.append(elements[5])
-            elif column == t_constants.COLUMN_SIZE:
-                row.append(elements[6])
-            elif column == t_constants.COLUMN_NAME:
-                row.append(file_name)
-            else:
-                row.append(self.listing_from_archive_stat(archive_stat, column))
-        return row
+        return [(self._xz_bin, ["-tv", "--", test_args.get("archive")])]
 
     @override
     def parse_list(self, executor, line_number, line, extra):
@@ -156,27 +152,36 @@ class Gzip(t_backend.Backend):
         :param extra: Extra data
         """
 
-        if line.startswith(self.ERROR_PREFIX):
-            t_gui.warn(
-                _("%(prog)s: warning: %(message)s\n") % {"prog": "tarumba", "message": line[len(self.ERROR_PREFIX) :]}
-            )
+        elements = None
+        if self._get_format() == "xz":  # list works only on .xz files
+            # We are only using the totals
+            if line.startswith(("name\t", "file\t")):
+                return
 
-        # Ignore header
-        if line_number == 1:
-            return
+            elements = line.split(None)
+            if len(elements) < LIST_ELEMENTS:
+                return
 
-        elements = line.split(None, 7)
-        if len(elements) < self.LIST_ELEMENTS:
-            return
         output = extra.get("output")
-
-        file_name = os.path.basename(elements[7][elements[7].find(" ") + 1 :])
-        if extra.get("files") and file_name not in extra.get("files"):
-            return
+        archive_name = extra.get("archive")
+        file_name = self._get_file_name(archive_name)
 
         # List output
         if isinstance(output, list):
-            output.append(self._parse_list_row(file_name, elements, extra))
+            archive_stat = os.stat(archive_name)
+            row = []
+            for column in extra.get("columns"):
+                if column == t_constants.COLUMN_NAME:
+                    row.append(file_name)
+                elif column == t_constants.COLUMN_SIZE:
+                    if elements is not None:
+                        row.append(elements[4])
+                    else:
+                        row.append(None)
+                else:
+                    row.append(self.listing_from_archive_stat(archive_stat, column))
+            output.append(row)
+
         # Set output
         elif isinstance(output, set):
             output.add(file_name)
@@ -192,11 +197,6 @@ class Gzip(t_backend.Backend):
         :param extra: Extra data
         """
 
-        if line.startswith(self.ERROR_PREFIX):
-            t_gui.warn(
-                _("%(prog)s: warning: %(message)s\n") % {"prog": "tarumba", "message": line[len(self.ERROR_PREFIX) :]}
-            )
-
     @override
     def parse_extract(self, executor, line_number, line, extra):
         """
@@ -208,12 +208,7 @@ class Gzip(t_backend.Backend):
         :param extra: Extra data
         """
 
-        if line.startswith(self.ERROR_PREFIX):
-            t_gui.warn(
-                _("%(prog)s: warning: %(message)s\n") % {"prog": "tarumba", "message": line[len(self.ERROR_PREFIX) :]}
-            )
-        else:
-            t_file_utils.pop_and_move_extracted(extra)
+        t_file_utils.pop_and_move_extracted(extra)
 
     @override
     def parse_delete(self, executor, line_number, line, extra):
@@ -237,11 +232,6 @@ class Gzip(t_backend.Backend):
         :param extra: Extra data
         """
 
-        raise NotImplementedError(
-            _("the %(back1)s backend cannot rename files, but you can use %(back2)s instead")
-            % {"back1": "gzip", "back2": "7z"}
-        )
-
     @override
     def parse_test(self, executor, line_number, line, extra):
         """
@@ -253,13 +243,6 @@ class Gzip(t_backend.Backend):
         :param extra: Extra data
         """
 
-        if line.startswith(self.ERROR_PREFIX):
-            t_gui.warn(
-                _("%(prog)s: warning: %(message)s\n") % {"prog": "tarumba", "message": line[len(self.ERROR_PREFIX) :]}
-            )
-        else:
-            regex = re.compile(r"(.*):\s+OK$")
-            regex_match = regex.fullmatch(line)
-            if regex_match:
-                t_gui.testing_msg(os.path.basename(regex_match.group(1)))
-                t_gui.advance_progress()
+        if line.endswith(" (1/1)"):
+            t_gui.testing_msg(os.path.basename(line[:-6]))
+            t_gui.advance_progress()

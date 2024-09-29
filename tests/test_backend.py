@@ -19,6 +19,7 @@ P7ZIP = "7z"  # p7zip
 BZIP2 = "bzip2"  # Bzip2
 GZIP = "gzip"  # Gzip
 GTAR = "tar"  # GNU Tar
+XZ = "xz"  # XZ Utils
 
 test_params_list = [
     test_utils.TestParams(t_constants.BACKEND_7ZIP, X7Z, "test_x7z.7z"),
@@ -36,10 +37,16 @@ test_params_list = [
     test_utils.TestParams(t_constants.BACKEND_BZIP2, BZIP2, "test_gzip.bz2"),
     test_utils.TestParams(t_constants.BACKEND_GZIP, GZIP, "test_gzip.gz"),
     test_utils.TestParams(t_constants.BACKEND_TAR, GTAR, "test_gtar.tar"),
-    test_utils.TestParams(t_constants.BACKEND_TAR, GTAR, "test_gtar.tar.gz"),
-    test_utils.TestParams(t_constants.BACKEND_TAR, GTAR, "test_gtar.tgz"),
     test_utils.TestParams(t_constants.BACKEND_TAR, GTAR, "test_gtar.tar.bz2"),
     test_utils.TestParams(t_constants.BACKEND_TAR, GTAR, "test_gtar.tbz2"),
+    test_utils.TestParams(t_constants.BACKEND_TAR, GTAR, "test_gtar.tar.gz"),
+    test_utils.TestParams(t_constants.BACKEND_TAR, GTAR, "test_gtar.tgz"),
+    test_utils.TestParams(t_constants.BACKEND_TAR, GTAR, "test_gtar.tar.lzma"),
+    test_utils.TestParams(t_constants.BACKEND_TAR, GTAR, "test_gtar.tlz"),
+    test_utils.TestParams(t_constants.BACKEND_TAR, GTAR, "test_gtar.tar.xz"),
+    test_utils.TestParams(t_constants.BACKEND_TAR, GTAR, "test_gtar.txz"),
+    test_utils.TestParams(t_constants.BACKEND_XZ, XZ, "test_xz.lzma"),
+    test_utils.TestParams(t_constants.BACKEND_XZ, XZ, "test_xz.xz"),
 ]
 
 

@@ -15,6 +15,7 @@ from tarumba.backend import bzip2 as t_bzip2
 from tarumba.backend import gzip as t_gzip
 from tarumba.backend import tar as t_tar
 from tarumba.backend import x7z as t_x7z
+from tarumba.backend import xz as t_xz
 from tarumba.gui import current as t_gui
 
 # Enrich the mimetypes maps
@@ -23,7 +24,7 @@ mimetypes.encodings_map[".br"] = t_constants.MIME_BROTLI
 mimetypes.encodings_map[".gz"] = t_constants.MIME_GZIP
 mimetypes.encodings_map[".Z"] = t_constants.MIME_COMPRESS
 mimetypes.encodings_map[".bz2"] = t_constants.MIME_BZIP2
-mimetypes.encodings_map[".lz"] = t_constants.MIME_LZMA
+mimetypes.encodings_map[".lz"] = t_constants.MIME_LZIP
 mimetypes.encodings_map[".lzma"] = t_constants.MIME_LZMA
 mimetypes.encodings_map[".xz"] = t_constants.MIME_XZ
 
@@ -62,6 +63,8 @@ def _detect_format_arguments(mime, operation, backend):
         backend_obj = t_gzip.Gzip(mime, operation)
     if backend == t_constants.BACKEND_TAR:
         backend_obj = t_tar.Tar(mime, operation)
+    if backend == t_constants.BACKEND_XZ:
+        backend_obj = t_xz.Xz(mime, operation)
     return backend_obj
 
 
@@ -76,12 +79,15 @@ def _detect_format_autodetect(mime, operation):
     backend_name = ""
     backend_obj = None
     try:
-        if mime[0] == t_constants.MIME_GZIP:
-            backend_name = t_constants.BACKEND_GZIP
-            backend_obj = t_gzip.Gzip(mime, operation)
-        elif mime[0] == t_constants.MIME_BZIP2:
+        if mime[0] == t_constants.MIME_BZIP2:
             backend_name = t_constants.BACKEND_BZIP2
             backend_obj = t_bzip2.Bzip2(mime, operation)
+        elif mime[0] == t_constants.MIME_GZIP:
+            backend_name = t_constants.BACKEND_GZIP
+            backend_obj = t_gzip.Gzip(mime, operation)
+        elif mime[0] in (t_constants.MIME_LZMA, t_constants.MIME_XZ):
+            backend_name = t_constants.BACKEND_XZ
+            backend_obj = t_xz.Xz(mime, operation)
         elif mime[0] == t_constants.MIME_TAR and operation != t_constants.OPERATION_RENAME:
             backend_name = t_constants.BACKEND_TAR
             backend_obj = t_tar.Tar(mime, operation)
@@ -157,11 +163,21 @@ def get_tar_compressor(archive, operation):
     magic_mime = magic.Magic(mime=True)
     archive_mime = magic_mime.from_file(archive)
 
-    if archive_mime == t_constants.MIME_GZIP:
+    if archive_mime == t_constants.MIME_BZIP2:
+        try:
+            return t_bzip2.Bzip2((archive_mime, None), operation)
+        except t_errors.BackendUnavailableError:
+            t_gui.debug("debug", _("%(backend)s backend not available") % {"backend": t_constants.BACKEND_BZIP2})
+    elif archive_mime == t_constants.MIME_GZIP:
         try:
             return t_gzip.Gzip((archive_mime, None), operation)
         except t_errors.BackendUnavailableError:
             t_gui.debug("debug", _("%(backend)s backend not available") % {"backend": t_constants.BACKEND_GZIP})
+    elif archive_mime in (t_constants.MIME_LZMA, t_constants.MIME_XZ):
+        try:
+            return t_xz.Xz((archive_mime, None), operation)
+        except t_errors.BackendUnavailableError:
+            t_gui.debug("debug", _("%(backend)s backend not available") % {"backend": t_constants.BACKEND_XZ})
 
     try:
         return t_x7z.X7z((archive_mime, None), operation)
