@@ -9,6 +9,7 @@ BACKEND_BZIP2 = "bzip2"
 BACKEND_GZIP = "gzip"
 BACKEND_TAR = "tar"
 BACKEND_XZ = "xz"
+BACKEND_ZIP = "zip"
 
 # Columns in archive contents
 COLUMN_CRC = "CRC"

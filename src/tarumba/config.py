@@ -44,6 +44,8 @@ class Config(t_data_classes.Base):
             "backends_l_gzip_bin": ["gzip"],
             "backends_l_tar_bin": ["tar", "bsdtar"],
             "backends_l_xz_bin": ["xz"],
+            "backends_l_zip_bin": ["zip"],
+            "backends_l_unzip_bin": ["unzip"],
             # Colors
             "colors_s_system": "auto",
             "colors_s_debug": "bright_black",

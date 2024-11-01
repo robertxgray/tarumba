@@ -16,6 +16,7 @@ from tarumba.backend import gzip as t_gzip
 from tarumba.backend import tar as t_tar
 from tarumba.backend import x7z as t_x7z
 from tarumba.backend import xz as t_xz
+from tarumba.backend import zip as t_zip
 from tarumba.gui import current as t_gui
 
 # Enrich the mimetypes maps
@@ -65,6 +66,8 @@ def _detect_format_arguments(mime, operation, backend):
         backend_obj = t_tar.Tar(mime, operation)
     if backend == t_constants.BACKEND_XZ:
         backend_obj = t_xz.Xz(mime, operation)
+    if backend == t_constants.BACKEND_ZIP:
+        backend_obj = t_Zip.Zip(mime, operation)
     return backend_obj
 
 
@@ -91,6 +94,9 @@ def _detect_format_autodetect(mime, operation):
         elif mime[0] == t_constants.MIME_TAR and operation != t_constants.OPERATION_RENAME:
             backend_name = t_constants.BACKEND_TAR
             backend_obj = t_tar.Tar(mime, operation)
+        elif mime[0] == t_constants.MIME_ZIP and operation != t_constants.OPERATION_RENAME:
+            backend_name = t_constants.BACKEND_ZIP
+            backend_obj = t_zip.Zip(mime, operation)
     except t_errors.BackendUnavailableError:
         t_gui.debug("debug", _("%(backend)s backend not available") % {"backend": backend_name})
     return backend_obj

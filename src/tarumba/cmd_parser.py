@@ -53,6 +53,7 @@ def get_arguments():
             t_constants.BACKEND_GZIP,
             t_constants.BACKEND_TAR,
             t_constants.BACKEND_XZ,
+            t_constants.BACKEND_ZIP,
         ],
         help=_("force a specific backend"),
     )

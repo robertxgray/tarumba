@@ -4,6 +4,7 @@
 "Tarumba's 7z backend support"
 
 import re
+from gettext import gettext as _
 
 from typing_extensions import override
 
@@ -204,7 +205,10 @@ class X7z(t_backend.Backend):
             if len(line) > self.PERMS_MIN_LEN:
                 self._current_file[t_constants.COLUMN_PERMS] = line[-10:]
         elif line.startswith("Encrypted = "):
-            self._current_file[t_constants.COLUMN_ENC] = line[12:]
+            if line[12:] == "+":
+                self._current_file[t_constants.COLUMN_ENC] = _("yes")
+            else:
+                self._current_file[t_constants.COLUMN_ENC] = None
         elif line.startswith("CRC = "):
             self._current_file[t_constants.COLUMN_CRC] = line[6:]
         elif line.startswith("Method = "):
