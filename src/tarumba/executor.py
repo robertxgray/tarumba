@@ -17,7 +17,7 @@ CHDIR = "CHDIR"
 # Minimum parameters
 MIN_PARAMS = 2
 # Index of the first extra pattern
-EXTRA_PATTERNS_IDX = 4
+EXTRA_PATTERNS_IDX = 2
 
 
 class Executor:
@@ -76,7 +76,7 @@ class Executor:
             buffer = deque(maxlen=5)
             line = 1
             while case > 0:
-                case = self.subprocess.expect([pexpect.EOF, "\r\n", "\r", "\n", *patterns])
+                case = self.subprocess.expect([pexpect.EOF, "\r\n", *patterns])
                 t_gui.debug("case", case)
                 if case > 0 or len(self.subprocess.before):
                     sub_output = t_utils.decode(self.subprocess.before)

@@ -67,7 +67,7 @@ def _detect_format_arguments(mime, operation, backend):
     if backend == t_constants.BACKEND_XZ:
         backend_obj = t_xz.Xz(mime, operation)
     if backend == t_constants.BACKEND_ZIP:
-        backend_obj = t_Zip.Zip(mime, operation)
+        backend_obj = t_zip.Zip(mime, operation)
     return backend_obj
 
 

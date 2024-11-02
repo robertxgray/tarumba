@@ -11,25 +11,25 @@ from typing_extensions import override
 import tarumba.constants as t_constants
 import tarumba.file_utils as t_file_utils
 import tarumba.utils as t_utils
-from tarumba import executor as t_executor
 from tarumba.backend import backend as t_backend
 from tarumba.config import current as config
 from tarumba.gui import current as t_gui
 
 LIST_ELEMENTS = 8
+SPECIAL_CHARS = "[]*?!^-\\"
 
 
 class Zip(t_backend.Backend):
     "Zip archiver backend"
 
     # Particular patterns when listing files
-    LIST_PATTERNS = frozenset([".* password: ", "password incorrect--reenter: "])
+    LIST_PATTERNS = frozenset(["\\[.*\\] .* password: ", "password incorrect--reenter: "])
     # Particular patterns when adding files
     ADD_PATTERNS = frozenset(["Enter password: ", "Verify password: "])
     # Particular patterns when extracting files
-    EXTRACT_PATTERNS = frozenset([".* password: ", "password incorrect--reenter: "])
+    EXTRACT_PATTERNS = frozenset(["\\[.*\\] .* password: ", "password incorrect--reenter: "])
     # Particular patterns when testing files
-    TEST_PATTERNS = frozenset([".* password: ", "password incorrect--reenter: "])
+    TEST_PATTERNS = frozenset(["\\[.*\\] .* password: ", "password incorrect--reenter: "])
 
     @override
     def __init__(self, mime, operation):
@@ -53,7 +53,12 @@ class Zip(t_backend.Backend):
         :return: List of commands
         """
 
-        return [(self._unzip_bin, ["-Z", "-lT", "--h-t", "--", list_args.get("archive"), *list_args.get("files")])]
+        return [
+            (
+                self._unzip_bin,
+                ["-Z", "-lT", "--h-t", "--", list_args.get("archive"), *self._escape(list_args.get("files"))],
+            )
+        ]
 
     @override
     def add_commands(self, add_args, files):
@@ -65,14 +70,14 @@ class Zip(t_backend.Backend):
         :return: List of commands
         """
 
-        params = ["-r"]
+        params = ["-r", "-nw"]
         if add_args.get("password"):
             params.append("-e")
-        if add_args.get("follow_links"):
+        if not add_args.get("follow_links"):
             params.append("-y")
         if add_args.get("level"):
             params.append(f"-{add_args.get('level')}")
-        return [(self._zip_bin, [*params, "--", add_args.get("archive"), *files])]
+        return [(self._zip_bin, [*params, add_args.get("archive"), "--", *files])]
 
     @override
     def extract_commands(self, extract_args):
@@ -83,20 +88,18 @@ class Zip(t_backend.Backend):
         :return: List of commands
         """
 
-        return [(self._unzip_bin,
-            ["-o", "--", extract_args.get("archive"), *extract_args.get("files")])]
+        return [(self._unzip_bin, ["-o", "--", extract_args.get("archive"), *self._escape(extract_args.get("files"))])]
 
     @override
     def delete_commands(self, delete_args):
         """
         Commands to delete files from the archive.
 
-        :param extract_args: DeleteArgs object
+        :param delete_args: DeleteArgs object
         :return: List of commands
         """
 
-        return [(self._zip_bin,
-            ["-d", "--", extract_args.get("archive"), *extract_args.get("files")])]
+        return [(self._zip_bin, ["-d", "-nw", delete_args.get("archive"), "--", *delete_args.get("files")])]
 
     @override
     def rename_commands(self, rename_args):
@@ -124,7 +127,7 @@ class Zip(t_backend.Backend):
         return [
             (
                 self._unzip_bin,
-                ["-t", "--", test_args.get("archive"), *test_args.get("files")],
+                ["-t", "--", test_args.get("archive"), *self._escape(test_args.get("files"))],
             )
         ]
 
@@ -144,7 +147,7 @@ class Zip(t_backend.Backend):
             elif column == t_constants.COLUMN_SIZE:
                 row.append(elements[3])
             elif column == t_constants.COLUMN_ENC:
-                if elements[4][0] in ("T", "B"): # See zipinfo(1)
+                if elements[4][0] in ("T", "B"):  # See zipinfo(1)
                     row.append(_("yes"))
                 else:
                     row.append(None)
@@ -158,7 +161,7 @@ class Zip(t_backend.Backend):
                 day = elements[7][6:8]
                 hou = elements[7][9:11]
                 mit = elements[7][11:13]
-                row.append(f'{yea}-{mon}-{day} {hou}:{mit}')
+                row.append(f"{yea}-{mon}-{day} {hou}:{mit}")
             elif column == t_constants.COLUMN_NAME:
                 row.append(elements[7][16:])
             else:
@@ -176,7 +179,7 @@ class Zip(t_backend.Backend):
         :param extra: Extra data
         """
 
-        if not line or line.startswith('caution: '): # Ignore warnings
+        if not line or line.startswith("caution: "):  # Ignore warnings
             return
         elements = line.split(None, 7)
         if len(elements) < LIST_ELEMENTS:
@@ -208,8 +211,8 @@ class Zip(t_backend.Backend):
                 executor.send_line(extra.get("password"))
                 return
 
-        if line.startswith(("+ ", "U ")):
-            t_gui.adding_msg(line[2:])
+        if line.startswith(("  adding: ", "updating: ")):
+            t_gui.adding_msg(line[10 : line.rfind("(") - 1])
             t_gui.advance_progress()
 
     @override
@@ -232,7 +235,7 @@ class Zip(t_backend.Backend):
                 executor.send_line(extra.get("password"))
                 return
 
-        if line.startswith("- "):
+        if line.startswith(("   creating: ", "  inflating: ", " extracting: ")):
             t_file_utils.pop_and_move_extracted(extra)
 
     @override
@@ -292,3 +295,23 @@ class Zip(t_backend.Backend):
         if line.startswith("    testing: "):
             t_gui.testing_msg(line[13:-5])
             t_gui.advance_progress()
+
+    def _escape(self, files):
+        """
+        Escape file names to avoid unzip wildcards.
+        Special characters: []*?!^-\
+
+        :param files: List of file names
+        :return: Escaped list of file names
+        """
+
+        escaped_files = []
+        for filename in files:
+            escaped_filename = ""
+            for char in filename:
+                if char in SPECIAL_CHARS:
+                    escaped_filename += "\\" + char
+                else:
+                    escaped_filename += char
+            escaped_files.append(escaped_filename)
+        return escaped_files

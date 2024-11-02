@@ -20,6 +20,8 @@ BZIP2 = "bzip2"  # Bzip2
 GZIP = "gzip"  # Gzip
 GTAR = "tar"  # GNU Tar
 XZ = "xz"  # XZ Utils
+ZIP = "zip"  # Info-Zip
+UNZIP = "unzip"  # Info-Zip
 
 test_params_list = [
     test_utils.TestParams(t_constants.BACKEND_7ZIP, X7Z, "test_x7z.7z"),
@@ -47,6 +49,7 @@ test_params_list = [
     test_utils.TestParams(t_constants.BACKEND_TAR, GTAR, "test_gtar.txz"),
     test_utils.TestParams(t_constants.BACKEND_XZ, XZ, "test_xz.lzma"),
     test_utils.TestParams(t_constants.BACKEND_XZ, XZ, "test_xz.xz"),
+    test_utils.TestParams(t_constants.BACKEND_ZIP, ZIP, "test_zip.zip"),
 ]
 
 
@@ -85,6 +88,9 @@ class TestBackend:
         config.put("backends_l_tar_bin", [test_params.binary])
         config.put("backends_l_bzip2_bin", [BZIP2])
         config.put("backends_l_gzip_bin", [GZIP])
+        config.put("backends_l_xz_bin", [XZ])
+        config.put("backends_l_zip_bin", [ZIP])
+        config.put("backends_l_unzip_bin", [UNZIP])
         self.test_cleanup(test_params)
         test_utils.copy(self.DIR)
         test_utils.copy(self.FILE1)
