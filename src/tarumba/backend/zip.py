@@ -3,7 +3,6 @@
 
 "Tarumba's Info-Zip backend support"
 
-import re
 from gettext import gettext as _
 
 from typing_extensions import override
@@ -23,13 +22,13 @@ class Zip(t_backend.Backend):
     "Zip archiver backend"
 
     # Particular patterns when listing files
-    LIST_PATTERNS = frozenset(["\\[.*\\] .* password: ", "password incorrect--reenter: "])
+    LIST_PATTERNS = frozenset([" password: ", "password incorrect--reenter: "])
     # Particular patterns when adding files
     ADD_PATTERNS = frozenset(["Enter password: ", "Verify password: "])
     # Particular patterns when extracting files
-    EXTRACT_PATTERNS = frozenset(["\\[.*\\] .* password: ", "password incorrect--reenter: "])
+    EXTRACT_PATTERNS = frozenset([" password: ", "password incorrect--reenter: "])
     # Particular patterns when testing files
-    TEST_PATTERNS = frozenset(["\\[.*\\] .* password: ", "password incorrect--reenter: "])
+    TEST_PATTERNS = frozenset([" password: ", "password incorrect--reenter: "])
 
     @override
     def __init__(self, mime, operation):
@@ -206,8 +205,7 @@ class Zip(t_backend.Backend):
 
         # Password prompt
         for pattern in self.ADD_PATTERNS:
-            regex = re.compile(pattern)
-            if regex.fullmatch(line):
+            if line.endswith(pattern):
                 executor.send_line(extra.get("password"))
                 return
 
@@ -228,14 +226,13 @@ class Zip(t_backend.Backend):
 
         # Password prompt
         for pattern in self.EXTRACT_PATTERNS:
-            regex = re.compile(pattern)
-            if regex.fullmatch(line):
+            if line.endswith(pattern):
                 if not extra.get("password"):
                     extra.put("password", t_utils.get_password(archive=extra.get("archive")))
                 executor.send_line(extra.get("password"))
                 return
 
-        if line.startswith(("   creating: ", "  inflating: ", " extracting: ")):
+        if line.startswith(("   creating: ", "  inflating: ", " extracting: ", "    linking: ")):
             t_file_utils.pop_and_move_extracted(extra)
 
     @override
@@ -251,8 +248,7 @@ class Zip(t_backend.Backend):
 
         # Password prompt
         for pattern in self.TEST_PATTERNS:
-            regex = re.compile(pattern)
-            if regex.fullmatch(line):
+            if line.endswith(pattern):
                 extra.put("password", t_utils.get_password(archive=extra.get("archive")))
                 executor.send_line(extra.get("password"))
                 return
@@ -286,8 +282,7 @@ class Zip(t_backend.Backend):
 
         # Password prompt
         for pattern in self.TEST_PATTERNS:
-            regex = re.compile(pattern)
-            if regex.fullmatch(line):
+            if line.endswith(pattern):
                 extra.put("password", t_utils.get_password(archive=extra.get("archive")))
                 executor.send_line(extra.get("password"))
                 return

@@ -129,6 +129,20 @@ class TestBackend:
         test_utils.test_add(test_params.archive, [self.FILE1], ["-b", test_params.backend])
         test_utils.assert_file_exists(test_params.archive)
 
+    def test_add_new_existing_encrypted(self, test_params, mocker):
+        "Add files to the encrypted archive"
+
+        backend = t_classifier.detect_format(
+            test_params.backend, self.ENC_PRE + test_params.archive, t_constants.OPERATION_ADD
+        )
+        if backend.can_encrypt():
+            mocker.patch("rich.prompt.Prompt.ask", return_value=self.PASSWORD)
+            test_utils.test_add(self.ENC_PRE + test_params.archive, [self.FILE1], ["-b", test_params.backend, "-e"])
+            test_utils.assert_file_exists(test_params.archive)
+        else:
+            with pytest.raises(SystemExit):
+                test_utils.test_add(self.ENC_PRE + test_params.archive, [self.DIR], ["-b", test_params.backend, "-e"])
+
     def test_add_duplicate(self, test_params):
         "Add duplicated files to the archive"
 
@@ -146,6 +160,24 @@ class TestBackend:
 
         test_utils.test_add(test_params.archive, [self.FILE2], ["-b", test_params.backend, "-l", "3"])
         test_utils.assert_file_exists(test_params.archive)
+
+    def test_add_level_encrypted(self, test_params, mocker):
+        "Add files to the encrypted archive with level"
+
+        backend = t_classifier.detect_format(
+            test_params.backend, self.ENC_PRE + test_params.archive, t_constants.OPERATION_ADD
+        )
+        if backend.can_encrypt():
+            mocker.patch("rich.prompt.Prompt.ask", return_value=self.PASSWORD)
+            test_utils.test_add(
+                self.ENC_PRE + test_params.archive, [self.FILE2], ["-b", test_params.backend, "-e", "-l", "3"]
+            )
+            test_utils.assert_file_exists(test_params.archive)
+        else:
+            with pytest.raises(SystemExit):
+                test_utils.test_add(
+                    self.ENC_PRE + test_params.archive, [self.FILE2], ["-b", test_params.backend, "-e", "-l", "3"]
+                )
 
     def test_add_path(self, test_params):
         "Add files to the archive with path"
@@ -393,14 +425,15 @@ class TestBackend:
     def test_extract_encrypted(self, test_params, mocker):
         "Extract files from the encrypted archive"
 
-        test_utils.cleanup(self.DIR)
+        base_name = Path(self.ENC_PRE + test_params.archive).stem
+        test_utils.cleanup(base_name)
         backend = t_classifier.detect_format(
             test_params.backend, self.ENC_PRE + test_params.archive, t_constants.OPERATION_EXTRACT
         )
         if backend.can_encrypt():
             mocker.patch("rich.prompt.Prompt.ask", return_value=self.PASSWORD)
             test_utils.test_extract(self.ENC_PRE + test_params.archive, [], ["-b", test_params.backend, "-a"])
-            test_utils.assert_dir_exists(self.DIR)
+            test_utils.assert_dir_exists(base_name)
 
     def test_rename(self, test_params):
         "Rename files in the archive"
@@ -423,10 +456,14 @@ class TestBackend:
         if backend.can_encrypt():  # Naming is available whenever encryption is available
             mocker.patch("rich.prompt.Prompt.ask", return_value=self.PASSWORD)
             if test_params.backend == t_constants.BACKEND_7ZIP:
-                test_utils.test_rename(test_params.archive, [self.FILE1, self.FILE_RN], ["-b", test_params.backend])
+                test_utils.test_rename(
+                    self.ENC_PRE + test_params.archive, [self.FILE1, self.FILE_RN], ["-b", test_params.backend]
+                )
             else:
                 with pytest.raises(SystemExit):
-                    test_utils.test_rename(test_params.archive, [self.FILE1, self.FILE_RN], ["-b", test_params.backend])
+                    test_utils.test_rename(
+                        self.ENC_PRE + test_params.archive, [self.FILE1, self.FILE_RN], ["-b", test_params.backend]
+                    )
 
     def test_delete_occurrence(self, test_params):
         "Delete one file from the archive with occurrence"
@@ -453,7 +490,7 @@ class TestBackend:
         )
         if backend.can_encrypt():  # Packing is available whenever encryption is available
             mocker.patch("rich.prompt.Prompt.ask", return_value=self.PASSWORD)
-            test_utils.test_delete(test_params.archive, [self.FILE2], ["-b", test_params.backend])
+            test_utils.test_delete(self.ENC_PRE + test_params.archive, [self.FILE2], ["-b", test_params.backend])
 
     def test_cleanup(self, test_params):
         "Not a real test, just the cleanup"
