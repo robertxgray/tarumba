@@ -49,20 +49,24 @@ class X7z(t_backend.Backend):
 
         super().__init__(mime, operation)
         self._7zip_bin = t_utils.check_installed(config.get("backends_l_7zip_bin"))
-        _7z_info = t_executor.Executor().execute_simple(self._7zip_bin)
-        self._p7zip = self._check_p7zip(_7z_info)
+        self._detect_p7zip_variants()
         self._list_started = False
         self._current_file = {}
 
-    def _check_p7zip(self, _7z_info):
+    def _detect_p7zip_variants(self):
         """
-        Returns true if we are using a p7zip variant of the backend.
-
-        :param _7z_info: Program output wihtout parameters
-        :return: True if p7zip is detected
+        This function is used to identify the 7z build being used. Two variables are set.
+        * _7za - Standalone version of 7z
+        * _p7zip - Legacy unix port
         """
 
-        return _7z_info[2].startswith("p7zip")
+        _7z_info = t_executor.Executor().execute_simple(self._7zip_bin)
+        self._7za = _7z_info[1].startswith("7-Zip (a)")
+        self._p7zip = _7z_info[2].startswith("p7zip")
+
+        if self._7za:
+            warning_msg = _("you are using a standalone version of 7-Zip, some features will be missing")
+            t_gui.warn(_("%(prog)s: warning: %(message)s\n") % {"prog": "tarumba", "message": warning_msg})
 
     @override
     def can_duplicate(self):
@@ -73,6 +77,18 @@ class X7z(t_backend.Backend):
         """
 
         return False  # 7z can't manage duplicates, even in tarfiles
+
+    @override
+    def can_encrypt(self):
+        """
+        Returns true if the archive contents can be encrypted.
+
+        :return: True of False
+        """
+
+        if self._7za:
+            return False
+        return super().can_encrypt()
 
     @override
     def list_commands(self, list_args):

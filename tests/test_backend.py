@@ -15,7 +15,8 @@ from tests import utils as test_utils
 
 # You may need to adjust these variables to your testing environment
 X7Z = "7zz"  # 7-Zip
-P7ZIP = "p7zip"  # p7zip
+X7ZA = "7za"  # 7-Zip standalone
+P7ZIP = "7z"  # p7zip
 BZIP2 = "bzip2"  # Bzip2
 GZIP = "gzip"  # Gzip
 GTAR = "tar"  # GNU Tar
@@ -30,6 +31,12 @@ test_params_dict = {
     "x7z.gz": test_utils.TestParams(t_constants.BACKEND_7ZIP, X7Z, "test_x7z.gz"),
     "x7z.bz2": test_utils.TestParams(t_constants.BACKEND_7ZIP, X7Z, "test_x7z.bz2"),
     "x7z.xz": test_utils.TestParams(t_constants.BACKEND_7ZIP, X7Z, "test_x7z.xz"),
+    "x7za.7z": test_utils.TestParams(t_constants.BACKEND_7ZIP, X7ZA, "test_x7za.7z"),
+    "x7za.tar": test_utils.TestParams(t_constants.BACKEND_7ZIP, X7ZA, "test_x7za.tar"),
+    "x7za.zip": test_utils.TestParams(t_constants.BACKEND_7ZIP, X7ZA, "test_x7za.zip"),
+    "x7za.gz": test_utils.TestParams(t_constants.BACKEND_7ZIP, X7ZA, "test_x7za.gz"),
+    "x7za.bz2": test_utils.TestParams(t_constants.BACKEND_7ZIP, X7ZA, "test_x7za.bz2"),
+    "x7za.xz": test_utils.TestParams(t_constants.BACKEND_7ZIP, X7ZA, "test_x7za.xz"),
     "p7zip.7z": test_utils.TestParams(t_constants.BACKEND_7ZIP, P7ZIP, "test_p7zip.7z"),
     "p7zip.tar": test_utils.TestParams(t_constants.BACKEND_7ZIP, P7ZIP, "test_p7zip.tar"),
     "p7zip.zip": test_utils.TestParams(t_constants.BACKEND_7ZIP, P7ZIP, "test_p7zip.zip"),
@@ -207,7 +214,7 @@ class TestBackend:
         "Add links to the archive"
 
         # https://github.com/p7zip-project/p7zip/issues/39
-        if test_params.binary == "7z":
+        if test_params.binary in (X7ZA, P7ZIP):
             return
 
         backend = t_classifier.detect_format(test_params.backend, test_params.archive, t_constants.OPERATION_ADD)
@@ -358,7 +365,7 @@ class TestBackend:
             test_utils.assert_file_exists(os.path.join(self.PATH1, self.FILE1), archive_folder=test_params.archive)
             test_utils.assert_file_exists(os.path.join(self.PATH2, self.FILE1), archive_folder=test_params.archive)
             # https://github.com/p7zip-project/p7zip/issues/39
-            if test_params.binary != "7z":
+            if test_params.binary not in (X7ZA, P7ZIP):
                 test_utils.assert_link_exists(self.LINK1, archive_folder=test_params.archive)
             test_utils.assert_file_exists(self.LINK2, archive_folder=test_params.archive)
             test_utils.assert_file_exists(
@@ -389,7 +396,7 @@ class TestBackend:
             test_utils.assert_file_exists(os.path.join(self.PATH1, self.FILE1))
             test_utils.assert_file_exists(os.path.join(self.PATH2, self.FILE1))
             # https://github.com/p7zip-project/p7zip/issues/39
-            if test_params.binary != "7z":
+            if test_params.binary not in (X7ZA, P7ZIP):
                 test_utils.assert_link_exists(self.LINK1)
             test_utils.assert_file_exists(self.LINK2)
             test_utils.assert_file_exists(self.FILE_ABS.lstrip("/"), use_preffix=False)
@@ -411,7 +418,7 @@ class TestBackend:
             test_utils.assert_file_exists(os.path.join(self.PATH1, self.FILE1), archive_folder=test_params.archive)
             test_utils.assert_file_exists(os.path.join(self.PATH2, self.FILE1), archive_folder=test_params.archive)
             # https://github.com/p7zip-project/p7zip/issues/39
-            if test_params.binary != "7z":
+            if test_params.binary not in (X7ZA, P7ZIP):
                 test_utils.assert_link_exists(self.LINK1, archive_folder=test_params.archive)
             test_utils.assert_file_exists(self.LINK2, archive_folder=test_params.archive)
             test_utils.assert_file_exists(
