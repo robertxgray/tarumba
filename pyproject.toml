@@ -50,6 +50,7 @@ dependencies = [
   "pytest",
   "pytest-mock"
 ]
+
 [tool.hatch.envs.default.scripts]
 test = "pytest {args:tests}"
 test-cov = "coverage run -m pytest {args:tests}"
@@ -71,6 +72,16 @@ dependencies = [
 ]
 [tool.hatch.envs.types.scripts]
 check = "mypy --install-types --non-interactive {args:src/tarumba tests}"
+
+[tool.hatch.build]
+exclude = ['src/tarumba/locale/*/LC_MESSAGE/*.po']
+artifacts = ['src/tarumba/locale/*/LC_MESSAGES/*.mo']
+
+[tool.hatch.build.hooks.custom]
+dependencies = [
+    "Babel>=2.6.0",
+    "setuptools; python_version>='3.12'",
+]
 
 [tool.pytest.ini_options]
 pythonpath = [
