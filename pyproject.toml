@@ -46,6 +46,7 @@ path = "src/tarumba/__about__.py"
 [tool.hatch.envs.default]
 dependencies = [
   "coverage[toml]>=6.5",
+  "pylint",
   "pytest",
   "pytest-mock"
 ]

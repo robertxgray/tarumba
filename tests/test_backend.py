@@ -15,7 +15,7 @@ from tests import utils as test_utils
 
 # You may need to adjust these variables to your testing environment
 X7Z = "7zz"  # 7-Zip
-P7ZIP = "7z"  # p7zip
+P7ZIP = "p7zip"  # p7zip
 BZIP2 = "bzip2"  # Bzip2
 GZIP = "gzip"  # Gzip
 GTAR = "tar"  # GNU Tar
@@ -23,38 +23,38 @@ XZ = "xz"  # XZ Utils
 ZIP = "zip"  # Info-Zip
 UNZIP = "unzip"  # Info-Zip
 
-test_params_list = [
-    test_utils.TestParams(t_constants.BACKEND_7ZIP, X7Z, "test_x7z.7z"),
-    test_utils.TestParams(t_constants.BACKEND_7ZIP, X7Z, "test_x7z.tar"),
-    test_utils.TestParams(t_constants.BACKEND_7ZIP, X7Z, "test_x7z.zip"),
-    test_utils.TestParams(t_constants.BACKEND_7ZIP, X7Z, "test_x7z.gz"),
-    test_utils.TestParams(t_constants.BACKEND_7ZIP, X7Z, "test_x7z.bz2"),
-    test_utils.TestParams(t_constants.BACKEND_7ZIP, X7Z, "test_x7z.xz"),
-    test_utils.TestParams(t_constants.BACKEND_7ZIP, P7ZIP, "test_p7zip.7z"),
-    test_utils.TestParams(t_constants.BACKEND_7ZIP, P7ZIP, "test_p7zip.tar"),
-    test_utils.TestParams(t_constants.BACKEND_7ZIP, P7ZIP, "test_p7zip.zip"),
-    test_utils.TestParams(t_constants.BACKEND_7ZIP, P7ZIP, "test_p7zip.gz"),
-    test_utils.TestParams(t_constants.BACKEND_7ZIP, P7ZIP, "test_p7zip.bz2"),
-    test_utils.TestParams(t_constants.BACKEND_7ZIP, P7ZIP, "test_p7zip.xz"),
-    test_utils.TestParams(t_constants.BACKEND_BZIP2, BZIP2, "test_gzip.bz2"),
-    test_utils.TestParams(t_constants.BACKEND_GZIP, GZIP, "test_gzip.gz"),
-    test_utils.TestParams(t_constants.BACKEND_TAR, GTAR, "test_gtar.tar"),
-    test_utils.TestParams(t_constants.BACKEND_TAR, GTAR, "test_gtar.tar.bz2"),
-    test_utils.TestParams(t_constants.BACKEND_TAR, GTAR, "test_gtar.tbz2"),
-    test_utils.TestParams(t_constants.BACKEND_TAR, GTAR, "test_gtar.tar.gz"),
-    test_utils.TestParams(t_constants.BACKEND_TAR, GTAR, "test_gtar.tgz"),
-    test_utils.TestParams(t_constants.BACKEND_TAR, GTAR, "test_gtar.tar.lzma"),
-    test_utils.TestParams(t_constants.BACKEND_TAR, GTAR, "test_gtar.tlz"),
-    test_utils.TestParams(t_constants.BACKEND_TAR, GTAR, "test_gtar.tar.xz"),
-    test_utils.TestParams(t_constants.BACKEND_TAR, GTAR, "test_gtar.txz"),
-    test_utils.TestParams(t_constants.BACKEND_XZ, XZ, "test_xz.lzma"),
-    test_utils.TestParams(t_constants.BACKEND_XZ, XZ, "test_xz.xz"),
-    test_utils.TestParams(t_constants.BACKEND_ZIP, ZIP, "test_zip.zip"),
-]
+test_params_dict = {
+    "x7z.7z": test_utils.TestParams(t_constants.BACKEND_7ZIP, X7Z, "test_x7z.7z"),
+    "x7z.tar": test_utils.TestParams(t_constants.BACKEND_7ZIP, X7Z, "test_x7z.tar"),
+    "x7z.zip": test_utils.TestParams(t_constants.BACKEND_7ZIP, X7Z, "test_x7z.zip"),
+    "x7z.gz": test_utils.TestParams(t_constants.BACKEND_7ZIP, X7Z, "test_x7z.gz"),
+    "x7z.bz2": test_utils.TestParams(t_constants.BACKEND_7ZIP, X7Z, "test_x7z.bz2"),
+    "x7z.xz": test_utils.TestParams(t_constants.BACKEND_7ZIP, X7Z, "test_x7z.xz"),
+    "p7zip.7z": test_utils.TestParams(t_constants.BACKEND_7ZIP, P7ZIP, "test_p7zip.7z"),
+    "p7zip.tar": test_utils.TestParams(t_constants.BACKEND_7ZIP, P7ZIP, "test_p7zip.tar"),
+    "p7zip.zip": test_utils.TestParams(t_constants.BACKEND_7ZIP, P7ZIP, "test_p7zip.zip"),
+    "p7zip.gz": test_utils.TestParams(t_constants.BACKEND_7ZIP, P7ZIP, "test_p7zip.gz"),
+    "p7zip.bz2": test_utils.TestParams(t_constants.BACKEND_7ZIP, P7ZIP, "test_p7zip.bz2"),
+    "p7zip.xz": test_utils.TestParams(t_constants.BACKEND_7ZIP, P7ZIP, "test_p7zip.xz"),
+    "bzip2.bz2": test_utils.TestParams(t_constants.BACKEND_BZIP2, BZIP2, "test_bzip2.bz2"),
+    "gzip.gz": test_utils.TestParams(t_constants.BACKEND_GZIP, GZIP, "test_gzip.gz"),
+    "gtar.tar": test_utils.TestParams(t_constants.BACKEND_TAR, GTAR, "test_gtar.tar"),
+    "gtar.tar.bz2": test_utils.TestParams(t_constants.BACKEND_TAR, GTAR, "test_gtar.tar.bz2"),
+    "gtar.tbz2": test_utils.TestParams(t_constants.BACKEND_TAR, GTAR, "test_gtar.tbz2"),
+    "gtar.tar.gz": test_utils.TestParams(t_constants.BACKEND_TAR, GTAR, "test_gtar.tar.gz"),
+    "gtar.tgz": test_utils.TestParams(t_constants.BACKEND_TAR, GTAR, "test_gtar.tgz"),
+    "gtar.tar.lzma": test_utils.TestParams(t_constants.BACKEND_TAR, GTAR, "test_gtar.tar.lzma"),
+    "gtar.tlz": test_utils.TestParams(t_constants.BACKEND_TAR, GTAR, "test_gtar.tlz"),
+    "gtar.tar.xz": test_utils.TestParams(t_constants.BACKEND_TAR, GTAR, "test_gtar.tar.xz"),
+    "gtar.txz": test_utils.TestParams(t_constants.BACKEND_TAR, GTAR, "test_gtar.txz"),
+    "xz.lzma": test_utils.TestParams(t_constants.BACKEND_XZ, XZ, "test_xz.lzma"),
+    "xz.xz": test_utils.TestParams(t_constants.BACKEND_XZ, XZ, "test_xz.xz"),
+    "zip.zip": test_utils.TestParams(t_constants.BACKEND_ZIP, ZIP, "test_zip.zip"),
+}
 
 
 # pylint: disable=redefined-outer-name
-@pytest.fixture(scope="session", params=test_params_list)
+@pytest.fixture(scope="session", params=test_params_dict)
 def test_params(request):
     """
     Returns the list of test params.
@@ -62,7 +62,7 @@ def test_params(request):
     :return: Test params
     """
 
-    return request.param
+    return test_params_dict.get(request.param)
 
 
 # pylint: disable=too-many-public-methods
