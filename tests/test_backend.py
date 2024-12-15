@@ -14,6 +14,7 @@ from tarumba.config import current as config
 from tests import utils as test_utils
 
 # You may need to adjust these variables to your testing environment
+# Current target: Ubuntu 22.04
 X7Z = "7zz"  # 7-Zip
 X7ZA = "7za"  # 7-Zip standalone
 P7ZIP = "7z"  # p7zip
@@ -40,7 +41,8 @@ test_params_dict = {
     "p7zip.7z": test_utils.TestParams(t_constants.BACKEND_7ZIP, P7ZIP, "test_p7zip.7z"),
     "p7zip.tar": test_utils.TestParams(t_constants.BACKEND_7ZIP, P7ZIP, "test_p7zip.tar"),
     "p7zip.zip": test_utils.TestParams(t_constants.BACKEND_7ZIP, P7ZIP, "test_p7zip.zip"),
-    "p7zip.gz": test_utils.TestParams(t_constants.BACKEND_7ZIP, P7ZIP, "test_p7zip.gz"),
+    # The p7zip build included in Ubuntu 22.04 can't handle the euro symbol in gzip archives
+    # "p7zip.gz": test_utils.TestParams(t_constants.BACKEND_7ZIP, P7ZIP, "test_p7zip.gz"),
     "p7zip.bz2": test_utils.TestParams(t_constants.BACKEND_7ZIP, P7ZIP, "test_p7zip.bz2"),
     "p7zip.xz": test_utils.TestParams(t_constants.BACKEND_7ZIP, P7ZIP, "test_p7zip.xz"),
     "bzip2.bz2": test_utils.TestParams(t_constants.BACKEND_BZIP2, BZIP2, "test_bzip2.bz2"),
