@@ -105,10 +105,14 @@ msgstr "operación no disponible porque no se encuentra el programa %(executable
 msgid "a program compatible with this archive format can't be found, "
       "please make sure it's installed and available in the $PATH or enter the full path "
       "to the program in the configuration"
-
 msgstr "no se encuentra un programa compatible con este formato de archivo, "
        "por favor compruebe que está instalado y disponible en el $PATH o introduzca "
        "la ruta completa al programa en la configuración"
+
+msgid "we are sorry but the free version of unrar is not supported, because it is not "
+      "compatible with modern archives. We recommend using the unar backend instead."
+msgstr "lo sentimos pero la versión libre de unrar no está soportada, porque no es compatible "
+       "con archivos modernos. Le recomendamos que utilice el backend unar en su lugar."
 
 msgid "%(backend)s backend not available"
 msgstr "el backend %(backend)s no está disponible"

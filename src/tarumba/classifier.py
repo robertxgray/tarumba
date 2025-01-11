@@ -13,6 +13,7 @@ import tarumba.constants as t_constants
 import tarumba.errors as t_errors
 from tarumba.backend import bzip2 as t_bzip2
 from tarumba.backend import gzip as t_gzip
+from tarumba.backend import rar as t_rar
 from tarumba.backend import tar as t_tar
 from tarumba.backend import x7z as t_x7z
 from tarumba.backend import xz as t_xz
@@ -27,6 +28,7 @@ mimetypes.encodings_map[".Z"] = t_constants.MIME_COMPRESS
 mimetypes.encodings_map[".bz2"] = t_constants.MIME_BZIP2
 mimetypes.encodings_map[".lz"] = t_constants.MIME_LZIP
 mimetypes.encodings_map[".lzma"] = t_constants.MIME_LZMA
+mimetypes.encodings_map[".rar"] = t_constants.MIME_RAR
 mimetypes.encodings_map[".xz"] = t_constants.MIME_XZ
 
 
@@ -62,6 +64,8 @@ def _detect_format_arguments(mime, operation, backend):
         backend_obj = t_bzip2.Bzip2(mime, operation)
     if backend == t_constants.BACKEND_GZIP:
         backend_obj = t_gzip.Gzip(mime, operation)
+    if backend == t_constants.BACKEND_RAR:
+        backend_obj = t_rar.Rar(mime, operation)
     if backend == t_constants.BACKEND_TAR:
         backend_obj = t_tar.Tar(mime, operation)
     if backend == t_constants.BACKEND_XZ:
@@ -91,6 +95,9 @@ def _detect_format_autodetect(mime, operation):
         elif mime[0] in (t_constants.MIME_LZMA, t_constants.MIME_XZ):
             backend_name = t_constants.BACKEND_XZ
             backend_obj = t_xz.Xz(mime, operation)
+        elif mime[0] == t_constants.MIME_RAR:
+            backend_name = t_constants.BACKEND_RAR
+            backend_obj = t_rar.Rar(mime, operation)
         elif mime[0] == t_constants.MIME_TAR and operation != t_constants.OPERATION_RENAME:
             backend_name = t_constants.BACKEND_TAR
             backend_obj = t_tar.Tar(mime, operation)

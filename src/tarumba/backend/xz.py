@@ -158,7 +158,7 @@ class Xz(t_backend.Backend):
             if line.startswith(("name\t", "file\t")):
                 return
 
-            elements = line.split(None)
+            elements = line.split(None, 8)
             if len(elements) < LIST_ELEMENTS:
                 return
 
