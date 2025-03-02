@@ -390,8 +390,11 @@ def pop_and_move_extracted(extra):
     :param extra: Extra data
     """
 
-    file = extra.get("contents").pop(0)
-    moved = _move_extracted(file, extra)
-    if moved:
-        t_gui.extracting_msg(file)
-    t_gui.advance_progress()
+    if len(extra.get("contents")) > 0:
+        file = extra.get("contents")[0]
+        if os.path.exists(file):
+            moved = _move_extracted(file, extra)
+            if moved:
+                t_gui.extracting_msg(file)
+            t_gui.advance_progress()
+            extra.get("contents").pop(0)

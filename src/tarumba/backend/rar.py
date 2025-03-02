@@ -3,6 +3,7 @@
 
 "Tarumba's Rar backend support"
 
+import os
 from gettext import gettext as _
 
 from typing_extensions import override
@@ -49,19 +50,18 @@ class Rar(t_backend.Backend):
         try:
             self._rar_bin = t_utils.check_installed(config.get("backends_l_rar_bin"))
             self._can_compress = True
-        except t_errors.BackendUnavailableError as e:
-            if operation in (t_constants.OPERATION_ADD, t_constants.OPERATION_DELETE,
-                             t_constants.OPERATION_RENAME):
-                raise e
+        except t_errors.BackendUnavailableError:
+            if operation in (t_constants.OPERATION_ADD, t_constants.OPERATION_DELETE, t_constants.OPERATION_RENAME):
+                raise
 
         # Unrar can be used to list and extract if rar is unavailable
         if not self._rar_bin:
             try:
                 self._rar_bin = t_utils.check_installed(config.get("backends_l_unrar_bin"))
                 self._check_unrar_free()
-            except t_errors.BackendUnavailableError as e:
+            except t_errors.BackendUnavailableError:
                 if not self._rar_bin:
-                    raise e
+                    raise
 
     def _check_unrar_free(self):
         """
@@ -88,7 +88,7 @@ class Rar(t_backend.Backend):
         :return: List of commands
         """
 
-        return [(self._rar_bin, ["vt", "-c-", "--", list_args.get("archive"), *list_args.get("files")])]
+        return [(self._rar_bin, ["vt", "-c-", "--", list_args.get("archive"), *self._unslash(list_args.get("files"))])]
 
     @override
     def add_commands(self, add_args, files):
@@ -107,7 +107,7 @@ class Rar(t_backend.Backend):
             params.append("-ol")
         if add_args.get("level"):
             params.append(f"-m{add_args.get('level')}")
-        return [(self._rar_bin, [*params, add_args.get("archive"), "--", *files])]
+        return [(self._rar_bin, [*params, add_args.get("archive"), "--", *self._slash(files)])]
 
     @override
     def extract_commands(self, extract_args):
@@ -118,8 +118,12 @@ class Rar(t_backend.Backend):
         :return: List of commands
         """
 
-        return [(self._rar_bin, ["x", "-idcdp", "-y", "-o+", extract_args.get("archive"),
-                                 *self._unslash(extract_args.get("files"))])]
+        return [
+            (
+                self._rar_bin,
+                ["x", "-idcdp", "-y", "-o+", extract_args.get("archive"), *self._unslash(extract_args.get("files"))],
+            )
+        ]
 
     @override
     def delete_commands(self, delete_args):
@@ -130,7 +134,9 @@ class Rar(t_backend.Backend):
         :return: List of commands
         """
 
-        return [(self._zip_bin, ["-d", "-nw", delete_args.get("archive"), "--", *delete_args.get("files")])]
+        return [
+            (self._rar_bin, ["d", "-idcdp", delete_args.get("archive"), "--", *self._unslash(delete_args.get("files"))])
+        ]
 
     @override
     def rename_commands(self, rename_args):
@@ -157,8 +163,8 @@ class Rar(t_backend.Backend):
 
         return [
             (
-                self._unzip_bin,
-                ["-t", "--", test_args.get("archive"), *self._unslash(test_args.get("files"))],
+                self._rar_bin,
+                ["t", "-idcdp", "--", test_args.get("archive"), *self._unslash(test_args.get("files"))],
             )
         ]
 
@@ -185,11 +191,10 @@ class Rar(t_backend.Backend):
             if "encrypted" in line[14]:
                 self._current_file[t_constants.COLUMN_ENC] = _("yes")
         # Rar's output doesn't include a trailing slash in directories
-        elif line.startswith("        Type: "):
-            if "Directory" == line[14:]:
-                self._current_file[t_constants.COLUMN_NAME] += "/"
-                self._current_file[t_constants.COLUMN_SIZE] = "0"
-                self._current_file[t_constants.COLUMN_PACKED] = "0"
+        elif line.startswith("        Type: ") and line[14:] == "Directory":
+            self._current_file[t_constants.COLUMN_NAME] += "/"
+            self._current_file[t_constants.COLUMN_SIZE] = "0"
+            self._current_file[t_constants.COLUMN_PACKED] = "0"
 
     @override
     def parse_list(self, executor, line_number, line, extra):
@@ -203,7 +208,7 @@ class Rar(t_backend.Backend):
         """
 
         # Password prompt
-        #for pattern in self.LIST_PATTERNS:
+        # for pattern in self.LIST_PATTERNS:
         #    regex = re.compile(pattern)
         #    if regex.fullmatch(line):
         #        extra.put("password", t_utils.get_password(archive=extra.get("archive")))
@@ -229,7 +234,7 @@ class Rar(t_backend.Backend):
                 self._current_file = {}
             elif line.startswith("        Name: "):
                 self._current_file[t_constants.COLUMN_NAME] = line[14:]
-            elif line.startswith("        Type: ") and "Directory" == line[14:]:
+            elif line.startswith("        Type: ") and line[14:] == "Directory":
                 self._current_file[t_constants.COLUMN_NAME] += "/"
 
     @override
@@ -327,20 +332,30 @@ class Rar(t_backend.Backend):
                 executor.send_line(extra.get("password"))
                 return
 
-        if line.startswith("    testing: "):
-            t_gui.testing_msg(line[13:-5])
+        if line.startswith("Testing     "):
+            # In my tests OK is sometimes followed by a space, but not always
+            t_gui.testing_msg(line[12:].rstrip()[:-2].rstrip())
             t_gui.advance_progress()
+
+    def _slash(self, files):
+        """
+        Adds a trailing slash to directories in the list of files.
+
+        :param files: List of files
+        """
+        output = []
+        for file in files:
+            if not file.endswith("/") and os.path.isdir(file):
+                output.append(file + "/")
+            else:
+                output.append(file)
+        return output
 
     def _unslash(self, files):
         """
         Removes the trailing slash from a list of files.
 
-        Rar doesn't include trailing slashes in the output and they cause trouble when present in the input.
-
         :param files: List of files
         """
 
-        output = []
-        for file in files:
-            output.append(file.rstrip("/"))
-        return output
+        return [file.rstrip("/") for file in files]
