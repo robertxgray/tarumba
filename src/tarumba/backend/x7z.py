@@ -330,7 +330,7 @@ class X7z(t_backend.Backend):
         """
 
         # Password prompt
-        for pattern in self.TEST_PATTERNS:
+        for pattern in self.DELETE_PATTERNS:
             regex = re.compile(pattern)
             if regex.fullmatch(line):
                 extra.put("password", t_utils.get_password(archive=extra.get("archive")))
@@ -349,7 +349,7 @@ class X7z(t_backend.Backend):
         """
 
         # Password prompt
-        for pattern in self.TEST_PATTERNS:
+        for pattern in self.RENAME_PATTERNS:
             regex = re.compile(pattern)
             if regex.fullmatch(line):
                 extra.put("password", t_utils.get_password(archive=extra.get("archive")))

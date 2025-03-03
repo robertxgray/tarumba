@@ -21,6 +21,7 @@ P7ZIP = "7z"  # p7zip
 BZIP2 = "bzip2"  # Bzip2
 GZIP = "gzip"  # Gzip
 GTAR = "tar"  # GNU Tar
+RAR = "rar"  # RAR
 XZ = "xz"  # XZ Utils
 ZIP = "zip"  # Info-Zip
 UNZIP = "unzip"  # Info-Zip
@@ -56,6 +57,7 @@ test_params_dict = {
     "gtar.tlz": test_utils.TestParams(t_constants.BACKEND_TAR, GTAR, "test_gtar.tlz"),
     "gtar.tar.xz": test_utils.TestParams(t_constants.BACKEND_TAR, GTAR, "test_gtar.tar.xz"),
     "gtar.txz": test_utils.TestParams(t_constants.BACKEND_TAR, GTAR, "test_gtar.txz"),
+    "rar.rar": test_utils.TestParams(t_constants.BACKEND_RAR, RAR, "test_rar.rar"),
     "xz.lzma": test_utils.TestParams(t_constants.BACKEND_XZ, XZ, "test_xz.lzma"),
     "xz.xz": test_utils.TestParams(t_constants.BACKEND_XZ, XZ, "test_xz.xz"),
     "zip.zip": test_utils.TestParams(t_constants.BACKEND_ZIP, ZIP, "test_zip.zip"),
@@ -97,9 +99,11 @@ class TestBackend:
         config.put("backends_l_tar_bin", [test_params.binary])
         config.put("backends_l_bzip2_bin", [BZIP2])
         config.put("backends_l_gzip_bin", [GZIP])
+        config.put("backends_l_rar_bin", [RAR])
         config.put("backends_l_xz_bin", [XZ])
         config.put("backends_l_zip_bin", [ZIP])
         config.put("backends_l_unzip_bin", [UNZIP])
+
         self.test_cleanup(test_params)
         test_utils.copy(self.DIR)
         test_utils.copy(self.FILE1)
@@ -450,7 +454,7 @@ class TestBackend:
         backend = t_classifier.detect_format(
             test_params.backend, self.ENC_PRE + test_params.archive, t_constants.OPERATION_RENAME
         )
-        if backend.can_name() and test_params.backend == t_constants.BACKEND_7ZIP:
+        if backend.can_name() and test_params.backend in (t_constants.BACKEND_7ZIP, t_constants.BACKEND_RAR):
             test_utils.test_rename(test_params.archive, [self.FILE1, self.FILE_RN], ["-b", test_params.backend])
         else:
             with pytest.raises(SystemExit):
@@ -464,7 +468,7 @@ class TestBackend:
         )
         if backend.can_encrypt():  # Naming is available whenever encryption is available
             mocker.patch("rich.prompt.Prompt.ask", return_value=self.PASSWORD)
-            if test_params.backend == t_constants.BACKEND_7ZIP:
+            if test_params.backend in (t_constants.BACKEND_7ZIP, t_constants.BACKEND_RAR):
                 test_utils.test_rename(
                     self.ENC_PRE + test_params.archive, [self.FILE1, self.FILE_RN], ["-b", test_params.backend]
                 )

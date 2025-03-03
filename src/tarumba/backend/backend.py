@@ -55,7 +55,7 @@ class Backend(ABC):
         :return: True of False
         """
 
-        if self.mime[0] in (t_constants.MIME_7Z, t_constants.MIME_ZIP):
+        if self.mime[0] in (t_constants.MIME_7Z, t_constants.MIME_RAR, t_constants.MIME_ZIP):
             return True
         return False
 

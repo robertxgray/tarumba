@@ -4,6 +4,7 @@
 "Tarumba's Rar backend support"
 
 import os
+import re
 from gettext import gettext as _
 
 from typing_extensions import override
@@ -24,13 +25,17 @@ class Rar(t_backend.Backend):
     "Rar archiver backend"
 
     # Particular patterns when listing files
-    LIST_PATTERNS = frozenset([" password: ", "password incorrect--reenter: "])
+    LIST_PATTERNS = frozenset(["Enter password.*: "])
     # Particular patterns when adding files
-    ADD_PATTERNS = frozenset(["Enter password: ", "Verify password: "])
+    ADD_PATTERNS = frozenset(["Enter password.*: ", "Reenter password: "])
     # Particular patterns when extracting files
-    EXTRACT_PATTERNS = frozenset([" password: ", "password incorrect--reenter: "])
+    EXTRACT_PATTERNS = frozenset(["Enter password.*: "])
+    # Particular patterns when deleting files
+    DELETE_PATTERNS = frozenset(["Enter password.*: "])
+    # Particular patterns when renaming files
+    RENAME_PATTERNS = frozenset(["Enter password.*: "])
     # Particular patterns when testing files
-    TEST_PATTERNS = frozenset([" password: ", "password incorrect--reenter: "])
+    TEST_PATTERNS = frozenset(["Enter password.*: "])
 
     @override
     def __init__(self, mime, operation):
@@ -43,25 +48,19 @@ class Rar(t_backend.Backend):
 
         super().__init__(mime, operation)
         self._rar_bin = None
-        self._can_compress = False
         self._current_file = {}
 
         # Rar is required to modify archives
         try:
             self._rar_bin = t_utils.check_installed(config.get("backends_l_rar_bin"))
-            self._can_compress = True
         except t_errors.BackendUnavailableError:
             if operation in (t_constants.OPERATION_ADD, t_constants.OPERATION_DELETE, t_constants.OPERATION_RENAME):
                 raise
 
         # Unrar can be used to list and extract if rar is unavailable
         if not self._rar_bin:
-            try:
-                self._rar_bin = t_utils.check_installed(config.get("backends_l_unrar_bin"))
-                self._check_unrar_free()
-            except t_errors.BackendUnavailableError:
-                if not self._rar_bin:
-                    raise
+            self._rar_bin = t_utils.check_installed(config.get("backends_l_unrar_bin"))
+            self._check_unrar_free()
 
     def _check_unrar_free(self):
         """
@@ -99,6 +98,12 @@ class Rar(t_backend.Backend):
         :param files: List of files
         :return: List of commands
         """
+
+        if not os.path.lexists(add_args.get("archive")):
+            advice = _(
+                "%(format)s is a proprietary archive format, we recommend using an open format for your archives"
+            ) % {"format": "rar"}
+            t_gui.warn(_("%(prog)s: warning: %(message)s\n") % {"prog": "tarumba", "message": advice})
 
         params = ["a", "-idcdp", "-y"]
         if add_args.get("password"):
@@ -147,10 +152,12 @@ class Rar(t_backend.Backend):
         :return: List of commands
         """
 
-        raise NotImplementedError(
-            _("the %(back1)s backend cannot rename files, but you can use %(back2)s instead")
-            % {"back1": "zip", "back2": "7z"}
-        )
+        return [
+            (
+                self._rar_bin,
+                ["rn", "-idcdp", rename_args.get("archive"), "--", *self._unslash(rename_args.get("files"))],
+            )
+        ]
 
     @override
     def test_commands(self, test_args):
@@ -208,12 +215,12 @@ class Rar(t_backend.Backend):
         """
 
         # Password prompt
-        # for pattern in self.LIST_PATTERNS:
-        #    regex = re.compile(pattern)
-        #    if regex.fullmatch(line):
-        #        extra.put("password", t_utils.get_password(archive=extra.get("archive")))
-        #        executor.send_line(extra.get("password"))
-        #        return
+        for pattern in self.LIST_PATTERNS:
+            regex = re.compile(pattern)
+            if regex.fullmatch(line):
+                extra.put("password", t_utils.get_password(archive=extra.get("archive")))
+                executor.send_line(extra.get("password"))
+                return
 
         output = extra.get("output")
 
@@ -250,7 +257,8 @@ class Rar(t_backend.Backend):
 
         # Password prompt
         for pattern in self.ADD_PATTERNS:
-            if line.endswith(pattern):
+            regex = re.compile(pattern)
+            if regex.fullmatch(line):
                 executor.send_line(extra.get("password"))
                 return
 
@@ -271,7 +279,8 @@ class Rar(t_backend.Backend):
 
         # Password prompt
         for pattern in self.EXTRACT_PATTERNS:
-            if line.endswith(pattern):
+            regex = re.compile(pattern)
+            if regex.fullmatch(line):
                 if not extra.get("password"):
                     extra.put("password", t_utils.get_password(archive=extra.get("archive")))
                 executor.send_line(extra.get("password"))
@@ -292,8 +301,9 @@ class Rar(t_backend.Backend):
         """
 
         # Password prompt
-        for pattern in self.TEST_PATTERNS:
-            if line.endswith(pattern):
+        for pattern in self.DELETE_PATTERNS:
+            regex = re.compile(pattern)
+            if regex.fullmatch(line):
                 extra.put("password", t_utils.get_password(archive=extra.get("archive")))
                 executor.send_line(extra.get("password"))
                 return
@@ -309,10 +319,13 @@ class Rar(t_backend.Backend):
         :param extra: Extra data
         """
 
-        raise NotImplementedError(
-            _("the %(back1)s backend cannot rename files, but you can use %(back2)s instead")
-            % {"back1": "zip", "back2": "7z"}
-        )
+        # Password prompt
+        for pattern in self.RENAME_PATTERNS:
+            regex = re.compile(pattern)
+            if regex.fullmatch(line):
+                extra.put("password", t_utils.get_password(archive=extra.get("archive")))
+                executor.send_line(extra.get("password"))
+                return
 
     @override
     def parse_test(self, executor, line_number, line, extra):
@@ -327,7 +340,8 @@ class Rar(t_backend.Backend):
 
         # Password prompt
         for pattern in self.TEST_PATTERNS:
-            if line.endswith(pattern):
+            regex = re.compile(pattern)
+            if regex.fullmatch(line):
                 extra.put("password", t_utils.get_password(archive=extra.get("archive")))
                 executor.send_line(extra.get("password"))
                 return
@@ -343,6 +357,7 @@ class Rar(t_backend.Backend):
 
         :param files: List of files
         """
+
         output = []
         for file in files:
             if not file.endswith("/") and os.path.isdir(file):

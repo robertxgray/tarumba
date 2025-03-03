@@ -109,6 +109,9 @@ msgstr "no se encuentra un programa compatible con este formato de archivo, "
        "por favor compruebe que está instalado y disponible en el $PATH o introduzca "
        "la ruta completa al programa en la configuración"
 
+msgid "%(format)s is a proprietary archive format, we recommend using an open format for your archives"
+msgstr "%(format)s es un formato de archivo propietario, recomendamos utilizar un formato abierto para sus archivos"
+
 msgid "we are sorry but the free version of unrar is not supported, because it is not "
       "compatible with modern archives. We recommend using the unar backend instead."
 msgstr "lo sentimos pero la versión libre de unrar no está soportada, porque no es compatible "

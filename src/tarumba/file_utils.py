@@ -392,7 +392,7 @@ def pop_and_move_extracted(extra):
 
     if len(extra.get("contents")) > 0:
         file = extra.get("contents")[0]
-        if os.path.exists(file):
+        if os.path.lexists(file):
             moved = _move_extracted(file, extra)
             if moved:
                 t_gui.extracting_msg(file)
