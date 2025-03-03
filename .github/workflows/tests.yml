@@ -18,7 +18,7 @@ jobs:
       - name: Install backends
         uses: awalsh128/cache-apt-pkgs-action@latest
         with:
-          packages: 7zip p7zip-full bzip2 gzip tar xz-utils zip unzip
+          packages: 7zip 7zip-standalone p7zip-full bzip2 gzip rar tar xz-utils zip unzip
           version: 1.0
       - name: Fetch code
         uses: actions/checkout@v4

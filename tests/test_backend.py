@@ -510,6 +510,7 @@ class TestBackend:
 
         base_name = Path(test_params.archive).stem
         test_utils.cleanup(base_name)
+        test_utils.cleanup(self.ENC_PRE + base_name)
         test_utils.cleanup(test_params.archive)
         test_utils.cleanup(self.ENC_PRE + test_params.archive)
         test_utils.cleanup(self.DIR)

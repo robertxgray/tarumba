@@ -14,14 +14,14 @@ import tarumba.errors as t_errors
 import tarumba.file_utils as t_file_utils
 import tarumba.utils as t_utils
 from tarumba import executor as t_executor
-from tarumba.backend import backend as t_backend
+from tarumba.backend import x7z as t_x7z
 from tarumba.config import current as config
 from tarumba.gui import current as t_gui
 
 LIST_ELEMENTS = 7
 
 
-class Rar(t_backend.Backend):
+class Rar(t_x7z.X7z):
     "Rar archiver backend"
 
     # Particular patterns when listing files
@@ -288,44 +288,6 @@ class Rar(t_backend.Backend):
 
         if line.startswith(("Creating    ", "Extracting  ")):
             t_file_utils.pop_and_move_extracted(extra)
-
-    @override
-    def parse_delete(self, executor, line_number, line, extra):
-        """
-        Parse the output when deleting files.
-
-        :param executor: Program executor
-        :param line_number: Line number
-        :param line: Line contents
-        :param extra: Extra data
-        """
-
-        # Password prompt
-        for pattern in self.DELETE_PATTERNS:
-            regex = re.compile(pattern)
-            if regex.fullmatch(line):
-                extra.put("password", t_utils.get_password(archive=extra.get("archive")))
-                executor.send_line(extra.get("password"))
-                return
-
-    @override
-    def parse_rename(self, executor, line_number, line, extra):
-        """
-        Parse the output when renaming files.
-
-        :param executor: Program executor
-        :param line_number: Line number
-        :param line: Line contents
-        :param extra: Extra data
-        """
-
-        # Password prompt
-        for pattern in self.RENAME_PATTERNS:
-            regex = re.compile(pattern)
-            if regex.fullmatch(line):
-                extra.put("password", t_utils.get_password(archive=extra.get("archive")))
-                executor.send_line(extra.get("password"))
-                return
 
     @override
     def parse_test(self, executor, line_number, line, extra):
