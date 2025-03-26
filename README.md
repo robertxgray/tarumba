@@ -1,8 +1,9 @@
-[![Repository License](https://img.shields.io/badge/license-GPL%20v3.0-brightgreen.svg)](COPYING)
-
 # Tarumba
 
 The universal archive manager.
+
+| <img src="https://raw.githubusercontent.com/robertxgray/tarumba/refs/heads/main/icon.svg" alt="Tarumba logo" width="100" role="img" /> | [![Repository License](https://img.shields.io/badge/license-GPL%20v3.0-brightgreen.svg)](COPYING)<br/>[![Code linting](https://github.com/robertxgray/tarumba/actions/workflows/linting.yml/badge.svg)](https://github.com/robertxgray/tarumba/actions/workflows/linting.yml)<br/>[![Build project](https://github.com/robertxgray/tarumba/actions/workflows/build.yml/badge.svg)](https://github.com/robertxgray/tarumba/actions/workflows/build.yml)<br/>[![Unit testing](https://github.com/robertxgray/tarumba/actions/workflows/tests.yml/badge.svg)](https://github.com/robertxgray/tarumba/actions/workflows/tests.yml) |
+| --- | --- |
 
 Tarumba is a frontend for multiple archive managers. It aims to provide a
 simple unified interface to manage all your archives. Tarumba is also a Python
