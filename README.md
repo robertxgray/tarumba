@@ -2,15 +2,15 @@
 
 The universal archive manager.
 
-| <img src="https://raw.githubusercontent.com/robertxgray/tarumba/refs/heads/main/icon.svg" alt="Tarumba logo" width="100" role="img" /> | [![Repository License](https://img.shields.io/badge/license-GPL%20v3.0-brightgreen.svg)](COPYING)<br/>[![Code linting](https://github.com/robertxgray/tarumba/actions/workflows/linting.yml/badge.svg)](https://github.com/robertxgray/tarumba/actions/workflows/linting.yml)<br/>[![Build project](https://github.com/robertxgray/tarumba/actions/workflows/build.yml/badge.svg)](https://github.com/robertxgray/tarumba/actions/workflows/build.yml)<br/>[![Unit testing](https://github.com/robertxgray/tarumba/actions/workflows/tests.yml/badge.svg)](https://github.com/robertxgray/tarumba/actions/workflows/tests.yml) |
-| --- | --- |
-
 Tarumba is a frontend for multiple archive managers. It aims to provide a
 simple unified interface to manage all your archives. Tarumba is also a Python
 library for archive manager integration.
 
 Tarumba cannot handle any archives by itself. Instead, it uses the archive
 managers available on the system. See the list of supported backends below.
+
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="https://raw.githubusercontent.com/robertxgray/tarumba/refs/heads/main/icon.svg" alt="Tarumba logo" width="100" role="img" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | [![Code linting](https://github.com/robertxgray/tarumba/actions/workflows/linting.yml/badge.svg)](https://github.com/robertxgray/tarumba/actions/workflows/linting.yml)<br/>[![Build project](https://github.com/robertxgray/tarumba/actions/workflows/build.yml/badge.svg)](https://github.com/robertxgray/tarumba/actions/workflows/build.yml)<br/>[![Unit testing](https://github.com/robertxgray/tarumba/actions/workflows/tests.yml/badge.svg)](https://github.com/robertxgray/tarumba/actions/workflows/tests.yml) | [![Repository License](https://img.shields.io/badge/license-GPL%20v3.0-brightgreen.svg)](COPYING)<br/>[![PyPI - Version](https://img.shields.io/pypi/v/tarumba.svg?logo=pypi&label=Version&logoColor=gold)](https://pypi.org/project/tarumba/)<br/>[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/tarumba.svg?logo=python&label=Python&logoColor=gold)](https://pypi.org/project/tarumba/) |
+| :--- | :--- | :--- |
 
 ## Usage
 
