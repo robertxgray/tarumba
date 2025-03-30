@@ -18,8 +18,9 @@ from tests import utils as test_utils
 X7Z = "7zz"  # 7-Zip
 X7ZA = "7za"  # 7-Zip standalone
 P7ZIP = "7z"  # p7zip
+AR = "ar"  # Ar (GNU Binutils)
 BZIP2 = "bzip2"  # Bzip2
-GZIP = "gzip"  # Gzip
+GZIP = "gzip"  # GNU Gzip
 GTAR = "tar"  # GNU Tar
 RAR = "rar"  # RAR
 XZ = "xz"  # XZ Utils
@@ -46,6 +47,7 @@ test_params_dict = {
     # "p7zip.gz": test_utils.TestParams(t_constants.BACKEND_7ZIP, P7ZIP, "test_p7zip.gz"),
     "p7zip.bz2": test_utils.TestParams(t_constants.BACKEND_7ZIP, P7ZIP, "test_p7zip.bz2"),
     "p7zip.xz": test_utils.TestParams(t_constants.BACKEND_7ZIP, P7ZIP, "test_p7zip.xz"),
+    "ar.ar": test_utils.TestParams(t_constants.BACKEND_AR, AR, "test_ar.ar"),
     "bzip2.bz2": test_utils.TestParams(t_constants.BACKEND_BZIP2, BZIP2, "test_bzip2.bz2"),
     "gzip.gz": test_utils.TestParams(t_constants.BACKEND_GZIP, GZIP, "test_gzip.gz"),
     "gtar.tar": test_utils.TestParams(t_constants.BACKEND_TAR, GTAR, "test_gtar.tar"),
@@ -246,10 +248,7 @@ class TestBackend:
         "List one file"
 
         backend = t_classifier.detect_format(test_params.backend, test_params.archive, t_constants.OPERATION_LIST)
-        if backend.can_pack() or backend.mime[0] == t_constants.MIME_GZIP:
-            file_name = self.LINK2
-        else:
-            file_name = Path(test_params.archive).stem
+        file_name = self.LINK2 if backend.can_name() else Path(test_params.archive).stem
         test_utils.test_list(test_params.archive, [file_name], ["-b", test_params.backend])
 
     def test_list_all(self, test_params):
@@ -284,10 +283,7 @@ class TestBackend:
         "Test one file"
 
         backend = t_classifier.detect_format(test_params.backend, test_params.archive, t_constants.OPERATION_TEST)
-        if backend.can_pack() or backend.mime[0] == t_constants.MIME_GZIP:
-            file_name = self.LINK2
-        else:
-            file_name = Path(test_params.archive).stem
+        file_name = self.LINK2 if backend.can_name() else Path(test_params.archive).stem
         test_utils.test_test(test_params.archive, [file_name], ["-b", test_params.backend])
 
     def test_test_all(self, test_params):
@@ -317,10 +313,7 @@ class TestBackend:
         "Extract one file from the archive"
 
         backend = t_classifier.detect_format(test_params.backend, test_params.archive, t_constants.OPERATION_LIST)
-        if backend.can_pack() or backend.mime[0] == t_constants.MIME_GZIP:
-            file_name = self.LINK2
-        else:
-            file_name = Path(test_params.archive).stem
+        file_name = self.LINK2 if backend.can_name() else Path(test_params.archive).stem
         test_utils.cleanup(file_name)
         test_utils.test_extract(test_params.archive, [file_name], ["-b", test_params.backend, "-a"])
         test_utils.assert_file_exists(file_name)
@@ -330,10 +323,7 @@ class TestBackend:
 
         backend = t_classifier.detect_format(test_params.backend, test_params.archive, t_constants.OPERATION_LIST)
         mocker.patch("rich.prompt.Prompt.ask", return_value="n")
-        if backend.can_pack() or backend.mime[0] == t_constants.MIME_GZIP:
-            file_name = self.LINK2
-        else:
-            file_name = Path(test_params.archive).stem
+        file_name = self.LINK2 if backend.can_name() else Path(test_params.archive).stem
         test_utils.test_extract(test_params.archive, [file_name], ["-b", test_params.backend])
         test_utils.assert_file_exists(file_name)
 
@@ -349,10 +339,7 @@ class TestBackend:
         "Extract one file from the archive with archive folder"
 
         backend = t_classifier.detect_format(test_params.backend, test_params.archive, t_constants.OPERATION_LIST)
-        if backend.can_pack() or backend.mime[0] == t_constants.MIME_GZIP:
-            file_name = self.LINK2
-        else:
-            file_name = Path(test_params.archive).stem
+        file_name = self.LINK2 if backend.can_name() else Path(test_params.archive).stem
         test_utils.cleanup(file_name)
         test_utils.test_extract(test_params.archive, [file_name], ["-b", test_params.backend, "-a", "-f", "yes"])
         test_utils.assert_file_exists(file_name, archive_folder=test_params.archive)
@@ -377,7 +364,7 @@ class TestBackend:
             test_utils.assert_file_exists(
                 self.FILE_ABS.lstrip("/"), archive_folder=test_params.archive, use_preffix=False
             )
-        elif backend.mime[0] == t_constants.MIME_GZIP:
+        elif backend.can_name():
             test_utils.assert_file_exists(self.LINK2)
         else:
             test_utils.assert_file_exists(base_name)
@@ -406,7 +393,7 @@ class TestBackend:
                 test_utils.assert_link_exists(self.LINK1)
             test_utils.assert_file_exists(self.LINK2)
             test_utils.assert_file_exists(self.FILE_ABS.lstrip("/"), use_preffix=False)
-        elif backend.mime[0] == t_constants.MIME_GZIP:
+        elif backend.can_name():
             test_utils.assert_file_exists(self.LINK2)
         else:
             test_utils.assert_file_exists(base_name)
@@ -430,7 +417,7 @@ class TestBackend:
             test_utils.assert_file_exists(
                 self.FILE_ABS.lstrip("/"), archive_folder=test_params.archive, use_preffix=False
             )
-        elif backend.mime[0] == t_constants.MIME_GZIP:
+        elif backend.can_name():
             test_utils.assert_file_exists(self.LINK2)
         else:
             test_utils.assert_file_exists(base_name)
@@ -489,7 +476,7 @@ class TestBackend:
         "Delete one file from the archive"
 
         backend = t_classifier.detect_format(test_params.backend, test_params.archive, t_constants.OPERATION_DELETE)
-        if backend.can_pack():
+        if backend.can_multiple():
             test_utils.test_delete(test_params.archive, [self.FILE2], ["-b", test_params.backend])
         else:
             with pytest.raises(SystemExit):

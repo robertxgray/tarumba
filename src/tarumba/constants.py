@@ -5,6 +5,7 @@
 
 # Supported backends
 BACKEND_7ZIP = "7zip"
+BACKEND_AR = "ar"
 BACKEND_BZIP2 = "bzip2"
 BACKEND_GZIP = "gzip"
 BACKEND_RAR = "rar"
@@ -41,14 +42,17 @@ DATE_FORMAT = "%Y-%m-%d %H:%M"
 
 # Mime types
 MIME_7Z = "application/x-7z-compressed"
+MIME_ARCHIVE = "application/x-archive"
 MIME_BROTLI = "application/x-brotli"
 MIME_BZIP2 = "application/x-bzip2"
 MIME_COMPRESS = "application/x-compress"
+MIME_DEBIAN = "application/vnd.debian.binary-package"
 MIME_GZIP = "application/gzip"
 MIME_LZIP = "application/x-lzip"
 MIME_LZMA = "application/x-lzma"
 MIME_RAR = "application/x-rar"
 MIME_TAR = "application/x-tar"
+MIME_TEXT = "text/plain"
 MIME_ZIP = "application/zip"
 MIME_XZ = "application/x-xz"
 

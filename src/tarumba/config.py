@@ -40,6 +40,7 @@ class Config(t_data_classes.Base):
             "main_b_verbose": False,
             # Backends
             "backends_l_7zip_bin": ["7zz", "7zzs", "7z", "7zr", "7za"],
+            "backends_l_ar_bin": ["ar"],
             "backends_l_bzip2_bin": ["bzip2"],
             "backends_l_gzip_bin": ["gzip"],
             "backends_l_rar_bin": ["rar"],

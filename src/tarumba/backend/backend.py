@@ -3,9 +3,9 @@
 
 "Tarumba's base archive backend"
 
-import datetime
 import stat
 from abc import ABC, abstractmethod
+from datetime import datetime
 
 import tzlocal
 
@@ -44,7 +44,7 @@ class Backend(ABC):
         :return: True of False
         """
 
-        if self.mime[0] == t_constants.MIME_TAR:
+        if self.mime[0] in (t_constants.MIME_ARCHIVE, t_constants.MIME_DEBIAN, t_constants.MIME_TAR):
             return True
         return False
 
@@ -66,7 +66,6 @@ class Backend(ABC):
         :return: True of False
         """
 
-        # Same as pack except gzip
         if self.mime[0] in (
             t_constants.MIME_BROTLI,
             t_constants.MIME_BZIP2,
@@ -77,7 +76,7 @@ class Backend(ABC):
             return False
         return True
 
-    def can_pack(self):
+    def can_multiple(self):
         """
         Returns true if the archive can store multiple files.
 
@@ -88,6 +87,26 @@ class Backend(ABC):
             t_constants.MIME_BROTLI,
             t_constants.MIME_BZIP2,
             t_constants.MIME_COMPRESS,
+            t_constants.MIME_GZIP,
+            t_constants.MIME_LZMA,
+            t_constants.MIME_XZ,
+        ):
+            return False
+        return True
+
+    def can_pack(self):
+        """
+        Returns true if the archive can store links and folders.
+
+        :return: True of False
+        """
+
+        if self.mime[0] in (
+            t_constants.MIME_ARCHIVE,
+            t_constants.MIME_BROTLI,
+            t_constants.MIME_BZIP2,
+            t_constants.MIME_COMPRESS,
+            t_constants.MIME_DEBIAN,
             t_constants.MIME_GZIP,
             t_constants.MIME_LZMA,
             t_constants.MIME_XZ,
@@ -116,7 +135,7 @@ class Backend(ABC):
         """
 
         if column == t_constants.COLUMN_DATE:
-            date_time = datetime.datetime.fromtimestamp(archive_stat.st_mtime, tz=tzlocal.get_localzone())
+            date_time = datetime.fromtimestamp(archive_stat.st_mtime, tz=tzlocal.get_localzone())
             return date_time.strftime(t_constants.DATE_FORMAT)
         if column == t_constants.COLUMN_OWNER:
             return f"{archive_stat.st_uid}/{archive_stat.st_gid}"

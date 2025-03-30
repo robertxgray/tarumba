@@ -106,25 +106,28 @@ def _add_archive_get_password(backend, archive, encrypt):
     return password
 
 
-def _add_archive_check_multiple(add_args):
+def _add_archive_check_archive_operation(add_args):
     """
-    Checks if the archive can store multiple and the operation is valid.
+    Checks if the the archive type supports the operation.
 
     :param add_args: AddArgs object
     :raises InvalidOperationError: The archive cannot store the information
     """
 
+    if not add_args.get("backend").can_multiple() and (
+        os.path.isfile(add_args.get("archive")) or len(add_args.get("files")) > 1
+    ):
+        raise t_errors.InvalidOperationError(_("this archive format can't store more than one file"))
+
     if not add_args.get("backend").can_pack():
-        if (
-            os.path.isfile(add_args.get("archive"))
-            or len(add_args.get("files")) > 1
-            or os.path.isdir(add_args.get("files")[0])
-        ):
-            raise t_errors.InvalidOperationError(_("this archive format can't store more than one file"))
-        if add_args.get("path"):
-            raise t_errors.InvalidOperationError(_("this archive format can't store file paths"))
+        for file in add_args.get("files"):
+            if os.path.isdir(file):
+                raise t_errors.InvalidOperationError(_("this archive format can't store folders"))
         if not add_args.get("follow_links") and os.path.islink(add_args.get("files")[0]):
             raise t_errors.InvalidOperationError(_("this archive format can't store links"))
+
+    if not add_args.get("backend").can_pack() and add_args.get("path"):
+        raise t_errors.InvalidOperationError(_("this archive format can't store file paths"))
 
 
 def _add_archive_check(add_args):
@@ -218,7 +221,7 @@ def add_archive(args):
     t_gui.debug("add_args", add_args)
     original_args = add_args
 
-    _add_archive_check_multiple(add_args)
+    _add_archive_check_archive_operation(add_args)
 
     # Do we need to warn before overwrite?
     file_exists = os.path.isfile(add_args.get("archive"))
@@ -353,7 +356,7 @@ def delete_archive(args):
     original_args = delete_args
 
     # Simple compressors
-    if not delete_args.get("backend").can_pack():
+    if not delete_args.get("backend").can_multiple():
         raise t_errors.InvalidOperationError(
             _("files can't be deleted from this archive format, delete the archive instead")
         )

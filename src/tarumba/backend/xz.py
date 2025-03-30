@@ -113,7 +113,7 @@ class Xz(t_backend.Backend):
         """
         Commands to delete files from the archive.
 
-        :param extract_args: DeleteArgs object
+        :param delete_args: DeleteArgs object
         :return: List of commands
         """
 

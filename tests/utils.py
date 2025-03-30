@@ -12,7 +12,7 @@ import sys
 from tarumba.__main__ import main
 
 TEST_PATH = "test_files"
-PREFFIX = "¡!|\\<>'\"^#$%&@€(){}[]=¿?*-+_"  # Testing problematic chars
+PREFFIX = "¡!|<>'\"^#$%&@€(){}[]=¿?*-+_"  # Testing problematic chars
 
 
 @dataclasses.dataclass

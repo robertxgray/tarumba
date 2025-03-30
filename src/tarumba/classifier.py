@@ -11,6 +11,7 @@ import magic
 
 import tarumba.constants as t_constants
 import tarumba.errors as t_errors
+from tarumba.backend import ar as t_ar
 from tarumba.backend import bzip2 as t_bzip2
 from tarumba.backend import gzip as t_gzip
 from tarumba.backend import rar as t_rar
@@ -22,6 +23,8 @@ from tarumba.gui import current as t_gui
 
 # Enrich the mimetypes maps
 mimetypes.types_map[".7z"] = t_constants.MIME_7Z
+mimetypes.encodings_map[".a"] = t_constants.MIME_ARCHIVE
+mimetypes.encodings_map[".ar"] = t_constants.MIME_ARCHIVE
 mimetypes.encodings_map[".br"] = t_constants.MIME_BROTLI
 mimetypes.encodings_map[".gz"] = t_constants.MIME_GZIP
 mimetypes.encodings_map[".Z"] = t_constants.MIME_COMPRESS
@@ -60,17 +63,19 @@ def _detect_format_arguments(mime, operation, backend):
     backend_obj = None
     if backend == t_constants.BACKEND_7ZIP:
         backend_obj = t_x7z.X7z(mime, operation)
-    if backend == t_constants.BACKEND_BZIP2:
+    elif backend == t_constants.BACKEND_AR:
+        backend_obj = t_ar.Ar(mime, operation)
+    elif backend == t_constants.BACKEND_BZIP2:
         backend_obj = t_bzip2.Bzip2(mime, operation)
-    if backend == t_constants.BACKEND_GZIP:
+    elif backend == t_constants.BACKEND_GZIP:
         backend_obj = t_gzip.Gzip(mime, operation)
-    if backend == t_constants.BACKEND_RAR:
+    elif backend == t_constants.BACKEND_RAR:
         backend_obj = t_rar.Rar(mime, operation)
-    if backend == t_constants.BACKEND_TAR:
+    elif backend == t_constants.BACKEND_TAR:
         backend_obj = t_tar.Tar(mime, operation)
-    if backend == t_constants.BACKEND_XZ:
+    elif backend == t_constants.BACKEND_XZ:
         backend_obj = t_xz.Xz(mime, operation)
-    if backend == t_constants.BACKEND_ZIP:
+    elif backend == t_constants.BACKEND_ZIP:
         backend_obj = t_zip.Zip(mime, operation)
     return backend_obj
 
@@ -86,7 +91,10 @@ def _detect_format_autodetect(mime, operation):
     backend_name = ""
     backend_obj = None
     try:
-        if mime[0] == t_constants.MIME_BZIP2:
+        if mime[0] == t_constants.MIME_ARCHIVE or mime[0] == t_constants.MIME_DEBIAN:
+            backend_name = t_constants.BACKEND_AR
+            backend_obj = t_ar.Ar(mime, operation)
+        elif mime[0] == t_constants.MIME_BZIP2:
             backend_name = t_constants.BACKEND_BZIP2
             backend_obj = t_bzip2.Bzip2(mime, operation)
         elif mime[0] == t_constants.MIME_GZIP:
@@ -130,6 +138,8 @@ def detect_format(backend, archive, operation, *, decompress=True):
         magic_mime_unc = magic.Magic(mime=True, uncompress=True)
         file_mime = _sanitize_mime((magic_mime_unc.from_file(archive), magic_mime.from_file(archive)))
         t_gui.debug("file_mime", file_mime)
+        if name_mime[0] == t_constants.MIME_ARCHIVE and file_mime[0] == t_constants.MIME_TEXT:
+            raise t_errors.InvalidOperationError(_("thin archives are not supported"))
         if name_mime[0] != file_mime[0]:
             message = _("detected archive type and extension don't match")
             t_gui.warn(_("%(prog)s: warning: %(message)s\n") % {"prog": "tarumba", "message": message})
