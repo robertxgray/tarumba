@@ -83,6 +83,7 @@ There are 6 available actions, you can enter the word or only the first letter.
 - [p7zip](https://sourceforge.net/projects/p7zip/)
 - [ar (GNU Binutils)](https://www.gnu.org/software/binutils/)
 - [bzip2](https://sourceware.org/bzip2/)
+- [GNU Cpio](https://www.gnu.org/software/cpio/)
 - [GNU Gzip](https://www.gnu.org/software/gzip/)
 - [GNU Tar](https://www.gnu.org/software/tar/)
 - [Rar & UnRar](https://www.rarlab.com/)

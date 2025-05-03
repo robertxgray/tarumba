@@ -1,10 +1,11 @@
 # Copyright: (c) 2025, Félix Medrano
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
-"Tarumba's ar backend support"
+"Tarumba's Cpio backend support"
 
-import contextlib
 import os
+import re
+import shlex
 from datetime import datetime
 from gettext import gettext as _
 
@@ -18,12 +19,12 @@ from tarumba.backend import backend as t_backend
 from tarumba.config import current as config
 from tarumba.gui import current as t_gui
 
-LIST_ELEMENTS = 7
+LIST_ELEMENTS = 8
 LIST_DATE_FORMAT = "%b %d %Y %H:%M"
 
 
-class Ar(t_backend.Backend):
-    "Ar archiver backend"
+class Cpio(t_backend.Backend):
+    "Cpio archiver backend"
 
     @override
     def __init__(self, mime, operation):
@@ -35,8 +36,11 @@ class Ar(t_backend.Backend):
         """
 
         super().__init__(mime, operation)
-        self._ar_bin = t_utils.check_installed(config.get("backends_l_ar_bin"))
-        self._error_prefix = f"{self._ar_bin}: "
+        self._cpio_bin = t_utils.check_installed(config.get("backends_l_cpio_bin"))
+        self._error_prefix = f"{self._cpio_bin}: "
+        if operation in [t_constants.OPERATION_ADD]:
+            self._shell = t_utils.check_installed(config.get("main_l_shell"))
+            self._find = t_utils.check_installed(config.get("main_l_find"))
 
     @override
     def list_commands(self, list_args):
@@ -47,7 +51,7 @@ class Ar(t_backend.Backend):
         :return: List of commands
         """
 
-        return [(self._ar_bin, ["tv", "--", list_args.get("archive"), *list_args.get("files")])]
+        return [(self._cpio_bin, ["--force-local", "-tvF", list_args.get("archive")])]
 
     @override
     def add_commands(self, add_args, files):
@@ -59,14 +63,10 @@ class Ar(t_backend.Backend):
         :return: List of commands
         """
 
-        params = "qv"
-        if not os.path.lexists(add_args.get("archive")):
-            params += "c"
-        if add_args.get("owner"):
-            params += "U"
-        else:
-            params += "D"
-        return [(self._ar_bin, [params, "--", add_args.get("archive"), *files])]
+        archive_quot = shlex.quote(add_args.get("archive"))
+        level = f" -{add_args.get('level')}" if add_args.get("level") else ""
+        command = f"{shlex.quote(self._cpio_bin)} -cfN{level} {shlex.quote(files[0])} > {archive_quot}"
+        return [(self._shell, ["-c", command])]
 
     @override
     def extract_commands(self, extract_args):
@@ -77,12 +77,13 @@ class Ar(t_backend.Backend):
         :return: List of commands
         """
 
-        params = "xv"
-        occurrence = []
-        if extract_args.get("occurrence"):
-            params += "N"
-            occurrence.append(extract_args.get("occurrence"))
-        return [(self._ar_bin, [params, "--", *occurrence, extract_args.get("archive"), *extract_args.get("files")])]
+        contents = extract_args.get("contents")
+        if contents:
+            archive_quot = shlex.quote(extract_args.get("archive"))
+            content_quot = shlex.quote(contents[0])
+            command = f"{shlex.quote(self._cpio_bin)} -dcfN {archive_quot} > {content_quot}"
+            return [(self._shell, ["-c", command]), (self._shell, ["-c", "echo ''"])]
+        return []
 
     @override
     def delete_commands(self, delete_args):
@@ -93,12 +94,7 @@ class Ar(t_backend.Backend):
         :return: List of commands
         """
 
-        params = "dv"
-        occurrence = []
-        if delete_args.get("occurrence"):
-            params += "N"
-            occurrence.append(delete_args.get("occurrence"))
-        return [(self._ar_bin, [params, "--", *occurrence, delete_args.get("archive"), *delete_args.get("files")])]
+        return []
 
     @override
     def rename_commands(self, rename_args):
@@ -109,7 +105,10 @@ class Ar(t_backend.Backend):
         :return: List of commands
         """
 
-        raise NotImplementedError(_("the %(back)s backend cannot rename files") % {"back": "ar"})
+        raise NotImplementedError(
+            _("the %(back1)s backend cannot rename files, but you can use %(back2)s instead")
+            % {"back1": "gzip", "back2": "7z"}
+        )
 
     @override
     def test_commands(self, test_args):
@@ -120,12 +119,41 @@ class Ar(t_backend.Backend):
         :return: List of commands
         """
 
-        return [(self._ar_bin, ["t", "--", test_args.get("archive"), *test_args.get("files")])]
+        return [(self._cpio_bin, ["--force-local", "-tF", test_args.get("archive")])]
+
+    def _parse_date(self, month, day, combo):
+        """
+        Parses the dates in cpio output. The backend provides the month, day and either the year of the time.
+
+        :param month: Month
+        :param day: Day
+        :param combo: Year or time
+        """
+
+        if combo[2] == ":":
+            today = datetime.now(tz=tzlocal.get_localzone())
+            file_dt_str = f"{month} {day} {today.year} {combo}"
+            file_dt = datetime.strptime(file_dt_str, LIST_DATE_FORMAT).astimezone(tzlocal.get_localzone())
+            combo_year = today.year
+            if file_dt > today:
+                combo_year -= 1
+            combo_time = combo
+        else:
+            combo_year = combo
+            combo_time = "00:00"
+
+        datetime_str = f"{month} {day} {combo_year} {combo_time}"
+        return (
+            datetime.strptime(datetime_str, LIST_DATE_FORMAT)
+            .astimezone(tzlocal.get_localzone())
+            .strftime(t_constants.DATE_FORMAT)
+        )
 
     def _parse_list_row(self, elements, extra):
         """
         Builds an output row using the listing elements.
 
+        :params file_name: File name
         :param elements: Listing elements
         :param extra: Extra data
         :return: Output row
@@ -136,18 +164,13 @@ class Ar(t_backend.Backend):
             if column == t_constants.COLUMN_PERMS:
                 row.append(elements[0])
             elif column == t_constants.COLUMN_OWNER:
-                row.append(elements[1])
+                row.append(f"{elements[2]}/{elements[3]}")
             elif column == t_constants.COLUMN_SIZE:
-                row.append(elements[2])
+                row.append(elements[4])
             elif column == t_constants.COLUMN_DATE:
-                date = f"{elements[3]} {elements[4]} {elements[6][:4]} {elements[5]}"
-                row.append(
-                    datetime.strptime(date, LIST_DATE_FORMAT)
-                    .astimezone(tzlocal.get_localzone())
-                    .strftime(t_constants.DATE_FORMAT)
-                )
+                row.append(self._parse_date(elements[5], elements[6], elements[7][:5]))
             elif column == t_constants.COLUMN_NAME:
-                row.append(elements[6][5:])
+                row.append(elements[7][6:])
             else:
                 row.append(None)
         return row
@@ -168,18 +191,21 @@ class Ar(t_backend.Backend):
                 _("%(prog)s: warning: %(message)s\n") % {"prog": "tarumba", "message": line[len(self._error_prefix) :]}
             )
 
-        elements = line.split(None, 6)
+        elements = line.split(None, 7)
         if len(elements) < LIST_ELEMENTS:
             return
         output = extra.get("output")
 
+        file_name = os.path.basename(elements[7][elements[7].find(" ") + 1 :])
+        if extra.get("files") and file_name not in extra.get("files"):
+            return
+
         # List output
         if isinstance(output, list):
-            with contextlib.suppress(ValueError):  # File not found in archive warning
-                output.append(self._parse_list_row(elements, extra))
+            output.append(self._parse_list_row(elements, extra))
         # Set output
         elif isinstance(output, set):
-            output.add(elements[6][5:])
+            output.add(file_name)
 
     @override
     def parse_add(self, executor, line_number, line, extra):
@@ -196,9 +222,6 @@ class Ar(t_backend.Backend):
             t_gui.warn(
                 _("%(prog)s: warning: %(message)s\n") % {"prog": "tarumba", "message": line[len(self._error_prefix) :]}
             )
-        elif line.startswith("a - "):
-            t_gui.adding_msg(line[4:])
-            t_gui.advance_progress()
 
     @override
     def parse_extract(self, executor, line_number, line, extra):
@@ -215,7 +238,7 @@ class Ar(t_backend.Backend):
             t_gui.warn(
                 _("%(prog)s: warning: %(message)s\n") % {"prog": "tarumba", "message": line[len(self._error_prefix) :]}
             )
-        elif line.startswith("x - "):
+        else:
             t_file_utils.pop_and_move_extracted(extra)
 
     @override
@@ -229,11 +252,6 @@ class Ar(t_backend.Backend):
         :param extra: Extra data
         """
 
-        if line.startswith(self._error_prefix):
-            t_gui.warn(
-                _("%(prog)s: warning: %(message)s\n") % {"prog": "tarumba", "message": line[len(self._error_prefix) :]}
-            )
-
     @override
     def parse_rename(self, executor, line_number, line, extra):
         """
@@ -245,7 +263,10 @@ class Ar(t_backend.Backend):
         :param extra: Extra data
         """
 
-        raise NotImplementedError(_("the %(back)s backend cannot rename files") % {"back": "ar"})
+        raise NotImplementedError(
+            _("the %(back1)s backend cannot rename files, but you can use %(back2)s instead")
+            % {"back1": "gzip", "back2": "7z"}
+        )
 
     @override
     def parse_test(self, executor, line_number, line, extra):
@@ -262,6 +283,9 @@ class Ar(t_backend.Backend):
             t_gui.warn(
                 _("%(prog)s: warning: %(message)s\n") % {"prog": "tarumba", "message": line[len(self._error_prefix) :]}
             )
-        elif len(line) > 0:
-            t_gui.testing_msg(line)
-            t_gui.advance_progress()
+        else:
+            regex = re.compile(r"(.*):\s+OK$")
+            regex_match = regex.fullmatch(line)
+            if regex_match:
+                t_gui.testing_msg(os.path.basename(regex_match.group(1)))
+                t_gui.advance_progress()

@@ -13,6 +13,7 @@ import tarumba.constants as t_constants
 import tarumba.errors as t_errors
 from tarumba.backend import ar as t_ar
 from tarumba.backend import bzip2 as t_bzip2
+from tarumba.backend import cpio as t_cpio
 from tarumba.backend import gzip as t_gzip
 from tarumba.backend import rar as t_rar
 from tarumba.backend import tar as t_tar
@@ -67,6 +68,8 @@ def _detect_format_arguments(mime, operation, backend):
         backend_obj = t_ar.Ar(mime, operation)
     elif backend == t_constants.BACKEND_BZIP2:
         backend_obj = t_bzip2.Bzip2(mime, operation)
+    elif backend == t_constants.BACKEND_CPIO:
+        backend_obj = t_cpio.Cpio(mime, operation)
     elif backend == t_constants.BACKEND_GZIP:
         backend_obj = t_gzip.Gzip(mime, operation)
     elif backend == t_constants.BACKEND_RAR:
@@ -97,6 +100,9 @@ def _detect_format_autodetect(mime, operation):
         elif mime[0] == t_constants.MIME_BZIP2:
             backend_name = t_constants.BACKEND_BZIP2
             backend_obj = t_bzip2.Bzip2(mime, operation)
+        elif mime[0] == t_constants.MIME_CPIO:
+            backend_name = t_constants.BACKEND_CPIO
+            backend_obj = t_cpio.Cpio(mime, operation)
         elif mime[0] == t_constants.MIME_GZIP:
             backend_name = t_constants.BACKEND_GZIP
             backend_obj = t_gzip.Gzip(mime, operation)
