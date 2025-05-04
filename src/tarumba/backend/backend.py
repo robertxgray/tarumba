@@ -44,7 +44,12 @@ class Backend(ABC):
         :return: True of False
         """
 
-        if self.mime[0] in (t_constants.MIME_ARCHIVE, t_constants.MIME_DEBIAN, t_constants.MIME_TAR):
+        if self.mime[0] in (
+            t_constants.MIME_ARCHIVE,
+            t_constants.MIME_CPIO,
+            t_constants.MIME_DEBIAN,
+            t_constants.MIME_TAR,
+        ):
             return True
         return False
 
@@ -121,7 +126,7 @@ class Backend(ABC):
         :return: True of False
         """
 
-        if self.mime[0] == t_constants.MIME_TAR:
+        if self.mime[0] in (t_constants.MIME_CPIO, t_constants.MIME_TAR):
             return True
         return False
 

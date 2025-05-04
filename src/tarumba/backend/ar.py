@@ -167,6 +167,7 @@ class Ar(t_backend.Backend):
             t_gui.warn(
                 _("%(prog)s: warning: %(message)s\n") % {"prog": "tarumba", "message": line[len(self._error_prefix) :]}
             )
+            return
 
         elements = line.split(None, 6)
         if len(elements) < LIST_ELEMENTS:

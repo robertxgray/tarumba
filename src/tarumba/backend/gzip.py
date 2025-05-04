@@ -160,6 +160,7 @@ class Gzip(t_backend.Backend):
             t_gui.warn(
                 _("%(prog)s: warning: %(message)s\n") % {"prog": "tarumba", "message": line[len(self.ERROR_PREFIX) :]}
             )
+            return
 
         # Ignore header
         if line_number == 1:
@@ -257,7 +258,7 @@ class Gzip(t_backend.Backend):
             t_gui.warn(
                 _("%(prog)s: warning: %(message)s\n") % {"prog": "tarumba", "message": line[len(self.ERROR_PREFIX) :]}
             )
-        else:
+        elif len(line) > 0:
             regex = re.compile(r"(.*):\s+OK$")
             regex_match = regex.fullmatch(line)
             if regex_match:
