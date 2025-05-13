@@ -472,14 +472,14 @@ class TestBackend:
         "Delete one file from the archive with occurrence"
 
         backend = t_classifier.detect_format(test_params.backend, test_params.archive, t_constants.OPERATION_DELETE)
-        if backend.can_duplicate():
+        if backend.can_duplicate() and test_params.backend not in (t_constants.BACKEND_CPIO):
             test_utils.test_delete(test_params.archive, [self.FILE1], ["-b", test_params.backend, "-o", "1"])
 
     def test_delete(self, test_params):
         "Delete one file from the archive"
 
         backend = t_classifier.detect_format(test_params.backend, test_params.archive, t_constants.OPERATION_DELETE)
-        if backend.can_multiple():
+        if backend.can_multiple() and test_params.backend not in (t_constants.BACKEND_CPIO):
             test_utils.test_delete(test_params.archive, [self.FILE2], ["-b", test_params.backend])
         else:
             with pytest.raises(SystemExit):

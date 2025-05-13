@@ -64,7 +64,9 @@ class Cpio(t_backend.Backend):
         """
 
         params = ["--force-local", "--quiet", "--no-absolute-filenames"]
-        if os.path.lexists(add_args.get("archive")):
+        commands = []
+        exists = os.path.lexists(add_args.get("archive"))
+        if exists:
             params.append("-A")
         if add_args.get("follow_links"):
             params.append("-L")
@@ -72,9 +74,13 @@ class Cpio(t_backend.Backend):
             params.append("-R")
             params.append("+0:+0")
         archive_quot = shlex.quote(add_args.get("archive"))
-        find_command = f"{shlex.quote(self._find)} {shlex.quote(files[0])} -depth -print"
-        cpio_command = f"{shlex.quote(self._cpio_bin)} {" ".join(params)} -ovF {archive_quot}"
-        return [(self._shell, ["-c", f"{find_command} | {cpio_command}"])]
+        for i, file in enumerate(files):
+            if i == 1 and not exists:
+                params.append("-A")
+            find_command = f"{shlex.quote(self._find)} {shlex.quote(file)} -depth -print"
+            cpio_command = f"{shlex.quote(self._cpio_bin)} {' '.join(params)} -ovF {archive_quot}"
+            commands.append((self._shell, ["-c", f"{find_command} | {cpio_command}"]))
+        return commands
 
     @override
     def extract_commands(self, extract_args):
