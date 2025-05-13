@@ -55,7 +55,16 @@ class Zip(t_backend.Backend):
         return [
             (
                 self._unzip_bin,
-                ["-Z", "-lT", "--h-t", "--", list_args.get("archive"), *self._escape(list_args.get("files"))],
+                [
+                    "-Z",
+                    "-lT",
+                    "--h-t",
+                    "-O",
+                    "OEM-US",
+                    "--",
+                    list_args.get("archive"),
+                    *self._escape(list_args.get("files")),
+                ],
             )
         ]
 
@@ -87,7 +96,12 @@ class Zip(t_backend.Backend):
         :return: List of commands
         """
 
-        return [(self._unzip_bin, ["-o", "--", extract_args.get("archive"), *self._escape(extract_args.get("files"))])]
+        return [
+            (
+                self._unzip_bin,
+                ["-o", "-O", "OEM-US", "--", extract_args.get("archive"), *self._escape(extract_args.get("files"))],
+            )
+        ]
 
     @override
     def delete_commands(self, delete_args):
@@ -126,7 +140,7 @@ class Zip(t_backend.Backend):
         return [
             (
                 self._unzip_bin,
-                ["-t", "--", test_args.get("archive"), *self._escape(test_args.get("files"))],
+                ["-t", "-O", "OEM-US", "--", test_args.get("archive"), *self._escape(test_args.get("files"))],
             )
         ]
 
