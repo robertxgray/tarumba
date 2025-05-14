@@ -32,7 +32,7 @@ There are 6 available actions, you can enter the word or only the first letter.
 - (a) add  
   Adds files to the archive. The list of files is mandatory, a new archive will
   be created if it doesn't exist.
-- (e) extract (e)  
+- (e)(x) extract  
   Extract files from the archive. The list of files is optional, when absent all
   the files in the archive will be extracted.
 - (d) delete  

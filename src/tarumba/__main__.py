@@ -79,7 +79,7 @@ def main():
                 t_gui.stop_progress()
 
         # Extract
-        if args.command in ("e", "extract"):
+        if args.command in ("e", "x", "extract"):
             message = _("extracting files from")
             with t_gui.start_progress(message, basename):
                 t_manager.extract_archive(args)
