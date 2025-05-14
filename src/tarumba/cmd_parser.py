@@ -51,6 +51,7 @@ def get_arguments():
             t_constants.BACKEND_7ZIP,
             t_constants.BACKEND_AR,
             t_constants.BACKEND_BZIP2,
+            t_constants.BACKEND_CPIO,
             t_constants.BACKEND_GZIP,
             t_constants.BACKEND_RAR,
             t_constants.BACKEND_TAR,

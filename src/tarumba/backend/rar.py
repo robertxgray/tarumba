@@ -230,7 +230,6 @@ class Rar(t_x7z.X7z):
                 row = [self._current_file.get(column) for column in extra.get("columns")]
                 output.append(row)
                 self._current_file = {}
-
             else:
                 self._parse_list_line(line)
 

@@ -192,7 +192,7 @@ class Tar(t_backend.Backend):
             elif column == t_constants.COLUMN_NAME:
                 name = elements[4][6:]
                 link_pos = name.find(" -> ")
-                if link_pos >= 0:
+                if link_pos > 0:
                     row.append(name[:link_pos])
                 else:
                     row.append(name)
@@ -215,6 +215,7 @@ class Tar(t_backend.Backend):
             t_gui.warn(
                 _("%(prog)s: warning: %(message)s\n") % {"prog": "tarumba", "message": line[len(self._error_prefix) :]}
             )
+            return
 
         elements = line.split(None, 4)
         if len(elements) < LIST_ELEMENTS:

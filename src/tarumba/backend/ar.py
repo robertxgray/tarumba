@@ -5,9 +5,10 @@
 
 import contextlib
 import os
-from datetime import datetime, timezone
+from datetime import datetime
 from gettext import gettext as _
 
+import tzlocal
 from typing_extensions import override
 
 import tarumba.constants as t_constants
@@ -141,7 +142,9 @@ class Ar(t_backend.Backend):
             elif column == t_constants.COLUMN_DATE:
                 date = f"{elements[3]} {elements[4]} {elements[6][:4]} {elements[5]}"
                 row.append(
-                    datetime.strptime(date, LIST_DATE_FORMAT).astimezone(timezone.utc).strftime(t_constants.DATE_FORMAT)
+                    datetime.strptime(date, LIST_DATE_FORMAT)
+                    .astimezone(tzlocal.get_localzone())
+                    .strftime(t_constants.DATE_FORMAT)
                 )
             elif column == t_constants.COLUMN_NAME:
                 row.append(elements[6][5:])
@@ -164,6 +167,7 @@ class Ar(t_backend.Backend):
             t_gui.warn(
                 _("%(prog)s: warning: %(message)s\n") % {"prog": "tarumba", "message": line[len(self._error_prefix) :]}
             )
+            return
 
         elements = line.split(None, 6)
         if len(elements) < LIST_ELEMENTS:
