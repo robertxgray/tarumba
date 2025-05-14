@@ -38,8 +38,8 @@ def get_arguments():
     parser = ColouredArgumentParser(prog="tarumba", description=_("The universal archive manager"))
     parser.add_argument(
         "command",
-        choices=["l", "list", "a", "add", "e", "extract", "d", "delete", "r", "rename", "t", "test"],
-        help=_("command: list, add, extract, delete, rename or test"),
+        choices=["l", "list", "a", "add", "e", "x", "extract", "d", "delete", "r", "rename", "t", "test"],
+        help=_("command: (l)list, (a)add, (e)(x)extract, (d)delete, (r)rename or (t)test"),
     )
     parser.add_argument("archive", help=_("archive file to process"))
     parser.add_argument("files", nargs="*", help=_("list of files to operate with"))

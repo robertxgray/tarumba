@@ -17,8 +17,8 @@ msgstr ""
 msgid "The universal archive manager"
 msgstr "El gestor de archivos universal"
 
-msgid "command: list, add, extract, delete, rename or test"
-msgstr "commando: listar, añadir, extraer, borrar, renombrar o comprobar"
+msgid "command: (l)list, (a)add, (e)(x)extract, (d)delete, (r)rename or (t)test"
+msgstr "commando: (l)listar, (a)añadir, (e)(x)extraer, (d)borrar, (r)renombrar o (t)comprobar"
 
 msgid "archive file to process"
 msgstr "fichero de archivo a procesar"
