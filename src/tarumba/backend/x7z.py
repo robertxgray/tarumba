@@ -317,6 +317,10 @@ class X7z(t_backend.Backend):
 
         if line.startswith("- "):
             t_file_utils.pop_and_move_extracted(extra)
+        # There can be remaining files, e.g. 7zz skips broken links
+        elif line == "Everything is Ok":
+            while extra.get("contents"):
+                t_file_utils.pop_and_move_extracted(extra)
 
     @override
     def parse_delete(self, executor, line_number, line, extra):

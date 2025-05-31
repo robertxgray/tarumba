@@ -14,10 +14,9 @@ from tarumba.__main__ import main
 from tarumba.config import current as config
 
 TEST_PATH = "test_files"
-PREFFIX = "¡!|<>'\"^#$%&@€(){}[]=¿?*-+Ñ_"  # Testing problematic chars
+PREFFIX = "_¡!|<>'\"^#$%&@€(){}[]=¿?*-+Ñ_"  # Testing problematic chars
 
 DIR = "src"
-ENC_PRE = "e_"
 FILE1 = "README.md"
 FILE2 = "COPYING"
 FILE_ABS = "/etc/fstab"
@@ -94,7 +93,7 @@ PARAMS_DICT = {
 }
 
 
-def test_configure(test_params):
+def test_configure(test, test_params):
     "Not a real test, just configuration"
 
     config.put("backends_l_7zip_bin", [test_params.binary])
@@ -106,33 +105,31 @@ def test_configure(test_params):
     config.put("backends_l_zip_bin", [ZIP])
     config.put("backends_l_unzip_bin", [UNZIP])
 
-    test_cleanup(test_params)
-    copy(DIR)
-    copy(FILE1)
-    copy(FILE2)
-    link(FILE1, LINK1)
-    link(FILE2, LINK2)
+    test_cleanup(test, test_params)
+    copy(test, DIR)
+    copy(test, FILE1)
+    copy(test, FILE2)
+    link(test, FILE1, LINK1)
+    link(test, FILE2, LINK2)
 
 
-def test_cleanup(test_params):
+def test_cleanup(test, test_params):
     "Not a real test, just the cleanup"
 
     base_name = Path(test_params.archive).stem
-    cleanup(base_name)
-    cleanup(ENC_PRE + base_name)
-    cleanup(test_params.archive)
-    cleanup(ENC_PRE + test_params.archive)
-    cleanup(DIR)
-    cleanup(FILE1)
-    cleanup(FILE2)
-    cleanup(LINK1)
-    cleanup(LINK2)
-    cleanup(PATH1, use_preffix=False)
-    cleanup(PATH2, use_preffix=False)
-    cleanup(os.path.dirname(FILE_ABS.lstrip("/")), use_preffix=False)
+    cleanup(test, base_name)
+    cleanup(test, test_params.archive)
+    cleanup(test, DIR)
+    cleanup(test, FILE1)
+    cleanup(test, FILE2)
+    cleanup(test, LINK1)
+    cleanup(test, LINK2)
+    cleanup(test, PATH1, use_preffix=False)
+    cleanup(test, PATH2, use_preffix=False)
+    cleanup(test, os.path.dirname(FILE_ABS.lstrip("/")), use_preffix=False)
 
 
-def _add_preffix_to_files(files):
+def _add_preffix_to_files(test, files):
     """
     Adds the preffix to a list of files.
     :param files: List of files
@@ -144,11 +141,11 @@ def _add_preffix_to_files(files):
         if file[0] == "/":
             out.append(file)
         else:
-            out.append(PREFFIX + file)
+            out.append(test + PREFFIX + file)
     return out
 
 
-def test_add(archive, files, extra_args):
+def test_add(test, archive, files, extra_args):
     """
     Test add command.
 
@@ -161,14 +158,14 @@ def test_add(archive, files, extra_args):
     os.chdir(TEST_PATH)
     try:
         sys.argv = ["tarumba", "a", "-v", *extra_args]
-        sys.argv.append(PREFFIX + archive)
-        sys.argv += _add_preffix_to_files(files)
+        sys.argv.append(test + PREFFIX + archive)
+        sys.argv += _add_preffix_to_files(test, files)
         main()
     finally:
         os.chdir(cwd)
 
 
-def test_list(archive, files, extra_args):
+def test_list(test, archive, files, extra_args):
     """
     Test list command.
 
@@ -178,12 +175,12 @@ def test_list(archive, files, extra_args):
     """
 
     sys.argv = ["tarumba", "l", *extra_args]
-    sys.argv.append(os.path.join(TEST_PATH, PREFFIX + archive))
-    sys.argv += _add_preffix_to_files(files)
+    sys.argv.append(os.path.join(TEST_PATH, test + PREFFIX + archive))
+    sys.argv += _add_preffix_to_files(test, files)
     main()
 
 
-def test_test(archive, files, extra_args):
+def test_test(test, archive, files, extra_args):
     """
     Test test command.
 
@@ -193,12 +190,12 @@ def test_test(archive, files, extra_args):
     """
 
     sys.argv = ["tarumba", "t", *extra_args]
-    sys.argv.append(os.path.join(TEST_PATH, PREFFIX + archive))
-    sys.argv += _add_preffix_to_files(files)
+    sys.argv.append(os.path.join(TEST_PATH, test + PREFFIX + archive))
+    sys.argv += _add_preffix_to_files(test, files)
     main()
 
 
-def test_extract(archive, files, extra_args):
+def test_extract(test, archive, files, extra_args):
     """
     Test extract command.
 
@@ -211,14 +208,14 @@ def test_extract(archive, files, extra_args):
     os.chdir(TEST_PATH)
     try:
         sys.argv = ["tarumba", "e", "-v", *extra_args]
-        sys.argv.append(PREFFIX + archive)
-        sys.argv += _add_preffix_to_files(files)
+        sys.argv.append(test + PREFFIX + archive)
+        sys.argv += _add_preffix_to_files(test, files)
         main()
     finally:
         os.chdir(cwd)
 
 
-def test_rename(archive, files, extra_args):
+def test_rename(test, archive, files, extra_args):
     """
     Test rename command.
 
@@ -228,12 +225,12 @@ def test_rename(archive, files, extra_args):
     """
 
     sys.argv = ["tarumba", "r", *extra_args]
-    sys.argv.append(os.path.join(TEST_PATH, PREFFIX + archive))
-    sys.argv += _add_preffix_to_files(files)
+    sys.argv.append(os.path.join(TEST_PATH, test + PREFFIX + archive))
+    sys.argv += _add_preffix_to_files(test, files)
     main()
 
 
-def test_delete(archive, files, extra_args):
+def test_delete(test, archive, files, extra_args):
     """
     Test delete command.
 
@@ -243,12 +240,12 @@ def test_delete(archive, files, extra_args):
     """
 
     sys.argv = ["tarumba", "d", *extra_args]
-    sys.argv.append(os.path.join(TEST_PATH, PREFFIX + archive))
-    sys.argv += _add_preffix_to_files(files)
+    sys.argv.append(os.path.join(TEST_PATH, test + PREFFIX + archive))
+    sys.argv += _add_preffix_to_files(test, files)
     main()
 
 
-def _get_test_path(path, dest=None, *, archive_folder=None, use_preffix=True):
+def _get_test_path(test, path, dest=None, *, archive_folder=None, use_preffix=True):
     """
     Returns paths in the tests dir.
 
@@ -260,21 +257,21 @@ def _get_test_path(path, dest=None, *, archive_folder=None, use_preffix=True):
 
     if archive_folder is not None:
         archive_base = Path(archive_folder).stem
-        test_dir = os.path.join(TEST_PATH, PREFFIX + archive_base)
+        test_dir = os.path.join(TEST_PATH, test + PREFFIX + archive_base)
     else:
         test_dir = TEST_PATH
     if dest:
         if use_preffix:
-            return os.path.join(test_dir, PREFFIX + dest)
+            return os.path.join(test_dir, test + PREFFIX + dest)
         return os.path.join(test_dir, dest)
     if use_preffix:
         base_name = os.path.basename(path)
         dir_name = os.path.dirname(path)
-        return os.path.join(test_dir, os.path.join(dir_name, PREFFIX + base_name))
+        return os.path.join(test_dir, os.path.join(dir_name, test + PREFFIX + base_name))
     return os.path.join(test_dir, path)
 
 
-def copy(path, dest=None, *, use_preffix=True):
+def copy(test, path, dest=None, *, use_preffix=True):
     """
     Copies a file or folder to the tests dir.
 
@@ -283,14 +280,14 @@ def copy(path, dest=None, *, use_preffix=True):
     :param use_preffix: Apply multichar preffix
     """
 
-    test_path = _get_test_path(path, dest, use_preffix=use_preffix)
+    test_path = _get_test_path(test, path, dest, use_preffix=use_preffix)
     if os.path.isdir(path):
         shutil.copytree(path, test_path, symlinks=True)
     else:
         shutil.copy2(path, test_path, follow_symlinks=False)
 
 
-def link(path, dest=None, *, use_preffix=True):
+def link(test, path, dest=None, *, use_preffix=True):
     """
     Creates a symbolic link in the tests dir.
 
@@ -299,14 +296,14 @@ def link(path, dest=None, *, use_preffix=True):
     :param use_preffix: Apply multichar preffix
     """
 
-    test_path = _get_test_path(path, dest, use_preffix=use_preffix)
+    test_path = _get_test_path(test, path, dest, use_preffix=use_preffix)
     if use_preffix:
-        os.symlink(PREFFIX + path, test_path)
+        os.symlink(test + PREFFIX + path, test_path)
     else:
         os.symlink(path, test_path)
 
 
-def cleanup(path, *, archive_folder=None, use_preffix=True):
+def cleanup(test, path, *, archive_folder=None, use_preffix=True):
     """
     Delete a file or folder in the tests dir.
 
@@ -315,14 +312,14 @@ def cleanup(path, *, archive_folder=None, use_preffix=True):
     :param use_preffix: Apply multichar preffix
     """
 
-    test_path = _get_test_path(path, archive_folder=archive_folder, use_preffix=use_preffix)
+    test_path = _get_test_path(test, path, archive_folder=archive_folder, use_preffix=use_preffix)
     if os.path.isdir(test_path):
         shutil.rmtree(test_path, ignore_errors=True)
     elif os.path.lexists(test_path):
         os.remove(test_path)
 
 
-def assert_file_exists(path, *, archive_folder=None, use_preffix=True):
+def assert_file_exists(test, path, *, archive_folder=None, use_preffix=True):
     """
     Asserts that a file exists in the tests dir.
 
@@ -331,12 +328,12 @@ def assert_file_exists(path, *, archive_folder=None, use_preffix=True):
     :param use_preffix: Apply multichar preffix
     """
 
-    test_path = _get_test_path(path, archive_folder=archive_folder, use_preffix=use_preffix)
+    test_path = _get_test_path(test, path, archive_folder=archive_folder, use_preffix=use_preffix)
     assert os.path.isfile(test_path)
     assert not os.path.islink(test_path)
 
 
-def assert_dir_exists(path, *, archive_folder=None, use_preffix=True):
+def assert_dir_exists(test, path, *, archive_folder=None, use_preffix=True):
     """
     Asserts that a directory exists in the tests dir.
 
@@ -345,12 +342,12 @@ def assert_dir_exists(path, *, archive_folder=None, use_preffix=True):
     :param use_preffix: Apply multichar preffix
     """
 
-    test_path = _get_test_path(path, archive_folder=archive_folder, use_preffix=use_preffix)
+    test_path = _get_test_path(test, path, archive_folder=archive_folder, use_preffix=use_preffix)
     assert os.path.isdir(test_path)
     assert not os.path.islink(test_path)
 
 
-def assert_link_exists(path, *, archive_folder=None, use_preffix=True):
+def assert_link_exists(test, path, *, archive_folder=None, use_preffix=True):
     """
     Asserts that a link exists in the tests dir.
 
@@ -359,5 +356,5 @@ def assert_link_exists(path, *, archive_folder=None, use_preffix=True):
     :param use_preffix: Apply multichar preffix
     """
 
-    test_path = _get_test_path(path, archive_folder=archive_folder, use_preffix=use_preffix)
+    test_path = _get_test_path(test, path, archive_folder=archive_folder, use_preffix=use_preffix)
     assert os.path.islink(test_path)

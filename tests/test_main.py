@@ -11,6 +11,8 @@ from tarumba.__main__ import main
 from tarumba.config import current as config
 from tests import utils as test_utils
 
+TEST = "main"
+
 
 class TestMain:
     "Main function tests"
@@ -53,8 +55,8 @@ class TestMain:
         "Error due to unknown archive type"
 
         config.put("backends_l_7zip_bin", [""])
-        test_utils.copy(self.INVALID_ARCHIVE)
+        test_utils.copy(TEST, self.INVALID_ARCHIVE)
         with pytest.raises(SystemExit) as err:
-            test_utils.test_list(self.INVALID_ARCHIVE, [], [])
+            test_utils.test_list(TEST, self.INVALID_ARCHIVE, [], [])
         assert err.value.code == 1
-        test_utils.cleanup(self.INVALID_ARCHIVE)
+        test_utils.cleanup(TEST, self.INVALID_ARCHIVE)
