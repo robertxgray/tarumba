@@ -5,14 +5,28 @@
 
 import dataclasses
 import os
-import pathlib
 import shutil
 import sys
+from pathlib import Path
 
+import tarumba.constants as t_constants
 from tarumba.__main__ import main
+from tarumba.config import current as config
 
 TEST_PATH = "test_files"
 PREFFIX = "¡!|<>'\"^#$%&@€(){}[]=¿?*-+Ñ_"  # Testing problematic chars
+
+DIR = "src"
+ENC_PRE = "e_"
+FILE1 = "README.md"
+FILE2 = "COPYING"
+FILE_ABS = "/etc/fstab"
+FILE_RN = "README2.md"
+LINK1 = "link1"
+LINK2 = "link2"
+PASSWORD = "password"
+PATH1 = "path1"
+PATH2 = "path2"
 
 
 @dataclasses.dataclass
@@ -22,6 +36,100 @@ class TestParams:
     backend: str
     binary: str
     archive: str
+
+
+# You may need to adjust these variables to your testing environment
+# Current target: Ubuntu 22.04
+X7Z = "7zz"  # 7-Zip
+X7ZA = "7za"  # 7-Zip standalone
+P7ZIP = "7z"  # p7zip
+AR = "ar"  # Ar (GNU Binutils)
+BZIP2 = "bzip2"  # Bzip2
+CPIO = "cpio"  # GNU Cpio
+GZIP = "gzip"  # GNU Gzip
+GTAR = "tar"  # GNU Tar
+RAR = "rar"  # RAR
+XZ = "xz"  # XZ Utils
+ZIP = "zip"  # Info-Zip
+UNZIP = "unzip"  # Info-Zip
+
+PARAMS_DICT = {
+    "x7z.7z": TestParams(t_constants.BACKEND_7ZIP, X7Z, "test_x7z.7z"),
+    "x7z.tar": TestParams(t_constants.BACKEND_7ZIP, X7Z, "test_x7z.tar"),
+    "x7z.zip": TestParams(t_constants.BACKEND_7ZIP, X7Z, "test_x7z.zip"),
+    "x7z.gz": TestParams(t_constants.BACKEND_7ZIP, X7Z, "test_x7z.gz"),
+    "x7z.bz2": TestParams(t_constants.BACKEND_7ZIP, X7Z, "test_x7z.bz2"),
+    "x7z.xz": TestParams(t_constants.BACKEND_7ZIP, X7Z, "test_x7z.xz"),
+    "x7za.7z": TestParams(t_constants.BACKEND_7ZIP, X7ZA, "test_x7za.7z"),
+    "x7za.tar": TestParams(t_constants.BACKEND_7ZIP, X7ZA, "test_x7za.tar"),
+    "x7za.zip": TestParams(t_constants.BACKEND_7ZIP, X7ZA, "test_x7za.zip"),
+    "x7za.gz": TestParams(t_constants.BACKEND_7ZIP, X7ZA, "test_x7za.gz"),
+    "x7za.bz2": TestParams(t_constants.BACKEND_7ZIP, X7ZA, "test_x7za.bz2"),
+    "x7za.xz": TestParams(t_constants.BACKEND_7ZIP, X7ZA, "test_x7za.xz"),
+    "p7zip.7z": TestParams(t_constants.BACKEND_7ZIP, P7ZIP, "test_p7zip.7z"),
+    "p7zip.tar": TestParams(t_constants.BACKEND_7ZIP, P7ZIP, "test_p7zip.tar"),
+    "p7zip.zip": TestParams(t_constants.BACKEND_7ZIP, P7ZIP, "test_p7zip.zip"),
+    # The p7zip build included in Ubuntu 22.04 can't handle the euro symbol in gzip archives
+    # "p7zip.gz": TestParams(t_constants.BACKEND_7ZIP, P7ZIP, "test_p7zip.gz"),
+    "p7zip.bz2": TestParams(t_constants.BACKEND_7ZIP, P7ZIP, "test_p7zip.bz2"),
+    "p7zip.xz": TestParams(t_constants.BACKEND_7ZIP, P7ZIP, "test_p7zip.xz"),
+    "ar.ar": TestParams(t_constants.BACKEND_AR, AR, "test_ar.ar"),
+    "bzip2.bz2": TestParams(t_constants.BACKEND_BZIP2, BZIP2, "test_bzip2.bz2"),
+    "cpio.cpio": TestParams(t_constants.BACKEND_CPIO, CPIO, "test_cpio.cpio"),
+    "cpio.tar": TestParams(t_constants.BACKEND_CPIO, CPIO, "test_cpio.tar"),
+    "gzip.gz": TestParams(t_constants.BACKEND_GZIP, GZIP, "test_gzip.gz"),
+    "gtar.tar": TestParams(t_constants.BACKEND_TAR, GTAR, "test_gtar.tar"),
+    "gtar.tar.bz2": TestParams(t_constants.BACKEND_TAR, GTAR, "test_gtar.tar.bz2"),
+    "gtar.tbz2": TestParams(t_constants.BACKEND_TAR, GTAR, "test_gtar.tbz2"),
+    "gtar.tar.gz": TestParams(t_constants.BACKEND_TAR, GTAR, "test_gtar.tar.gz"),
+    "gtar.tgz": TestParams(t_constants.BACKEND_TAR, GTAR, "test_gtar.tgz"),
+    "gtar.tar.lzma": TestParams(t_constants.BACKEND_TAR, GTAR, "test_gtar.tar.lzma"),
+    "gtar.tlz": TestParams(t_constants.BACKEND_TAR, GTAR, "test_gtar.tlz"),
+    "gtar.tar.xz": TestParams(t_constants.BACKEND_TAR, GTAR, "test_gtar.tar.xz"),
+    "gtar.txz": TestParams(t_constants.BACKEND_TAR, GTAR, "test_gtar.txz"),
+    "rar.rar": TestParams(t_constants.BACKEND_RAR, RAR, "test_rar.rar"),
+    "xz.lzma": TestParams(t_constants.BACKEND_XZ, XZ, "test_xz.lzma"),
+    "xz.xz": TestParams(t_constants.BACKEND_XZ, XZ, "test_xz.xz"),
+    "zip.zip": TestParams(t_constants.BACKEND_ZIP, ZIP, "test_zip.zip"),
+}
+
+
+def test_configure(test_params):
+    "Not a real test, just configuration"
+
+    config.put("backends_l_7zip_bin", [test_params.binary])
+    config.put("backends_l_tar_bin", [test_params.binary])
+    config.put("backends_l_bzip2_bin", [BZIP2])
+    config.put("backends_l_gzip_bin", [GZIP])
+    config.put("backends_l_rar_bin", [RAR])
+    config.put("backends_l_xz_bin", [XZ])
+    config.put("backends_l_zip_bin", [ZIP])
+    config.put("backends_l_unzip_bin", [UNZIP])
+
+    test_cleanup(test_params)
+    copy(DIR)
+    copy(FILE1)
+    copy(FILE2)
+    link(FILE1, LINK1)
+    link(FILE2, LINK2)
+
+
+def test_cleanup(test_params):
+    "Not a real test, just the cleanup"
+
+    base_name = Path(test_params.archive).stem
+    cleanup(base_name)
+    cleanup(ENC_PRE + base_name)
+    cleanup(test_params.archive)
+    cleanup(ENC_PRE + test_params.archive)
+    cleanup(DIR)
+    cleanup(FILE1)
+    cleanup(FILE2)
+    cleanup(LINK1)
+    cleanup(LINK2)
+    cleanup(PATH1, use_preffix=False)
+    cleanup(PATH2, use_preffix=False)
+    cleanup(os.path.dirname(FILE_ABS.lstrip("/")), use_preffix=False)
 
 
 def _add_preffix_to_files(files):
@@ -151,7 +259,7 @@ def _get_test_path(path, dest=None, *, archive_folder=None, use_preffix=True):
     """
 
     if archive_folder is not None:
-        archive_base = pathlib.Path(archive_folder).stem
+        archive_base = Path(archive_folder).stem
         test_dir = os.path.join(TEST_PATH, PREFFIX + archive_base)
     else:
         test_dir = TEST_PATH
