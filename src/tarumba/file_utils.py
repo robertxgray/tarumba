@@ -9,6 +9,7 @@ import shutil
 import tempfile
 from gettext import gettext as _
 
+import tarumba.constants as t_constants
 from tarumba.config import current as config
 from tarumba.gui import current as t_gui
 
@@ -314,6 +315,8 @@ def check_extract_create_folder(extract_args):
 
     if create_flag:
         base_name = basename_noext(extract_args.get("archive"))
+        if extract_args.get("backend").mime[0] == t_constants.MIME_TAR and base_name.lower().endswith(".tar"):
+            base_name = base_name[:-4]
         ext_path = os.path.join(extract_args.get("destination"), base_name)
         makedirs(ext_path)
         extract_args.put("destination", ext_path)
