@@ -49,6 +49,10 @@ def _sanitize_mime(mime):
         return mime
     if _encoding is not None:
         return (_encoding, None)
+    # Magic cannot differentiate between jar and zip
+    # Jar can be java-archive or x-java-archive
+    if _type is not None and _type.endswith("java-archive"):
+        _type = t_constants.MIME_ZIP
     return (_type, None)
 
 
