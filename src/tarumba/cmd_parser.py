@@ -7,6 +7,7 @@ import argparse
 import os
 import sys
 from gettext import gettext as _
+from importlib.metadata import version
 
 import tarumba.constants as t_constants
 from tarumba.gui import current as t_gui
@@ -81,6 +82,13 @@ def get_arguments():
     parser.add_argument("-o", "--occurrence", help=_("process only the Nth occurrence of each file in the archive"))
     parser.add_argument("-p", "--path", help=_("modify the file paths in the archive using this reference"))
     parser.add_argument("-v", "--verbose", action="store_true", help=_("verbosely list processed files"))
+    parser.add_argument(
+        "-V",
+        "--version",
+        action="version",
+        help=_("show Tarumba's installed version and exit"),
+        version=version("tarumba"),
+    )
     parser.add_argument("-w", "--owner", action="store_true", help=_("preserve the owner user and group when possible"))
     args = parser.parse_args()
 

@@ -65,6 +65,9 @@ msgstr "modifica las rutas de ficheros en el archivo utilizando esta referencia"
 msgid "verbosely list processed files"
 msgstr "lista el detalle de ficheros procesados"
 
+msgid "show Tarumba's installed version and exit"
+msgstr "muestra la versión instalada de Tarumba y termina"
+
 msgid "preserve the owner user and group when possible"
 msgstr "conserva el usuario y grupo propietario cuando sea posible"
 
