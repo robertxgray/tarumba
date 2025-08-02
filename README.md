@@ -46,8 +46,6 @@ There are 6 available actions, you can enter the word or only the first letter.
 
 ### Options
 
-- -h, --help  
-  Show the help message and exit.
 - -a, --always-overwrite  
   Always overwrite existing files.
 - -b  
@@ -60,6 +58,8 @@ There are 6 available actions, you can enter the word or only the first letter.
   Encrypt the archive contents using a password.
 - -f {auto,yes,no}, --create-folder {auto,yes,no}  
   Creates a root folder with the archive name when extracting files.
+- -h, --help  
+  Show the help message and exit.
 - -k, --follow-links  
   Follow symbolic links. **WARNING: MAY CREATE INIFINITE PATHS.**
 - -l LEVEL, --level LEVEL  
@@ -74,6 +74,8 @@ There are 6 available actions, you can enter the word or only the first letter.
   Modify the file paths in the archive using this reference.
 - -v, --verbose  
   Verbosely list processed files.
+- -V --version  
+  Show Tarumba's installed version and exit.
 - -w, --owner  
   Preserve the owner user and group when possible.
 
