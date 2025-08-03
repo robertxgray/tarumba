@@ -73,7 +73,7 @@ class X7z(t_backend.Backend):
         """
         Returns true if the archive can store duplicates.
 
-        :return: True of False
+        :return: True or False
         """
 
         return False  # 7z can't manage duplicates, even in tarfiles
@@ -83,7 +83,7 @@ class X7z(t_backend.Backend):
         """
         Returns true if the archive contents can be encrypted.
 
-        :return: True of False
+        :return: True or False
         """
 
         if self._7za:

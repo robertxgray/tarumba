@@ -10,6 +10,7 @@ from typing_extensions import override
 import tarumba.constants as t_constants
 import tarumba.file_utils as t_file_utils
 import tarumba.utils as t_utils
+from tarumba import executor as t_executor
 from tarumba.backend import backend as t_backend
 from tarumba.config import current as config
 from tarumba.gui import current as t_gui
@@ -42,6 +43,17 @@ class Zip(t_backend.Backend):
         super().__init__(mime, operation)
         self._zip_bin = t_utils.check_installed(config.get("backends_l_zip_bin"))
         self._unzip_bin = t_utils.check_installed(config.get("backends_l_unzip_bin"))
+        self._mbcs = self._detect_mbcs_support()
+
+    def _detect_mbcs_support(self):
+        """
+        This function is used to identify if unzip has been compiled with multibyte character support.
+
+        :return: True or False
+        """
+
+        _unzip_info = t_executor.Executor().execute_simple(f"'{self._unzip_bin}' -v")
+        return any("MBCS-support" in line for line in _unzip_info)
 
     @override
     def list_commands(self, list_args):
@@ -52,21 +64,11 @@ class Zip(t_backend.Backend):
         :return: List of commands
         """
 
-        return [
-            (
-                self._unzip_bin,
-                [
-                    "-Z",
-                    "-lT",
-                    "--h-t",
-                    "-O",
-                    "OEM-US",
-                    "--",
-                    list_args.get("archive"),
-                    *self._escape(list_args.get("files")),
-                ],
-            )
-        ]
+        params = ["-Z", "-lT", "--h-t"]
+        if self._mbcs:
+            params.append("-O")
+            params.append("OEM-US")
+        return [(self._unzip_bin, [*params, "--", list_args.get("archive"), *self._escape(list_args.get("files"))])]
 
     @override
     def add_commands(self, add_args, files):
@@ -96,11 +98,12 @@ class Zip(t_backend.Backend):
         :return: List of commands
         """
 
+        params = ["-o"]
+        if self._mbcs:
+            params.append("-O")
+            params.append("OEM-US")
         return [
-            (
-                self._unzip_bin,
-                ["-o", "-O", "OEM-US", "--", extract_args.get("archive"), *self._escape(extract_args.get("files"))],
-            )
+            (self._unzip_bin, [*params, "--", extract_args.get("archive"), *self._escape(extract_args.get("files"))])
         ]
 
     @override
@@ -137,12 +140,11 @@ class Zip(t_backend.Backend):
         :return: List of commands
         """
 
-        return [
-            (
-                self._unzip_bin,
-                ["-t", "-O", "OEM-US", "--", test_args.get("archive"), *self._escape(test_args.get("files"))],
-            )
-        ]
+        params = ["-t"]
+        if self._mbcs:
+            params.append("-O")
+            params.append("OEM-US")
+        return [(self._unzip_bin, [*params, "--", test_args.get("archive"), *self._escape(test_args.get("files"))])]
 
     def _parse_list_row(self, elements, extra):
         """
