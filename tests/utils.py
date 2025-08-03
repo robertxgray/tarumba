@@ -257,6 +257,8 @@ def _get_test_path(test, path, dest=None, *, archive_folder=None, use_preffix=Tr
 
     if archive_folder is not None:
         archive_base = Path(archive_folder).stem
+        if archive_base.endswith(".tar"):
+            archive_base = Path(archive_base).stem
         test_dir = os.path.join(TEST_PATH, test + PREFFIX + archive_base)
     else:
         test_dir = TEST_PATH
