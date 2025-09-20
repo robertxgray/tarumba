@@ -322,7 +322,7 @@ def check_extract_create_folder(extract_args):
         extract_args.put("destination", ext_path)
 
 
-def _move_extracted_link(file, dest_path):
+def _move_extracted_file(file, dest_path):
     """
     Links extracted files to the destination path.
 
@@ -334,10 +334,7 @@ def _move_extracted_link(file, dest_path):
         makedirs(dest_path)
         shutil.copystat(file, dest_path)
     else:
-        try:
-            os.link(file, dest_path, follow_symlinks=False)
-        except PermissionError:
-            shutil.copy2(file, dest_path, follow_symlinks=False)
+        shutil.move(file, dest_path)
 
 
 def _move_extracted(file, extract_args):
@@ -368,7 +365,7 @@ def _move_extracted(file, extract_args):
     makedirs(os.path.dirname(dest_path))
     # Destination doesn't exist
     if not os.path.lexists(dest_path):
-        _move_extracted_link(file, dest_path)
+        _move_extracted_file(file, dest_path)
         return True
     # Destination is an existing folder
     if os.path.isdir(file) and os.path.isdir(dest_path):
@@ -384,7 +381,7 @@ def _move_extracted(file, extract_args):
             delete_folder(dest_path)
         else:
             os.remove(dest_path)
-        _move_extracted_link(file, dest_path)
+        _move_extracted_file(file, dest_path)
         return True
     return False
 

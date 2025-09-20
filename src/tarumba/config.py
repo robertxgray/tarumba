@@ -51,7 +51,6 @@ class Config(t_data_classes.Base):
             "backends_l_xz_bin": ["xz"],
             "backends_l_zip_bin": ["zip"],
             "backends_l_unzip_bin": ["unzip"],
-            # Encoding
             "backends_s_unzip_encoding": "default",
             # Colors
             "colors_s_system": "auto",

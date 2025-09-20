@@ -51,6 +51,7 @@ class X7z(t_backend.Backend):
         self._7zip_bin = t_utils.check_installed(config.get("backends_l_7zip_bin"))
         self._detect_p7zip_variants()
         self._list_started = False
+        self._extract_started = False
         self._current_file = {}
 
     def _detect_p7zip_variants(self):
@@ -316,7 +317,11 @@ class X7z(t_backend.Backend):
                 return
 
         if line.startswith("- "):
-            t_file_utils.pop_and_move_extracted(extra)
+            # Filenames are shown before being available
+            if not self._extract_started:
+                self._extract_started = True
+            else:
+                t_file_utils.pop_and_move_extracted(extra)
         # There can be remaining files, e.g. 7zz skips broken links
         elif line == "Everything is Ok":
             while extra.get("contents"):
