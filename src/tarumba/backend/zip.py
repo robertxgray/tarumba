@@ -43,17 +43,18 @@ class Zip(t_backend.Backend):
         super().__init__(mime, operation)
         self._zip_bin = t_utils.check_installed(config.get("backends_l_zip_bin"))
         self._unzip_bin = t_utils.check_installed(config.get("backends_l_unzip_bin"))
-        self._mbcs = self._detect_mbcs_support()
+        self._iconv = self._detect_iconv_patch()
 
-    def _detect_mbcs_support(self):
+    def _detect_iconv_patch(self):
         """
-        This function is used to identify if unzip has been compiled with multibyte character support.
+        This function is used to identify if unzip includes the iconv patch that allows setting
+        the filename encoding.
 
         :return: True or False
         """
 
-        _unzip_info = t_executor.Executor().execute_simple(f"'{self._unzip_bin}' -v")
-        return any("MBCS-support" in line for line in _unzip_info)
+        _unzip_info = t_executor.Executor().execute_simple(f"'{self._unzip_bin}' -h")
+        return any("-O CHARSET" in line for line in _unzip_info)
 
     @override
     def list_commands(self, list_args):
@@ -65,7 +66,7 @@ class Zip(t_backend.Backend):
         """
 
         params = ["-Z", "-lT", "--h-t"]
-        if self._mbcs:
+        if self._iconv:
             params.append("-O")
             params.append(config.get("backends_s_unzip_encoding"))
         return [(self._unzip_bin, [*params, "--", list_args.get("archive"), *self._escape(list_args.get("files"))])]
@@ -99,7 +100,7 @@ class Zip(t_backend.Backend):
         """
 
         params = ["-o"]
-        if self._mbcs:
+        if self._iconv:
             params.append("-O")
             params.append(config.get("backends_s_unzip_encoding"))
         return [
@@ -141,7 +142,7 @@ class Zip(t_backend.Backend):
         """
 
         params = ["-t"]
-        if self._mbcs:
+        if self._iconv:
             params.append("-O")
             params.append(config.get("backends_s_unzip_encoding"))
         return [(self._unzip_bin, [*params, "--", test_args.get("archive"), *self._escape(test_args.get("files"))])]
