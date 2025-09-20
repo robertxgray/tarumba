@@ -334,7 +334,10 @@ def _move_extracted_link(file, dest_path):
         makedirs(dest_path)
         shutil.copystat(file, dest_path)
     else:
-        os.link(file, dest_path, follow_symlinks=False)
+        try:
+            os.link(file, dest_path, follow_symlinks=False)
+        except PermissionError:
+            shutil.copy2(file, dest_path, follow_symlinks=False)
 
 
 def _move_extracted(file, extract_args):
