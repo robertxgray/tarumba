@@ -67,7 +67,7 @@ class Zip(t_backend.Backend):
         params = ["-Z", "-lT", "--h-t"]
         if self._mbcs:
             params.append("-O")
-            params.append("OEM-US")
+            params.append(config.get("backends_s_unzip_encoding"))
         return [(self._unzip_bin, [*params, "--", list_args.get("archive"), *self._escape(list_args.get("files"))])]
 
     @override
@@ -101,7 +101,7 @@ class Zip(t_backend.Backend):
         params = ["-o"]
         if self._mbcs:
             params.append("-O")
-            params.append("OEM-US")
+            params.append(config.get("backends_s_unzip_encoding"))
         return [
             (self._unzip_bin, [*params, "--", extract_args.get("archive"), *self._escape(extract_args.get("files"))])
         ]
@@ -143,7 +143,7 @@ class Zip(t_backend.Backend):
         params = ["-t"]
         if self._mbcs:
             params.append("-O")
-            params.append("OEM-US")
+            params.append(config.get("backends_s_unzip_encoding"))
         return [(self._unzip_bin, [*params, "--", test_args.get("archive"), *self._escape(test_args.get("files"))])]
 
     def _parse_list_row(self, elements, extra):

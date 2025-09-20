@@ -63,7 +63,7 @@ def get_arguments():
     )
     parser.add_argument("-c", "--columns", help=_("comma separated columns to include in the listing"))
     parser.add_argument("-d", "--debug", action="store_true", help=_("show debugging information"))
-    parser.add_argument("-e", "--encrypt", action="store_true", help=_("encrypt the archive contents using a password"))
+    parser.add_argument("-e", "--encoding", help=_("specify a character encoding for non-standard archives"))
     parser.add_argument(
         "-f",
         "--create-folder",
@@ -90,6 +90,7 @@ def get_arguments():
         version=version("tarumba"),
     )
     parser.add_argument("-w", "--owner", action="store_true", help=_("preserve the owner user and group when possible"))
+    parser.add_argument("-y", "--encrypt", action="store_true", help=_("encrypt the archive contents using a password"))
     args = parser.parse_args()
 
     # Get the absolute archive path

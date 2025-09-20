@@ -20,6 +20,12 @@ def _main_options(args):
     :param args: Arguments
     """
 
+    # Create folder option
+    if args.create_folder:
+        config.put("main_s_create_folder", args.create_folder)
+    else:
+        config.put("main_s_create_folder", "auto")
+
     # Debug option
     if args.debug:
         config.put("main_b_debug", args.debug)
@@ -27,17 +33,11 @@ def _main_options(args):
     else:
         config.put("main_b_debug", False)
 
-    # Verbose option
-    if args.verbose:
-        config.put("main_b_verbose", args.verbose)
+    # Encoding
+    if args.encoding:
+        config.put("backends_s_unzip_encoding", args.encoding)
     else:
-        config.put("main_b_verbose", False)
-
-    # Create folder option
-    if args.create_folder:
-        config.put("main_s_create_folder", args.create_folder)
-    else:
-        config.put("main_s_create_folder", "auto")
+        config.put("backends_s_unzip_encoding", "default")
 
     # Follow links option
     if args.follow_links:
@@ -50,6 +50,12 @@ def _main_options(args):
         t_gui.disable_color()
     else:
         t_gui.enable_color()
+
+    # Verbose option
+    if args.verbose:
+        config.put("main_b_verbose", args.verbose)
+    else:
+        config.put("main_b_verbose", False)
 
 
 def main():

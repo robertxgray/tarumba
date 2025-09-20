@@ -38,8 +38,8 @@ msgstr "columnas separadas por comas a incluir en el listado"
 msgid "show debugging information"
 msgstr "muestra la información de depuración"
 
-msgid "encrypt the archive contents using a password"
-msgstr "encripta los contendos del archivo bajo una contraseña"
+msgid "specify a character encoding for non-standard archives"
+msgstr "especifica la codificación de caracteres en archivos no estándar"
 
 msgid "follow symbolic links. WARNING: MAY CREATE INIFINITE PATHS"
 msgstr "sigue los enlaces simbólicos. AVISO: PUEDE CREAR RUTAS INFINITAS"
@@ -70,6 +70,9 @@ msgstr "muestra la versión instalada de Tarumba y termina"
 
 msgid "preserve the owner user and group when possible"
 msgstr "conserva el usuario y grupo propietario cuando sea posible"
+
+msgid "encrypt the archive contents using a password"
+msgstr "encripta los contendos del archivo bajo una contraseña"
 
 msgid "%(prog)s: warning: %(message)s\n"
 msgstr "%(prog)s: aviso: %(message)s\n"
