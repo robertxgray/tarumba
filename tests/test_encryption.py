@@ -41,11 +41,11 @@ class TestEncryption:
         backend = t_classifier.detect_format(test_params.backend, test_params.archive, t_constants.OPERATION_ADD)
         if backend.can_encrypt():
             mocker.patch("rich.prompt.Prompt.ask", return_value=test_utils.PASSWORD)
-            test_utils.test_add(TEST, test_params.archive, [test_utils.DIR], ["-b", test_params.backend, "-y"])
+            test_utils.test_add(TEST, test_params.archive, [test_utils.DIR], ["-b", test_params.backend, "-e"])
             test_utils.assert_file_exists(TEST, test_params.archive)
         else:
             with pytest.raises(SystemExit):
-                test_utils.test_add(TEST, test_params.archive, [test_utils.DIR], ["-b", test_params.backend, "-y"])
+                test_utils.test_add(TEST, test_params.archive, [test_utils.DIR], ["-b", test_params.backend, "-e"])
 
     def test_add_new_existing_encrypted(self, test_params, mocker):
         "Add files to the encrypted archive"
@@ -53,11 +53,11 @@ class TestEncryption:
         backend = t_classifier.detect_format(test_params.backend, test_params.archive, t_constants.OPERATION_ADD)
         if backend.can_encrypt():
             mocker.patch("rich.prompt.Prompt.ask", return_value=test_utils.PASSWORD)
-            test_utils.test_add(TEST, test_params.archive, [test_utils.FILE1], ["-b", test_params.backend, "-y"])
+            test_utils.test_add(TEST, test_params.archive, [test_utils.FILE1], ["-b", test_params.backend, "-e"])
             test_utils.assert_file_exists(TEST, test_params.archive)
         else:
             with pytest.raises(SystemExit):
-                test_utils.test_add(TEST, test_params.archive, [test_utils.DIR], ["-b", test_params.backend, "-y"])
+                test_utils.test_add(TEST, test_params.archive, [test_utils.DIR], ["-b", test_params.backend, "-e"])
 
     def test_add_level_encrypted(self, test_params, mocker):
         "Add files to the encrypted archive with level"
@@ -69,7 +69,7 @@ class TestEncryption:
                 TEST,
                 test_params.archive,
                 [test_utils.FILE2],
-                ["-b", test_params.backend, "-y", "-l", "3"],
+                ["-b", test_params.backend, "-e", "-l", "3"],
             )
             test_utils.assert_file_exists(TEST, test_params.archive)
         else:
@@ -78,7 +78,7 @@ class TestEncryption:
                     TEST,
                     test_params.archive,
                     [test_utils.FILE2],
-                    ["-b", test_params.backend, "-y", "-l", "3"],
+                    ["-b", test_params.backend, "-e", "-l", "3"],
                 )
 
     def test_list_encrypted(self, test_params, mocker):

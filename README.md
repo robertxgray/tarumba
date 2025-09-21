@@ -56,6 +56,8 @@ There are 6 available actions, you can enter the word or only the first letter.
   Show debugging information.
 - -e, --encrypt  
   Encrypt the archive contents using a password.
+- -E, --encode  
+  Specify a character encoding for non-standard archives.
 - -f {auto,yes,no}, --create-folder {auto,yes,no}  
   Creates a root folder with the archive name when extracting files.
 - -h, --help  
