@@ -265,8 +265,8 @@ def _check_add_folder_copy(add_args, path):
         if add_args.get("path"):
             dir_path = os.path.join(add_args.get("path"), dir_path)
         dest_path = os.path.join(add_args.get("tmp_dir")[0], dir_path)
+        # Don't copy folder permissions to avoid read-only
         makedirs(dest_path)
-        shutil.copystat(path, dest_path)
     return 1
 
 
@@ -331,8 +331,8 @@ def _move_extracted_file(file, dest_path):
     """
 
     if os.path.isdir(file):
+        # Don't copy folder permissions to avoid read-only
         makedirs(dest_path)
-        shutil.copystat(file, dest_path)
     else:
         shutil.move(file, dest_path)
 
