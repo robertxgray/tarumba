@@ -56,6 +56,7 @@ MIME_RAR = "application/x-rar"
 MIME_RAR_OLD = "application/vnd.rar"
 MIME_TAR = "application/x-tar"
 MIME_TEXT = "text/plain"
+MIME_UNKNOWN = "application/octet-stream"
 MIME_ZIP = "application/zip"
 MIME_XZ = "application/x-xz"
 

@@ -153,12 +153,13 @@ def detect_format(backend, archive, operation, *, decompress=True):
         magic_mime_unc = magic.Magic(mime=True, uncompress=True)
         file_mime = _sanitize_mime((magic_mime_unc.from_file(archive), magic_mime.from_file(archive)))
         t_gui.debug("file_mime", file_mime)
-        if name_mime[0] == t_constants.MIME_ARCHIVE and file_mime[0] == t_constants.MIME_TEXT:
-            raise t_errors.InvalidOperationError(_("thin archives are not supported"))
-        if name_mime[0] != file_mime[0]:
-            message = _("detected archive type and extension don't match")
-            t_gui.warn(_("%(prog)s: warning: %(message)s\n") % {"prog": "tarumba", "message": message})
-        mime = file_mime
+        if file_mime[0] != t_constants.MIME_UNKNOWN:
+            if name_mime[0] == t_constants.MIME_ARCHIVE and file_mime[0] == t_constants.MIME_TEXT:
+                raise t_errors.InvalidOperationError(_("thin archives are not supported"))
+            if name_mime[0] != file_mime[0]:
+                message = _("detected archive type and extension don't match")
+                t_gui.warn(_("%(prog)s: warning: %(message)s\n") % {"prog": "tarumba", "message": message})
+            mime = file_mime
 
     # Ignore decompressed mime
     if not decompress and mime[1]:
