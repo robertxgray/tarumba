@@ -45,6 +45,11 @@ def _sanitize_mime(mime):
     """
 
     _type, _encoding = mime
+    # Deprecated rar mime
+    if _type == t_constants.MIME_RAR_OLD:
+        _type = t_constants.MIME_RAR
+    if _encoding == t_constants.MIME_RAR_OLD:
+        _encoding = t_constants.MIME_RAR
     if _type == t_constants.MIME_TAR and _encoding != t_constants.MIME_TAR:
         return mime
     if _encoding is not None:
