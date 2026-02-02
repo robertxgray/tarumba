@@ -44,14 +44,12 @@ class Backend(ABC):
         :return: True of False
         """
 
-        if self.mime[0] in (
+        return self.mime[0] in (
             t_constants.MIME_ARCHIVE,
             t_constants.MIME_CPIO,
             t_constants.MIME_DEBIAN,
             t_constants.MIME_TAR,
-        ):
-            return True
-        return False
+        )
 
     def can_encrypt(self):
         """
@@ -60,9 +58,7 @@ class Backend(ABC):
         :return: True of False
         """
 
-        if self.mime[0] in (t_constants.MIME_7Z, t_constants.MIME_RAR, t_constants.MIME_ZIP):
-            return True
-        return False
+        return self.mime[0] in (t_constants.MIME_7Z, t_constants.MIME_RAR, t_constants.MIME_ZIP)
 
     def can_name(self):
         """
@@ -71,15 +67,13 @@ class Backend(ABC):
         :return: True of False
         """
 
-        if self.mime[0] in (
+        return self.mime[0] not in (
             t_constants.MIME_BROTLI,
             t_constants.MIME_BZIP2,
             t_constants.MIME_COMPRESS,
             t_constants.MIME_LZMA,
             t_constants.MIME_XZ,
-        ):
-            return False
-        return True
+        )
 
     def can_multiple(self):
         """
@@ -88,16 +82,14 @@ class Backend(ABC):
         :return: True of False
         """
 
-        if self.mime[0] in (
+        return self.mime[0] not in (
             t_constants.MIME_BROTLI,
             t_constants.MIME_BZIP2,
             t_constants.MIME_COMPRESS,
             t_constants.MIME_GZIP,
             t_constants.MIME_LZMA,
             t_constants.MIME_XZ,
-        ):
-            return False
-        return True
+        )
 
     def can_pack(self):
         """
@@ -106,7 +98,7 @@ class Backend(ABC):
         :return: True of False
         """
 
-        if self.mime[0] in (
+        return self.mime[0] not in (
             t_constants.MIME_ARCHIVE,
             t_constants.MIME_BROTLI,
             t_constants.MIME_BZIP2,
@@ -115,9 +107,7 @@ class Backend(ABC):
             t_constants.MIME_GZIP,
             t_constants.MIME_LZMA,
             t_constants.MIME_XZ,
-        ):
-            return False
-        return True
+        )
 
     def can_special(self):
         """
@@ -126,9 +116,7 @@ class Backend(ABC):
         :return: True of False
         """
 
-        if self.mime[0] in (t_constants.MIME_CPIO, t_constants.MIME_TAR):
-            return True
-        return False
+        return self.mime[0] in (t_constants.MIME_CPIO, t_constants.MIME_TAR)
 
     def listing_from_archive_stat(self, archive_stat, column):
         """

@@ -46,9 +46,7 @@ def is_multivolume(archive):
     :return: True if it's a multivolume
     """
 
-    if re.match(r".*\.[0-9]+$", archive):
-        return True
-    return False
+    return re.match(r".*\.[0-9]+$", archive)
 
 
 def get_volumes(archive):
