@@ -6,6 +6,7 @@
 import os
 import pathlib
 import shutil
+import stat
 import tempfile
 from gettext import gettext as _
 
@@ -113,8 +114,15 @@ def delete_folder(path):
     :param path: Folder path
     """
 
-    if os.path.isdir(path):
-        shutil.rmtree(path, ignore_errors=True)
+    # Update permissions first
+    for root, dirs, files in os.walk(path, topdown=True):
+        for name in dirs:
+            dirpath = os.path.join(root, name)
+            os.chmod(dirpath, stat.S_IRWXU)
+        for name in files:
+            filepath = os.path.join(root, name)
+            os.chmod(filepath, stat.S_IRWXU)
+    shutil.rmtree(path)
 
 
 def tmp_file(path, suffix=None):
@@ -250,12 +258,14 @@ def _check_add_file_copy(add_args, path, copy):
     return 1 if copy else 0
 
 
-def _check_add_folder_copy(add_args, path):
+def _check_add_folder_copy(add_args, path, create=False, perms=False):
     """
     Copies a folder if a temporary path is given.
 
     :param add_args: AddArgs object
     :param path: Folder path
+    :param create: Create the folder if it doesn't exist
+    :param perms: Copy folder permissions
     :return: Number of folders, always 1
     """
 
@@ -265,8 +275,10 @@ def _check_add_folder_copy(add_args, path):
         if add_args.get("path"):
             dir_path = os.path.join(add_args.get("path"), dir_path)
         dest_path = os.path.join(add_args.get("tmp_dir")[0], dir_path)
-        # Don't copy folder permissions to avoid read-only
-        makedirs(dest_path)
+        if create:
+            makedirs(dest_path)
+        if perms:
+            shutil.copystat(path, dest_path)
     return 1
 
 
@@ -280,15 +292,21 @@ def check_add_filesystem_tree(add_args, path):
     """
 
     if os.path.isdir(path) and (add_args.get("follow_links") or not os.path.islink(path)):
-        total = _check_add_folder_copy(add_args, path)
+        total = _check_add_folder_copy(add_args, path, create=True)
         for root, dirs, files in os.walk(path, topdown=True, followlinks=add_args.get("follow_links")):
             for name in dirs:
                 dirpath = os.path.join(root, name)
-                total += _check_add_folder_copy(add_args, dirpath)
+                total += _check_add_folder_copy(add_args, dirpath, create=True)
             for name in files:
                 filepath = os.path.join(root, name)
                 copy = _check_add_file(add_args, filepath)
                 total += _check_add_file_copy(add_args, filepath, copy)
+        # Folder permissions are updated at the end to avoid errors when copying the files
+        for root, dirs, files in os.walk(path, topdown=False, followlinks=add_args.get("follow_links")):
+            for name in dirs:
+                dirpath = os.path.join(root, name)
+                _check_add_folder_copy(add_args, dirpath, perms=True)
+        _check_add_folder_copy(add_args, path, perms=True)
     else:
         copy = _check_add_file(add_args, path)
         total = _check_add_file_copy(add_args, path, copy)
@@ -331,8 +349,8 @@ def _move_extracted_file(file, dest_path):
     """
 
     if os.path.isdir(file):
-        # Don't copy folder permissions to avoid read-only
         makedirs(dest_path)
+        shutil.copystat(file, dest_path)
     else:
         shutil.move(file, dest_path)
 
