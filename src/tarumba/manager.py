@@ -299,6 +299,7 @@ def extract_archive(args):
     extract_args.put("occurrence", args.occurrence)
     extract_args.put("overwrite", _get_overwrite(args))
     extract_args.put("path", args.path.strip("/") if args.path else None)
+    extract_args.put("stat_folders", [])
     t_gui.debug("extract_args", extract_args)
 
     try:
@@ -325,6 +326,8 @@ def extract_archive(args):
                 extract_args.get("backend").parse_extract,
                 extract_args,
             )
+            # Update folder permissions
+            t_file_utils.update_extracted_stat_folders(extract_args)
 
     # Temporary folders must be deleted
     finally:

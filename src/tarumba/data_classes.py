@@ -116,6 +116,7 @@ class ExtractArgs(Base):
             "overwrite": None,
             "password": None,
             "path": None,
+            "stat_folders": None,
             "tmp_dir": None,
         }
 

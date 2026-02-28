@@ -120,8 +120,9 @@ def delete_folder(path):
             dirpath = os.path.join(root, name)
             os.chmod(dirpath, stat.S_IRWXU)
         for name in files:
-            filepath = os.path.join(root, name)
-            os.chmod(filepath, stat.S_IRWXU)
+            if not os.path.islink(name):
+                filepath = os.path.join(root, name)
+                os.chmod(filepath, stat.S_IRWXU)
     shutil.rmtree(path)
 
 
@@ -258,7 +259,7 @@ def _check_add_file_copy(add_args, path, copy):
     return 1 if copy else 0
 
 
-def _check_add_folder_copy(add_args, path, create=False, perms=False):
+def _check_add_folder_copy(add_args, path, *, create=False, perms=False):
     """
     Copies a folder if a temporary path is given.
 
@@ -302,7 +303,7 @@ def check_add_filesystem_tree(add_args, path):
                 copy = _check_add_file(add_args, filepath)
                 total += _check_add_file_copy(add_args, filepath, copy)
         # Folder permissions are updated at the end to avoid errors when copying the files
-        for root, dirs, files in os.walk(path, topdown=False, followlinks=add_args.get("follow_links")):
+        for root, dirs, _files in os.walk(path, topdown=False, followlinks=add_args.get("follow_links")):
             for name in dirs:
                 dirpath = os.path.join(root, name)
                 _check_add_folder_copy(add_args, dirpath, perms=True)
@@ -352,7 +353,35 @@ def _move_extracted_file(file, dest_path):
         makedirs(dest_path)
         shutil.copystat(file, dest_path)
     else:
+        dirname = os.path.dirname(file)
+        # Can't move from read-only folder
+        if dirname:
+            mode = os.stat(dirname).st_mode
+            os.chmod(dirname, stat.S_IRWXU)
         shutil.move(file, dest_path)
+        # Restore folder permissions
+        if dirname:
+            os.chmod(dirname, mode)
+
+
+def _get_extracted_path(file, extra_path):
+    """
+    Calculate path for extracted files after modification.
+
+    :param file: Extracted file
+    :param extra_path: Path modification
+    """
+
+    if extra_path:
+        extra_path += "/"
+        if file.startswith(extra_path):
+            return file[len(extra_path) :]
+        message = _("path modification %(path)s can't be applied to %(filename)s") % {
+            "path": extra_path,
+            "filename": file,
+        }
+        t_gui.warn(_("%(prog)s: warning: %(message)s\n") % {"prog": "tarumba", "message": message})
+    return file
 
 
 def _move_extracted(file, extract_args):
@@ -364,20 +393,10 @@ def _move_extracted(file, extract_args):
     :return: True if the file has been moved
     """
 
-    # Calculate the destination path
-    mod_file = file
-    extra_path = extract_args.get("path")
-    if extra_path:
-        extra_path += "/"
-        if file.startswith(extra_path):
-            mod_file = mod_file[len(extra_path) :]
-        else:
-            message = _("path modification %(path)s can't be applied to %(filename)s") % {
-                "path": extra_path,
-                "filename": file,
-            }
-            t_gui.warn(_("%(prog)s: warning: %(message)s\n") % {"prog": "tarumba", "message": message})
-
+    # Calculate paths
+    mod_file = _get_extracted_path(file, extract_args.get("path"))
+    if not mod_file:  # Nothing to do
+        return True
     dest_path = os.path.join(extract_args.get("destination"), mod_file)
 
     makedirs(os.path.dirname(dest_path))
@@ -385,9 +404,12 @@ def _move_extracted(file, extract_args):
     if not os.path.lexists(dest_path):
         _move_extracted_file(file, dest_path)
         return True
-    # Destination is an existing folder
-    if os.path.isdir(file) and os.path.isdir(dest_path):
-        return True
+    if os.path.isdir(file):
+        # Save forlder path to restore permissions later
+        extract_args.get("stat_folders").append(file)
+        # Destination is an existing folder
+        if os.path.isdir(dest_path):
+            return True
 
     if extract_args.get("overwrite") not in (t_gui.ALL, t_gui.NONE):
         extract_args.put(
@@ -404,18 +426,35 @@ def _move_extracted(file, extract_args):
     return False
 
 
-def pop_and_move_extracted(extra):
+def pop_and_move_extracted(extract_args):
     """
     When extracting files, pops and moves the next content.
 
-    :param extra: Extra data
+    :param extract_args: ExtractArgs object
     """
 
-    if len(extra.get("contents")) > 0:
-        file = extra.get("contents")[0]
+    if len(extract_args.get("contents")) > 0:
+        file = extract_args.get("contents")[0]
         if os.path.lexists(file):
-            moved = _move_extracted(file, extra)
+            moved = _move_extracted(file, extract_args)
             if moved:
                 t_gui.extracting_msg(file)
             t_gui.advance_progress()
-            extra.get("contents").pop(0)
+            extract_args.get("contents").pop(0)
+
+
+def update_extracted_stat_folders(extract_args):
+    """
+    After an archive has been extracted, this function updates the folder permissions.
+
+    :param extract_args: ExtractArgs object
+    """
+
+    tmp_dir = extract_args.get("tmp_dir")
+    for folder in reversed(extract_args.get("stat_folders")):
+        mod_folder = _get_extracted_path(folder, extract_args.get("path"))
+        if mod_folder:
+            dest_path = os.path.join(extract_args.get("destination"), mod_folder)
+            tmp_folder = os.path.join(tmp_dir, folder)
+            mode = os.stat(tmp_folder).st_mode
+            os.chmod(dest_path, mode)
