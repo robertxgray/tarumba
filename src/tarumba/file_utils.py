@@ -434,13 +434,12 @@ def pop_and_move_extracted(extract_args):
     """
 
     if len(extract_args.get("contents")) > 0:
-        file = extract_args.get("contents")[0]
+        file = extract_args.get("contents").pop()
         if os.path.lexists(file):
             moved = _move_extracted(file, extract_args)
             if moved:
                 t_gui.extracting_msg(file)
             t_gui.advance_progress()
-            extract_args.get("contents").pop(0)
 
 
 def update_extracted_stat_folders(extract_args):

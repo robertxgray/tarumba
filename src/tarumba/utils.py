@@ -182,4 +182,4 @@ def output_2_contents(output):
     :return: List of contents
     """
 
-    return [out[0] for out in output]
+    return [out[0] for out in reversed(output)]
