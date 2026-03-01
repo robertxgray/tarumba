@@ -454,6 +454,6 @@ def update_extracted_stat_folders(extract_args):
         mod_folder = _get_extracted_path(folder, extract_args.get("path"))
         if mod_folder:
             dest_path = os.path.join(extract_args.get("destination"), mod_folder)
-            tmp_folder = os.path.join(tmp_dir, folder)
-            mode = os.stat(tmp_folder).st_mode
+            tmp_folder_path = os.path.join(tmp_dir, folder)
+            mode = os.stat(tmp_folder_path).st_mode
             os.chmod(dest_path, mode)
