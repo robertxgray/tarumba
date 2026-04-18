@@ -59,6 +59,9 @@ msgstr "desactiva la salida en color"
 msgid "never overwrite existing files"
 msgstr "nunca sobreescribe los archivos existentes"
 
+msgid "list output format"
+msgstr "formato de salida del listado"
+
 msgid "process only the Nth occurrence of each file in the archive"
 msgstr "procesa solo la enésima ocurrencia de cada fichero en el archivo"
 

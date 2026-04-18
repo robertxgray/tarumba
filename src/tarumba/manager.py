@@ -55,7 +55,7 @@ def list_archive(args):
     t_file_utils.check_read_file(args.archive)
 
     arg_columns = t_config.parse_columns(args.columns)
-    columns = t_utils.get_list_columns(arg_columns, config.get("main_l_list_columns"))
+    columns = t_utils.get_effective_config(arg_columns, config.get("main_l_list_columns"))
 
     list_args = t_data_classes.ListArgs()
     list_args.put("archive", args.archive)

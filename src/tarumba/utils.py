@@ -136,19 +136,19 @@ def get_password(archive=None, file=None):
     return t_gui.prompt_password(message)
 
 
-def get_list_columns(input_cols, default_cols):
+def get_effective_config(input_config, default_config):
     """
-    Returns the effective list of columns.
+    Returns the effective configuration to use.
 
-    :param input_cols: Input columns
-    :param default_cols: Default columns
+    :param input_config: Input configuration
+    :param default_config: Default configuration
     :return: List of columns
     """
 
-    columns = input_cols
-    if not columns:
-        columns = default_cols
-    return columns
+    config = input_config
+    if not config:
+        config = default_config
+    return config
 
 
 def check_installed(executables):

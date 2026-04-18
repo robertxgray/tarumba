@@ -26,7 +26,7 @@ class Base:
         """
 
         if key not in self.dictionary:
-            raise KeyError(_("invalid configuration key: %(key)s"))
+            raise KeyError(_("invalid configuration key: %(key)s") % {"key": key})
         return self.dictionary.get(key)
 
     def put(self, key, value):
@@ -39,7 +39,7 @@ class Base:
         """
 
         if key not in self.dictionary:
-            raise KeyError(_("invalid configuration key: %(key)s"))
+            raise KeyError(_("invalid configuration key: %(key)s") % {"key": key})
         self.dictionary[key] = value
 
     def __str__(self):

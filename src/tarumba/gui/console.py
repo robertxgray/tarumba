@@ -3,6 +3,8 @@
 
 "Tarumba's console interface"
 
+import csv
+import io
 import shlex
 from gettext import gettext as _
 
@@ -332,9 +334,33 @@ class Console(t_gui.Gui):
         if config.get("main_b_debug"):
             self.err_c.print_exception(show_locals=True)
 
-    def print_listing(self, listing):
+    def _print_csv_listing(self, listing):
         """
-        Prints an archive contents listing to the console.
+        Prints an archive contents listing to the console, in csv format.
+
+        :param listing: Archive listing
+        """
+
+        def _print_row(row):
+            buffer = io.StringIO()
+            writer = csv.writer(buffer, lineterminator="")
+            writer.writerow(row)
+            self.out_c.out(buffer.getvalue())
+
+        # Translate headers
+        header = []
+        for idx in range(len(listing[0])):
+            column = listing[0][idx]
+            header.append(_(column))
+        _print_row(header)
+
+        # Process single rows to save memory
+        for row in listing[1:]:
+            _print_row(row)
+
+    def _print_table_listing(self, listing):
+        """
+        Prints an archive contents listing to the console, in table format.
 
         :param listing: Archive listing
         """
@@ -364,3 +390,14 @@ class Console(t_gui.Gui):
             table.add_row(*row)
 
         self.out_c.print(table)
+
+    def print_listing(self, listing, output_format):
+        """
+        Prints an archive contents listing to the console.
+
+        :param listing: Archive listing
+        """
+
+        if output_format == "csv":
+            return self._print_csv_listing(listing)
+        return self._print_table_listing(listing)

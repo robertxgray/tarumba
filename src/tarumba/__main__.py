@@ -9,6 +9,7 @@ from gettext import gettext as _
 
 from tarumba import cmd_parser as t_cmd_parser
 from tarumba import manager as t_manager
+from tarumba import utils as t_utils
 from tarumba.config import current as config
 from tarumba.gui import current as t_gui
 
@@ -74,7 +75,9 @@ def main():
             message = _("reading")
             with t_gui.start_progress(message, basename):
                 listing = t_manager.list_archive(args)
-                t_gui.print_listing(listing)
+                output_format = t_utils.get_effective_config(args.output_format, config.get("main_s_output_format"))
+                t_gui.debug("output_format", output_format)
+                t_gui.print_listing(listing, output_format)
                 t_gui.stop_progress()
 
         # Compress
