@@ -45,19 +45,24 @@ def _sanitize_mime(mime):
     """
 
     _type, _encoding = mime
+
     # Deprecated rar mime
     if _type == t_constants.MIME_RAR_OLD:
         _type = t_constants.MIME_RAR
     if _encoding == t_constants.MIME_RAR_OLD:
         _encoding = t_constants.MIME_RAR
+
+    # Magic identifies some jar files as zip
+    # Jar can be java-archive or x-java-archive
+    if _type is not None and _type.endswith("java-archive"):
+        _type = t_constants.MIME_ZIP
+    if _encoding is not None and _encoding.endswith("java-archive"):
+        _encoding = t_constants.MIME_ZIP
+
     if _type == t_constants.MIME_TAR and _encoding != t_constants.MIME_TAR:
         return mime
     if _encoding is not None:
         return (_encoding, None)
-    # Magic cannot differentiate between jar and zip
-    # Jar can be java-archive or x-java-archive
-    if _type is not None and _type.endswith("java-archive"):
-        _type = t_constants.MIME_ZIP
     return (_type, None)
 
 

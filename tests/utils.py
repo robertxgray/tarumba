@@ -54,22 +54,24 @@ UNZIP = "unzip"  # Info-Zip
 
 PARAMS_DICT = {
     "x7z.7z": TestParams(t_constants.BACKEND_7ZIP, X7Z, "test_x7z.7z"),
+    "x7z.jar": TestParams(t_constants.BACKEND_7ZIP, X7Z, "test_x7z.jar"),
     "x7z.tar": TestParams(t_constants.BACKEND_7ZIP, X7Z, "test_x7z.tar"),
     "x7z.zip": TestParams(t_constants.BACKEND_7ZIP, X7Z, "test_x7z.zip"),
     "x7z.gz": TestParams(t_constants.BACKEND_7ZIP, X7Z, "test_x7z.gz"),
     "x7z.bz2": TestParams(t_constants.BACKEND_7ZIP, X7Z, "test_x7z.bz2"),
     "x7z.xz": TestParams(t_constants.BACKEND_7ZIP, X7Z, "test_x7z.xz"),
     "x7za.7z": TestParams(t_constants.BACKEND_7ZIP, X7ZA, "test_x7za.7z"),
+    "x7za.jar": TestParams(t_constants.BACKEND_7ZIP, X7ZA, "test_x7za.jar"),
     "x7za.tar": TestParams(t_constants.BACKEND_7ZIP, X7ZA, "test_x7za.tar"),
     "x7za.zip": TestParams(t_constants.BACKEND_7ZIP, X7ZA, "test_x7za.zip"),
     "x7za.gz": TestParams(t_constants.BACKEND_7ZIP, X7ZA, "test_x7za.gz"),
     "x7za.bz2": TestParams(t_constants.BACKEND_7ZIP, X7ZA, "test_x7za.bz2"),
     "x7za.xz": TestParams(t_constants.BACKEND_7ZIP, X7ZA, "test_x7za.xz"),
     "p7zip.7z": TestParams(t_constants.BACKEND_7ZIP, P7ZIP, "test_p7zip.7z"),
+    "p7zip.jar": TestParams(t_constants.BACKEND_7ZIP, P7ZIP, "test_p7zip.jar"),
     "p7zip.tar": TestParams(t_constants.BACKEND_7ZIP, P7ZIP, "test_p7zip.tar"),
     "p7zip.zip": TestParams(t_constants.BACKEND_7ZIP, P7ZIP, "test_p7zip.zip"),
-    # The p7zip build included in Ubuntu 22.04 can't handle the euro symbol in gzip archives
-    # "p7zip.gz": TestParams(t_constants.BACKEND_7ZIP, P7ZIP, "test_p7zip.gz"),
+    "p7zip.gz": TestParams(t_constants.BACKEND_7ZIP, P7ZIP, "test_p7zip.gz"),
     "p7zip.bz2": TestParams(t_constants.BACKEND_7ZIP, P7ZIP, "test_p7zip.bz2"),
     "p7zip.xz": TestParams(t_constants.BACKEND_7ZIP, P7ZIP, "test_p7zip.xz"),
     "ar.ar": TestParams(t_constants.BACKEND_AR, AR, "test_ar.ar"),
@@ -89,6 +91,7 @@ PARAMS_DICT = {
     "rar.rar": TestParams(t_constants.BACKEND_RAR, RAR, "test_rar.rar"),
     "xz.lzma": TestParams(t_constants.BACKEND_XZ, XZ, "test_xz.lzma"),
     "xz.xz": TestParams(t_constants.BACKEND_XZ, XZ, "test_xz.xz"),
+    "zip.jar": TestParams(t_constants.BACKEND_ZIP, ZIP, "test_zip.jar"),
     "zip.zip": TestParams(t_constants.BACKEND_ZIP, ZIP, "test_zip.zip"),
 }
 
