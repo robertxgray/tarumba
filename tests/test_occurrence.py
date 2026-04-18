@@ -47,7 +47,7 @@ class TestOccurrence:
 
         backend = t_classifier.detect_format(test_params.backend, test_params.archive, t_constants.OPERATION_EXTRACT)
         if backend.can_duplicate():
-            test_utils.test_list(TEST, test_params.archive, [test_utils.FILE1], ["-b", test_params.backend, "-o", "1"])
+            test_utils.test_list(TEST, test_params.archive, [test_utils.FILE1], ["-b", test_params.backend, "-O", "1"])
             test_utils.assert_file_exists(TEST, test_utils.FILE1)
 
     def test_test_occurrence(self, test_params):
@@ -55,7 +55,7 @@ class TestOccurrence:
 
         backend = t_classifier.detect_format(test_params.backend, test_params.archive, t_constants.OPERATION_EXTRACT)
         if backend.can_duplicate():
-            test_utils.test_test(TEST, test_params.archive, [test_utils.FILE1], ["-b", test_params.backend, "-o", "1"])
+            test_utils.test_test(TEST, test_params.archive, [test_utils.FILE1], ["-b", test_params.backend, "-O", "1"])
             test_utils.assert_file_exists(TEST, test_utils.FILE1)
 
     def test_extract_occurrence(self, test_params):
@@ -64,7 +64,7 @@ class TestOccurrence:
         backend = t_classifier.detect_format(test_params.backend, test_params.archive, t_constants.OPERATION_EXTRACT)
         if backend.can_duplicate():
             test_utils.test_extract(
-                TEST, test_params.archive, [test_utils.FILE1], ["-b", test_params.backend, "-a", "-o", "1"]
+                TEST, test_params.archive, [test_utils.FILE1], ["-b", test_params.backend, "-a", "-O", "1"]
             )
             test_utils.assert_file_exists(TEST, test_utils.FILE1)
 
@@ -74,7 +74,7 @@ class TestOccurrence:
         backend = t_classifier.detect_format(test_params.backend, test_params.archive, t_constants.OPERATION_DELETE)
         if backend.can_duplicate() and test_params.backend not in (t_constants.BACKEND_CPIO):
             test_utils.test_delete(
-                TEST, test_params.archive, [test_utils.FILE1], ["-b", test_params.backend, "-o", "1"]
+                TEST, test_params.archive, [test_utils.FILE1], ["-b", test_params.backend, "-O", "1"]
             )
 
     def test_cleanup(self, test_params):

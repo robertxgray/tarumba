@@ -52,7 +52,7 @@ There are 6 available actions, you can enter the word or only the first letter.
   Force a specific backend, overriding autodetection.
 - -c COLUMNS, --columns COLUMNS  
   Comma separated columns to include in the listing.
-- -d, --debug  
+- -D, --debug  
   Show debugging information.
 - -e, --encrypt  
   Encrypt the archive contents using a password.
@@ -70,7 +70,9 @@ There are 6 available actions, you can enter the word or only the first letter.
   Disable colored output.
 - -n, --never-overwrite  
   Never overwrite existing files.
-- -o OCCURRENCE, --occurrence OCCURRENCE  
+- -o {table,csv}, --output-format {table,csv}  
+  Listing output format.
+- -O OCCURRENCE, --occurrence OCCURRENCE  
   Process only the Nth occurrence of each file in the archive.
 - -p PATH, --path PATH  
   Modify the file paths in the archive using this reference.
