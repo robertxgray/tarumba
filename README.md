@@ -70,7 +70,7 @@ There are 6 available actions, you can enter the word or only the first letter.
   Disable colored output.
 - -n, --never-overwrite  
   Never overwrite existing files.
-- -o {table,csv}, --output-format {table,csv}  
+- -o {table,raw,csv}, --output-format {table,raw,csv}  
   Listing output format.
 - -O OCCURRENCE, --occurrence OCCURRENCE  
   Process only the Nth occurrence of each file in the archive.

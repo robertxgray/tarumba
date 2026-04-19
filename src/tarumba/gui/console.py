@@ -309,8 +309,8 @@ class Console(t_gui.Gui):
         Restart the console with a configurable color system.
         """
 
-        self.out_c = r_console.Console(color_system=color_system, highlight=False, theme=self.theme)
-        self.err_c = r_console.Console(color_system=color_system, highlight=False, theme=self.theme, stderr=True)
+        self.out_c = r_console.Console(color_system=color_system, highlight=False, tab_size=20, theme=self.theme)
+        self.err_c = r_console.Console(color_system=color_system, highlight=False, tab_size=20, theme=self.theme, stderr=True)
 
     def enable_color(self):
         """
@@ -334,6 +334,31 @@ class Console(t_gui.Gui):
         if config.get("main_b_debug"):
             self.err_c.print_exception(show_locals=True)
 
+    def _get_localized_headers(self, headers):
+        """
+        Returns a list of localized headers.
+
+        :param header: Original header
+        """
+
+        localized = []
+        for header in headers:
+            localized.append(_(header))
+        return localized
+
+    def _print_raw_listing(self, listing):
+        """
+        Prints an archive contents listing to the console, in raw format.
+
+        :param listing: Archive listing
+        """
+
+        headers = self._get_localized_headers(listing[0])
+        self.out_c.out("\t".join(headers), style=config.get("colors_s_list_header"))
+
+        for row in listing[1:]:
+            self.out_c.out("\t".join(row))
+
     def _print_csv_listing(self, listing):
         """
         Prints an archive contents listing to the console, in csv format.
@@ -341,20 +366,16 @@ class Console(t_gui.Gui):
         :param listing: Archive listing
         """
 
+        # Process single rows to save memory
         def _print_row(row):
             buffer = io.StringIO()
             writer = csv.writer(buffer, lineterminator="")
             writer.writerow(row)
             self.out_c.out(buffer.getvalue())
 
-        # Translate headers
-        header = []
-        for idx in range(len(listing[0])):
-            column = listing[0][idx]
-            header.append(_(column))
-        _print_row(header)
+        headers = self._get_localized_headers(listing[0])
+        _print_row(headers)
 
-        # Process single rows to save memory
         for row in listing[1:]:
             _print_row(row)
 
@@ -371,17 +392,16 @@ class Console(t_gui.Gui):
             border_style=config.get("colors_s_list_border"),
         )
 
+        headers = self._get_localized_headers(listing[0])
         col_name = None
-        idx = 0
-        for idx in range(len(listing[0])):
-            column = listing[0][idx]
+        for idx, column in enumerate(listing[0]):
             if column == t_constants.COLUMN_NAME:
-                table.add_column(_(column), style=config.get("colors_s_list_name"))
+                table.add_column(headers[idx], style=config.get("colors_s_list_name"))
                 col_name = idx
             elif column == t_constants.COLUMN_SIZE:
-                table.add_column(_(column), style=config.get("colors_s_list_default"), justify="right")
+                table.add_column(headers[idx], style=config.get("colors_s_list_default"), justify="right")
             else:
-                table.add_column(_(column), style=config.get("colors_s_list_default"))
+                table.add_column(headers[idx], style=config.get("colors_s_list_default"))
 
         for row in listing[1:]:
             if col_name is not None:
@@ -398,6 +418,8 @@ class Console(t_gui.Gui):
         :param listing: Archive listing
         """
 
+        if output_format == "raw":
+            return self._print_raw_listing(listing)
         if output_format == "csv":
             return self._print_csv_listing(listing)
         return self._print_table_listing(listing)
