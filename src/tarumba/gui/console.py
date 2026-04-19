@@ -310,7 +310,9 @@ class Console(t_gui.Gui):
         """
 
         self.out_c = r_console.Console(color_system=color_system, highlight=False, tab_size=20, theme=self.theme)
-        self.err_c = r_console.Console(color_system=color_system, highlight=False, tab_size=20, theme=self.theme, stderr=True)
+        self.err_c = r_console.Console(
+            color_system=color_system, highlight=False, tab_size=20, theme=self.theme, stderr=True
+        )
 
     def enable_color(self):
         """
@@ -342,8 +344,7 @@ class Console(t_gui.Gui):
         """
 
         localized = []
-        for header in headers:
-            localized.append(_(header))
+        localized.extend(_(header) for header in headers)
         return localized
 
     def _print_raw_listing(self, listing):
@@ -365,11 +366,11 @@ class Console(t_gui.Gui):
 
         for row in listing[1:]:
             markup_row = []
-            for idx, header in enumerate(headers):
+            for idx in range(headers):
                 if idx == col_name:
-                    markup_row.append(f"[{config.get("colors_s_list_name")}]{r_markup.escape(row[idx])}[/]")
+                    markup_row.append(f"[{config.get('colors_s_list_name')}]{r_markup.escape(row[idx])}[/]")
                 else:
-                    markup_row.append(f"[{config.get("colors_s_list_default")}]{r_markup.escape(row[idx])}[/]")
+                    markup_row.append(f"[{config.get('colors_s_list_default')}]{r_markup.escape(row[idx])}[/]")
             self.out_c.print("\t".join(markup_row))
 
     def _print_csv_listing(self, listing):
@@ -399,7 +400,7 @@ class Console(t_gui.Gui):
         :param listing: Archive listing
         """
 
-        json_objects = [] 
+        json_objects = []
         headers = self._get_localized_headers(listing[0])
         for row in listing[1:]:
             row_object = {}
