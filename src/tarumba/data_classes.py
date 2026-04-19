@@ -85,7 +85,6 @@ class AddArgs(Base):
             "archive": None,
             "contents": None,
             "files": None,
-            "follow_links": None,
             "backend": None,
             "level": None,
             "overwrite": None,

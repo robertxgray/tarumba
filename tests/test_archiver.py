@@ -32,28 +32,26 @@ def test_params(request):
 class TestArchiver:
     "Archiver tests"
 
-    def test_configure(self, test_params):
-        "Not a real test, just configuration"
+    def test_init_files(self, test_params):
+        "Create the test files"
 
-        test_utils.test_configure(TEST, test_params)
+        test_utils.test_init_files(TEST, test_params)
 
     def test_add_new(self, test_params):
         "Create the archive"
 
         backend = t_classifier.detect_format(test_params.backend, test_params.archive, t_constants.OPERATION_ADD)
         if backend.can_pack():
-            test_utils.test_add(
-                TEST, test_params.archive, [test_utils.DIR, test_utils.FILE_ABS], ["-b", test_params.backend]
-            )
+            test_utils.test_add(TEST, test_params, [test_utils.DIR, test_utils.FILE_ABS], ["-b", test_params.backend])
             test_utils.assert_file_exists(TEST, test_params.archive)
         else:
             with pytest.raises(SystemExit):
-                test_utils.test_add(TEST, test_params.archive, [test_utils.DIR], ["-b", test_params.backend])
+                test_utils.test_add(TEST, test_params, [test_utils.DIR], ["-b", test_params.backend])
 
     def test_add_existing(self, test_params):
         "Add files to the archive"
 
-        test_utils.test_add(TEST, test_params.archive, [test_utils.FILE1], ["-b", test_params.backend])
+        test_utils.test_add(TEST, test_params, [test_utils.FILE1], ["-b", test_params.backend])
         test_utils.assert_file_exists(TEST, test_params.archive)
 
     def test_add_level(self, test_params):
@@ -63,7 +61,7 @@ class TestArchiver:
         if not backend.can_pack():
             test_utils.cleanup(TEST, test_params.archive)
 
-        test_utils.test_add(TEST, test_params.archive, [test_utils.FILE2], ["-b", test_params.backend, "-l", "3"])
+        test_utils.test_add(TEST, test_params, [test_utils.FILE2], ["-b", test_params.backend, "-l", "3"])
         test_utils.assert_file_exists(TEST, test_params.archive)
 
     def test_add_path(self, test_params):
@@ -72,13 +70,13 @@ class TestArchiver:
         backend = t_classifier.detect_format(test_params.backend, test_params.archive, t_constants.OPERATION_ADD)
         if backend.can_pack():
             test_utils.test_add(
-                TEST, test_params.archive, [test_utils.FILE1], ["-b", test_params.backend, "-p", test_utils.PATH1]
+                TEST, test_params, [test_utils.FILE1], ["-b", test_params.backend, "-p", test_utils.PATH1]
             )
             test_utils.assert_file_exists(TEST, test_params.archive)
         else:
             with pytest.raises(SystemExit):
                 test_utils.test_add(
-                    TEST, test_params.archive, [test_utils.FILE1], ["-b", test_params.backend, "-p", test_utils.PATH1]
+                    TEST, test_params, [test_utils.FILE1], ["-b", test_params.backend, "-p", test_utils.PATH1]
                 )
 
     def test_add_path_follow(self, test_params):
@@ -87,14 +85,14 @@ class TestArchiver:
         backend = t_classifier.detect_format(test_params.backend, test_params.archive, t_constants.OPERATION_ADD)
         if backend.can_pack():
             test_utils.test_add(
-                TEST, test_params.archive, [test_utils.FILE1], ["-b", test_params.backend, "-p", test_utils.PATH2, "-k"]
+                TEST, test_params, [test_utils.FILE1], ["-b", test_params.backend, "-p", test_utils.PATH2, "-k"]
             )
             test_utils.assert_file_exists(TEST, test_params.archive)
         else:
             with pytest.raises(SystemExit):
                 test_utils.test_add(
                     TEST,
-                    test_params.archive,
+                    test_params,
                     [test_utils.FILE1],
                     ["-b", test_params.backend, "-p", test_utils.PATH2, "-k"],
                 )
@@ -108,11 +106,11 @@ class TestArchiver:
 
         backend = t_classifier.detect_format(test_params.backend, test_params.archive, t_constants.OPERATION_ADD)
         if backend.can_pack():
-            test_utils.test_add(TEST, test_params.archive, [test_utils.LINK1], ["-b", test_params.backend])
+            test_utils.test_add(TEST, test_params, [test_utils.LINK1], ["-b", test_params.backend])
             test_utils.assert_file_exists(TEST, test_params.archive)
         else:
             with pytest.raises(SystemExit):
-                test_utils.test_add(TEST, test_params.archive, [test_utils.LINK1], ["-b", test_params.backend])
+                test_utils.test_add(TEST, test_params, [test_utils.LINK1], ["-b", test_params.backend])
 
     def test_add_links_follow(self, test_params):
         "Add links to the archive with follow links"
@@ -121,7 +119,7 @@ class TestArchiver:
         if not backend.can_pack():
             test_utils.cleanup(TEST, test_params.archive)
 
-        test_utils.test_add(TEST, test_params.archive, [test_utils.LINK2], ["-b", test_params.backend, "-k"])
+        test_utils.test_add(TEST, test_params, [test_utils.LINK2], ["-b", test_params.backend, "-k"])
         config.put("main_b_follow_links", False)
         test_utils.assert_file_exists(TEST, test_params.archive)
 
@@ -130,29 +128,29 @@ class TestArchiver:
 
         backend = t_classifier.detect_format(test_params.backend, test_params.archive, t_constants.OPERATION_LIST)
         file_name = test_utils.LINK2 if backend.can_name() else Path(test_params.archive).stem
-        test_utils.test_list(TEST, test_params.archive, [file_name], ["-b", test_params.backend])
+        test_utils.test_list(TEST, test_params, [file_name], ["-b", test_params.backend])
 
     def test_list_all(self, test_params):
         "List all files"
 
-        test_utils.test_list(TEST, test_params.archive, [], ["-b", test_params.backend])
+        test_utils.test_list(TEST, test_params, [], ["-b", test_params.backend])
 
     def test_list_columns(self, test_params):
         "List all files with custom columns"
 
-        test_utils.test_list(TEST, test_params.archive, [], ["-b", test_params.backend, "-c", "NAME"])
+        test_utils.test_list(TEST, test_params, [], ["-b", test_params.backend, "-c", "NAME"])
 
     def test_test_one(self, test_params):
         "Test one file"
 
         backend = t_classifier.detect_format(test_params.backend, test_params.archive, t_constants.OPERATION_TEST)
         file_name = test_utils.LINK2 if backend.can_name() else Path(test_params.archive).stem
-        test_utils.test_test(TEST, test_params.archive, [file_name], ["-b", test_params.backend])
+        test_utils.test_test(TEST, test_params, [file_name], ["-b", test_params.backend])
 
     def test_test_all(self, test_params):
         "Test all files"
 
-        test_utils.test_test(TEST, test_params.archive, [], ["-b", test_params.backend])
+        test_utils.test_test(TEST, test_params, [], ["-b", test_params.backend])
 
     def test_extract_one(self, test_params):
         "Extract one file from the archive"
@@ -160,7 +158,7 @@ class TestArchiver:
         backend = t_classifier.detect_format(test_params.backend, test_params.archive, t_constants.OPERATION_LIST)
         file_name = test_utils.LINK2 if backend.can_name() else Path(test_params.archive).stem
         test_utils.cleanup(TEST, file_name)
-        test_utils.test_extract(TEST, test_params.archive, [file_name], ["-b", test_params.backend, "-a"])
+        test_utils.test_extract(TEST, test_params, [file_name], ["-b", test_params.backend, "-a"])
         test_utils.assert_file_exists(TEST, file_name)
 
     def test_extract_prompt(self, test_params, mocker):
@@ -169,7 +167,7 @@ class TestArchiver:
         backend = t_classifier.detect_format(test_params.backend, test_params.archive, t_constants.OPERATION_LIST)
         mocker.patch("rich.prompt.Prompt.ask", return_value="n")
         file_name = test_utils.LINK2 if backend.can_name() else Path(test_params.archive).stem
-        test_utils.test_extract(TEST, test_params.archive, [file_name], ["-b", test_params.backend])
+        test_utils.test_extract(TEST, test_params, [file_name], ["-b", test_params.backend])
         test_utils.assert_file_exists(TEST, file_name)
 
     def test_extract_folder(self, test_params):
@@ -178,7 +176,7 @@ class TestArchiver:
         backend = t_classifier.detect_format(test_params.backend, test_params.archive, t_constants.OPERATION_LIST)
         file_name = test_utils.LINK2 if backend.can_name() else Path(test_params.archive).stem
         test_utils.cleanup(TEST, file_name)
-        test_utils.test_extract(TEST, test_params.archive, [file_name], ["-b", test_params.backend, "-a", "-f", "yes"])
+        test_utils.test_extract(TEST, test_params, [file_name], ["-b", test_params.backend, "-a", "-f", "yes"])
         test_utils.assert_file_exists(TEST, file_name, archive_folder=test_params.archive)
 
     def test_extract_all(self, test_params):
@@ -188,7 +186,7 @@ class TestArchiver:
 
         base_name = Path(test_params.archive).stem
         test_utils.cleanup(TEST, base_name)
-        test_utils.test_extract(TEST, test_params.archive, [], ["-b", test_params.backend, "-a"])
+        test_utils.test_extract(TEST, test_params, [], ["-b", test_params.backend, "-a"])
         if backend.can_pack():
             test_utils.assert_dir_exists(TEST, test_utils.DIR, archive_folder=test_params.archive)
             test_utils.assert_file_exists(TEST, test_utils.FILE1, archive_folder=test_params.archive)
@@ -223,7 +221,7 @@ class TestArchiver:
         test_utils.cleanup(TEST, test_utils.LINK2)
         test_utils.cleanup(TEST, test_utils.PATH1)
         test_utils.cleanup(TEST, test_utils.PATH2)
-        test_utils.test_extract(TEST, test_params.archive, [], ["-b", test_params.backend, "-a", "-f", "no"])
+        test_utils.test_extract(TEST, test_params, [], ["-b", test_params.backend, "-a", "-f", "no"])
         if backend.can_pack():
             test_utils.assert_dir_exists(TEST, test_utils.DIR)
             test_utils.assert_file_exists(TEST, test_utils.FILE1)
@@ -245,7 +243,7 @@ class TestArchiver:
         backend = t_classifier.detect_format(test_params.backend, test_params.archive, t_constants.OPERATION_EXTRACT)
 
         base_name = Path(test_params.archive).stem
-        test_utils.test_extract(TEST, test_params.archive, [], ["-b", test_params.backend, "-n"])
+        test_utils.test_extract(TEST, test_params, [], ["-b", test_params.backend, "-n"])
         if backend.can_pack():
             test_utils.assert_dir_exists(TEST, test_utils.DIR, archive_folder=test_params.archive)
             test_utils.assert_file_exists(TEST, test_utils.FILE1, archive_folder=test_params.archive)
@@ -273,12 +271,12 @@ class TestArchiver:
         backend = t_classifier.detect_format(test_params.backend, test_params.archive, t_constants.OPERATION_RENAME)
         if backend.can_name() and test_params.backend in (t_constants.BACKEND_7ZIP, t_constants.BACKEND_RAR):
             test_utils.test_rename(
-                TEST, test_params.archive, [test_utils.FILE1, test_utils.FILE_RN], ["-b", test_params.backend]
+                TEST, test_params, [test_utils.FILE1, test_utils.FILE_RN], ["-b", test_params.backend]
             )
         else:
             with pytest.raises(SystemExit):
                 test_utils.test_rename(
-                    TEST, test_params.archive, [test_utils.FILE1, test_utils.FILE_RN], ["-b", test_params.backend]
+                    TEST, test_params, [test_utils.FILE1, test_utils.FILE_RN], ["-b", test_params.backend]
                 )
 
     def test_delete(self, test_params):
@@ -286,12 +284,12 @@ class TestArchiver:
 
         backend = t_classifier.detect_format(test_params.backend, test_params.archive, t_constants.OPERATION_DELETE)
         if backend.can_multiple() and test_params.backend not in (t_constants.BACKEND_CPIO):
-            test_utils.test_delete(TEST, test_params.archive, [test_utils.FILE2], ["-b", test_params.backend])
+            test_utils.test_delete(TEST, test_params, [test_utils.FILE2], ["-b", test_params.backend])
         else:
             with pytest.raises(SystemExit):
-                test_utils.test_delete(TEST, test_params.archive, [test_utils.FILE2], ["-b", test_params.backend])
+                test_utils.test_delete(TEST, test_params, [test_utils.FILE2], ["-b", test_params.backend])
 
     def test_cleanup(self, test_params):
-        "Not a real test, just the cleanup"
+        "Test files cleanup"
 
         test_utils.test_cleanup(TEST, test_params)

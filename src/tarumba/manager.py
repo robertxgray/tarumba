@@ -123,7 +123,7 @@ def _add_archive_check_archive_operation(add_args):
         for file in add_args.get("files"):
             if os.path.isdir(file):
                 raise t_errors.InvalidOperationError(_("this archive format can't store folders"))
-        if not add_args.get("follow_links") and os.path.islink(add_args.get("files")[0]):
+        if not config.get("main_b_follow_links") and os.path.islink(add_args.get("files")[0]):
             raise t_errors.InvalidOperationError(_("this archive format can't store links"))
 
     if not add_args.get("backend").can_pack() and add_args.get("path"):
@@ -212,7 +212,6 @@ def add_archive(args):
     add_args.put("archive", args.archive)
     add_args.put("backend", backend)
     add_args.put("files", args.files)
-    add_args.put("follow_links", config.get("main_b_follow_links"))
     add_args.put("level", args.level)
     add_args.put("overwrite", _get_overwrite(args))
     add_args.put("preserve_owner", config.get("main_b_preserve_owner"))

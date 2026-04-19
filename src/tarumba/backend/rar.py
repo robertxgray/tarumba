@@ -108,7 +108,7 @@ class Rar(t_x7z.X7z):
         params = ["a", "-idcdp", "-y"]
         if add_args.get("password"):
             params.append("-hp")
-        if not add_args.get("follow_links"):
+        if not config.get("main_b_follow_links"):
             params.append("-ol")
         if add_args.get("level"):
             params.append(f"-m{add_args.get('level')}")

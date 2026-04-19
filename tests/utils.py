@@ -9,9 +9,9 @@ import shutil
 import sys
 from pathlib import Path
 
+import tarumba.config as t_config
 import tarumba.constants as t_constants
 from tarumba.__main__ import main
-from tarumba.config import current as config
 
 TEST_PATH = "test_files"
 PREFFIX = "_¡!|<>'\"^#$%&@€(){}[]=¿?*-+Ñ_"  # Testing problematic chars
@@ -96,18 +96,31 @@ PARAMS_DICT = {
 }
 
 
-def test_configure(test, test_params):
-    "Not a real test, just configuration"
+def _reset_configuration(test_params):
+    """
+    Reset the configuration.
 
-    config.put("backends_l_7zip_bin", [test_params.binary])
-    config.put("backends_l_tar_bin", [test_params.binary])
-    config.put("backends_l_bzip2_bin", [BZIP2])
-    config.put("backends_l_gzip_bin", [GZIP])
-    config.put("backends_l_rar_bin", [RAR])
-    config.put("backends_l_xz_bin", [XZ])
-    config.put("backends_l_zip_bin", [ZIP])
-    config.put("backends_l_unzip_bin", [UNZIP])
+    :param test_params: Test parameters
+    """
 
+    t_config.current = t_config.Config()
+    t_config.current.put("backends_l_7zip_bin", [test_params.binary])
+    t_config.current.put("backends_l_tar_bin", [test_params.binary])
+    t_config.current.put("backends_l_bzip2_bin", [BZIP2])
+    t_config.current.put("backends_l_gzip_bin", [GZIP])
+    t_config.current.put("backends_l_rar_bin", [RAR])
+    t_config.current.put("backends_l_xz_bin", [XZ])
+    t_config.current.put("backends_l_zip_bin", [ZIP])
+    t_config.current.put("backends_l_unzip_bin", [UNZIP])
+
+
+def test_init_files(test, test_params):
+    """
+    Create the test files.
+
+    :param test: Name of the test
+    :param test_params: Test parameters
+    """
     test_cleanup(test, test_params)
     copy(test, DIR)
     copy(test, FILE1)
@@ -117,7 +130,12 @@ def test_configure(test, test_params):
 
 
 def test_cleanup(test, test_params):
-    "Not a real test, just the cleanup"
+    """
+    Test files cleanup.
+
+    :param test: Name of the test
+    :param test_params: Test parameters
+    """
 
     base_name = Path(test_params.archive).stem
     cleanup(test, base_name)
@@ -135,6 +153,9 @@ def test_cleanup(test, test_params):
 def _add_preffix_to_files(test, files):
     """
     Adds the preffix to a list of files.
+
+    :param test: Name of the test
+    :param test_params: Test parameters
     :param files: List of files
     :return: Lis of files with preffix
     """
@@ -148,11 +169,12 @@ def _add_preffix_to_files(test, files):
     return out
 
 
-def test_add(test, archive, files, extra_args):
+def test_add(test, test_params, files, extra_args):
     """
     Test add command.
 
-    :param archive: Archive path
+    :param test: Name of the test
+    :param test_params: Test parameters
     :param files: Files to add
     :param extra_args: Extra arguments
     """
@@ -160,90 +182,101 @@ def test_add(test, archive, files, extra_args):
     cwd = os.getcwd()
     os.chdir(TEST_PATH)
     try:
+        _reset_configuration(test_params)
         sys.argv = ["tarumba", "a", "-v", *extra_args]
-        sys.argv.append(test + PREFFIX + archive)
+        sys.argv.append(test + PREFFIX + test_params.archive)
         sys.argv += _add_preffix_to_files(test, files)
         main()
     finally:
         os.chdir(cwd)
 
 
-def test_list(test, archive, files, extra_args):
+def test_list(test, test_params, files, extra_args):
     """
     Test list command.
 
-    :param archive: Archive path
-    :param archive: Files to list
+    :param test: Name of the test
+    :param test_params: Test parameters
+    :param files: Files to list
     :param extra_args: Extra arguments
     """
 
+    _reset_configuration(test_params)
     sys.argv = ["tarumba", "l", *extra_args]
-    sys.argv.append(os.path.join(TEST_PATH, test + PREFFIX + archive))
+    sys.argv.append(os.path.join(TEST_PATH, test + PREFFIX + test_params.archive))
     sys.argv += _add_preffix_to_files(test, files)
     main()
 
 
-def test_test(test, archive, files, extra_args):
+def test_test(test, test_params, files, extra_args):
     """
     Test test command.
 
-    :param archive: Archive path
-    :param archive: Files to test
+    :param test: Name of the test
+    :param test_params: Test parameters
+    :param files: Files to test
     :param extra_args: Extra arguments
     """
 
+    _reset_configuration(test_params)
     sys.argv = ["tarumba", "t", *extra_args]
-    sys.argv.append(os.path.join(TEST_PATH, test + PREFFIX + archive))
+    sys.argv.append(os.path.join(TEST_PATH, test + PREFFIX + test_params.archive))
     sys.argv += _add_preffix_to_files(test, files)
     main()
 
 
-def test_extract(test, archive, files, extra_args):
+def test_extract(test, test_params, files, extra_args):
     """
     Test extract command.
 
-    :param archive: Archive path
-    :param archive: Files to extract
+    :param test: Name of the test
+    :param test_params: Test parameters
+    :param files: Files to extract
     :param extra_args: Extra arguments
     """
 
     cwd = os.getcwd()
     os.chdir(TEST_PATH)
     try:
+        _reset_configuration(test_params)
         sys.argv = ["tarumba", "e", "-v", *extra_args]
-        sys.argv.append(test + PREFFIX + archive)
+        sys.argv.append(test + PREFFIX + test_params.archive)
         sys.argv += _add_preffix_to_files(test, files)
         main()
     finally:
         os.chdir(cwd)
 
 
-def test_rename(test, archive, files, extra_args):
+def test_rename(test, test_params, files, extra_args):
     """
     Test rename command.
 
-    :param archive: Archive path
-    :param archive: Files to rename
+    :param test: Name of the test
+    :param test_params: Test parameters
+    :param files: Files to rename
     :param extra_args: Extra arguments
     """
 
+    _reset_configuration(test_params)
     sys.argv = ["tarumba", "r", *extra_args]
-    sys.argv.append(os.path.join(TEST_PATH, test + PREFFIX + archive))
+    sys.argv.append(os.path.join(TEST_PATH, test + PREFFIX + test_params.archive))
     sys.argv += _add_preffix_to_files(test, files)
     main()
 
 
-def test_delete(test, archive, files, extra_args):
+def test_delete(test, test_params, files, extra_args):
     """
     Test delete command.
 
-    :param archive: Archive path
-    :param archive: Files to delete
+    :param test: Name of the test
+    :param test_params: Test parameters
+    :param files: Files to delete
     :param extra_args: Extra arguments
     """
 
+    _reset_configuration(test_params)
     sys.argv = ["tarumba", "d", *extra_args]
-    sys.argv.append(os.path.join(TEST_PATH, test + PREFFIX + archive))
+    sys.argv.append(os.path.join(TEST_PATH, test + PREFFIX + test_params.archive))
     sys.argv += _add_preffix_to_files(test, files)
     main()
 

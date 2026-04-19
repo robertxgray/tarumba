@@ -68,7 +68,7 @@ class Cpio(t_backend.Backend):
         exists = os.path.lexists(add_args.get("archive"))
         if exists:
             params.append("-A")
-        if add_args.get("follow_links"):
+        if config.get("main_b_follow_links"):
             params.append("-L")
         if not add_args.get("preserve_owner"):
             params.append("-R")

@@ -117,7 +117,7 @@ class X7z(t_backend.Backend):
             params.append("-p")
             if self.mime[0] == t_constants.MIME_7Z:
                 params.append("-mhe")
-        if add_args.get("follow_links"):
+        if config.get("main_b_follow_links"):
             params.append("-snh")
             if self._p7zip:
                 params.append("-l")

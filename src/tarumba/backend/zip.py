@@ -84,7 +84,7 @@ class Zip(t_backend.Backend):
         params = ["-r", "-nw"]
         if add_args.get("password"):
             params.append("-e")
-        if not add_args.get("follow_links"):
+        if not config.get("main_b_follow_links"):
             params.append("-y")
         if add_args.get("level"):
             params.append(f"-{add_args.get('level')}")

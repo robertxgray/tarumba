@@ -28,18 +28,18 @@ def test_params(request):
 class TestOccurrence:
     "Occurrence tests"
 
-    def test_configure(self, test_params):
-        "Not a real test, just configuration"
+    def test_init_files(self, test_params):
+        "Create the test files."
 
-        test_utils.test_configure(TEST, test_params)
+        test_utils.test_init_files(TEST, test_params)
 
     def test_add_duplicate(self, test_params):
         "Add duplicated files to the archive"
 
         backend = t_classifier.detect_format(test_params.backend, test_params.archive, t_constants.OPERATION_ADD)
         if backend.can_duplicate():
-            test_utils.test_add(TEST, test_params.archive, [test_utils.FILE1], ["-b", test_params.backend])
-            test_utils.test_add(TEST, test_params.archive, [test_utils.FILE1], ["-b", test_params.backend])
+            test_utils.test_add(TEST, test_params, [test_utils.FILE1], ["-b", test_params.backend])
+            test_utils.test_add(TEST, test_params, [test_utils.FILE1], ["-b", test_params.backend])
             test_utils.assert_file_exists(TEST, test_params.archive)
 
     def test_list_occurrence(self, test_params):
@@ -47,7 +47,7 @@ class TestOccurrence:
 
         backend = t_classifier.detect_format(test_params.backend, test_params.archive, t_constants.OPERATION_EXTRACT)
         if backend.can_duplicate():
-            test_utils.test_list(TEST, test_params.archive, [test_utils.FILE1], ["-b", test_params.backend, "-O", "1"])
+            test_utils.test_list(TEST, test_params, [test_utils.FILE1], ["-b", test_params.backend, "-O", "1"])
             test_utils.assert_file_exists(TEST, test_utils.FILE1)
 
     def test_test_occurrence(self, test_params):
@@ -55,7 +55,7 @@ class TestOccurrence:
 
         backend = t_classifier.detect_format(test_params.backend, test_params.archive, t_constants.OPERATION_EXTRACT)
         if backend.can_duplicate():
-            test_utils.test_test(TEST, test_params.archive, [test_utils.FILE1], ["-b", test_params.backend, "-O", "1"])
+            test_utils.test_test(TEST, test_params, [test_utils.FILE1], ["-b", test_params.backend, "-O", "1"])
             test_utils.assert_file_exists(TEST, test_utils.FILE1)
 
     def test_extract_occurrence(self, test_params):
@@ -63,9 +63,7 @@ class TestOccurrence:
 
         backend = t_classifier.detect_format(test_params.backend, test_params.archive, t_constants.OPERATION_EXTRACT)
         if backend.can_duplicate():
-            test_utils.test_extract(
-                TEST, test_params.archive, [test_utils.FILE1], ["-b", test_params.backend, "-a", "-O", "1"]
-            )
+            test_utils.test_extract(TEST, test_params, [test_utils.FILE1], ["-b", test_params.backend, "-a", "-O", "1"])
             test_utils.assert_file_exists(TEST, test_utils.FILE1)
 
     def test_delete_occurrence(self, test_params):
@@ -73,11 +71,9 @@ class TestOccurrence:
 
         backend = t_classifier.detect_format(test_params.backend, test_params.archive, t_constants.OPERATION_DELETE)
         if backend.can_duplicate() and test_params.backend not in (t_constants.BACKEND_CPIO):
-            test_utils.test_delete(
-                TEST, test_params.archive, [test_utils.FILE1], ["-b", test_params.backend, "-O", "1"]
-            )
+            test_utils.test_delete(TEST, test_params, [test_utils.FILE1], ["-b", test_params.backend, "-O", "1"])
 
     def test_cleanup(self, test_params):
-        "Not a real test, just the cleanup"
+        "Test files cleanup"
 
         test_utils.test_cleanup(TEST, test_params)

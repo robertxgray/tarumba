@@ -81,7 +81,7 @@ class Tar(t_backend.Backend):
             level = f" -{add_args.get('level')}" if add_args.get("level") else ""
             params.append("-I")
             params.append(f"{shlex.quote(self._compressor_bin)}{level}")
-        if add_args.get("follow_links"):
+        if config.get("main_b_follow_links"):
             params.append("-h")
         if not add_args.get("preserve_owner"):
             params.append("--owner=0")
