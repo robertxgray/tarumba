@@ -356,8 +356,21 @@ class Console(t_gui.Gui):
         headers = self._get_localized_headers(listing[0])
         self.out_c.out("\t".join(headers), style=config.get("colors_s_list_header"))
 
+        # Identify name column
+        col_name = None
+        for idx, column in enumerate(listing[0]):
+            if column == t_constants.COLUMN_NAME:
+                col_name = idx
+                break
+
         for row in listing[1:]:
-            self.out_c.out("\t".join(row))
+            markup_row = []
+            for idx, header in enumerate(headers):
+                if idx == col_name:
+                    markup_row.append(f"[{config.get("colors_s_list_name")}]{r_markup.escape(row[idx])}[/]")
+                else:
+                    markup_row.append(f"[{config.get("colors_s_list_default")}]{r_markup.escape(row[idx])}[/]")
+            self.out_c.print("\t".join(markup_row))
 
     def _print_csv_listing(self, listing):
         """
@@ -367,17 +380,33 @@ class Console(t_gui.Gui):
         """
 
         # Process single rows to save memory
-        def _print_row(row):
+        def _print_row(row, style):
             buffer = io.StringIO()
             writer = csv.writer(buffer, lineterminator="")
             writer.writerow(row)
-            self.out_c.out(buffer.getvalue())
+            self.out_c.out(buffer.getvalue(), style=style)
 
         headers = self._get_localized_headers(listing[0])
-        _print_row(headers)
+        _print_row(headers, config.get("colors_s_list_header"))
 
         for row in listing[1:]:
-            _print_row(row)
+            _print_row(row, config.get("colors_s_list_default"))
+
+    def _print_json_listing(self, listing):
+        """
+        Prints an archive contents listing to the console, in json format.
+
+        :param listing: Archive listing
+        """
+
+        json_objects = [] 
+        headers = self._get_localized_headers(listing[0])
+        for row in listing[1:]:
+            row_object = {}
+            for idx, header in enumerate(headers):
+                row_object[header] = row[idx]
+            json_objects.append(row_object)
+        self.out_c.print_json(data=json_objects)
 
     def _print_table_listing(self, listing):
         """
@@ -422,4 +451,6 @@ class Console(t_gui.Gui):
             return self._print_raw_listing(listing)
         if output_format == "csv":
             return self._print_csv_listing(listing)
+        if output_format == "json":
+            return self._print_json_listing(listing)
         return self._print_table_listing(listing)

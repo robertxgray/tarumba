@@ -80,7 +80,7 @@ def get_arguments():
     parser.add_argument("-l", "--level", help=_("compression level [0-9]"))
     parser.add_argument("-m", "--no-color", action="store_true", help=_("disable colored output"))
     parser.add_argument("-n", "--never-overwrite", action="store_true", help=_("never overwrite existing files"))
-    parser.add_argument("-o", "--output-format", choices=["table", "raw", "csv"], help=_("listing output format"))
+    parser.add_argument("-o", "--output-format", choices=["table", "raw", "csv", "json"], help=_("listing output format"))
     parser.add_argument("-O", "--occurrence", help=_("process only the Nth occurrence of each file in the archive"))
     parser.add_argument("-p", "--path", help=_("modify the file paths in the archive using this reference"))
     parser.add_argument("-v", "--verbose", action="store_true", help=_("verbosely list processed files"))
