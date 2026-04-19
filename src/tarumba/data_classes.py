@@ -89,7 +89,7 @@ class AddArgs(Base):
             "backend": None,
             "level": None,
             "overwrite": None,
-            "owner": None,
+            "preserve_owner": None,
             "password": None,
             "path": None,
             "tmp_dir": None,

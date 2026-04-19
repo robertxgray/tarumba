@@ -62,7 +62,7 @@ class Ar(t_backend.Backend):
         params = "qv"
         if not os.path.lexists(add_args.get("archive")):
             params += "c"
-        if add_args.get("owner"):
+        if add_args.get("preserve_owner"):
             params += "U"
         else:
             params += "D"

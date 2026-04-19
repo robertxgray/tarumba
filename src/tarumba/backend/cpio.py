@@ -70,7 +70,7 @@ class Cpio(t_backend.Backend):
             params.append("-A")
         if add_args.get("follow_links"):
             params.append("-L")
-        if not add_args.get("owner"):
+        if not add_args.get("preserve_owner"):
             params.append("-R")
             params.append("+0:+0")
         archive_quot = shlex.quote(add_args.get("archive"))

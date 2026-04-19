@@ -14,14 +14,13 @@ from tarumba.config import current as config
 from tarumba.gui import current as t_gui
 
 
-def _main_options(args):
+def _main_output_options(args):
     """
-    Sets the main command line options.
+    Sets the main command line output options.
 
     :param args: Arguments
     """
 
-    # Output options
     if args.debug:
         config.put("main_b_debug", args.debug)
     if args.quiet:
@@ -33,13 +32,109 @@ def _main_options(args):
     if args.no_progress:
         config.put("main_b_no_progress", args.no_progress)
 
-    # Behaviour options
+
+def _main_behaviour_options(args):
+    """
+    Sets the main command line behaviour options.
+
+    :param args: Arguments
+    """
+
     if args.create_folder:
         config.put("main_s_create_folder", args.create_folder)
     if args.follow_links:
         config.put("main_b_follow_links", args.follow_links)
+    if args.preserve_owner:
+        config.put("main_b_preserve_owner", args.preserve_owner)
     if args.encoding:
         config.put("backends_s_unzip_encoding", args.encoding)
+
+
+def _main_list(args, basename):
+    """
+    List archive contents.
+
+    :param args: Arguments
+    :param basename: Archive base name
+    """
+
+    message = _("reading")
+    with t_gui.start_progress(message, basename):
+        listing = t_manager.list_archive(args)
+        output_format = t_utils.get_effective_config(args.output_format, config.get("main_s_output_format"))
+        t_gui.debug("output_format", output_format)
+        t_gui.print_listing(listing, output_format)
+        t_gui.stop_progress()
+
+
+def _main_compress(args, basename):
+    """
+    Add files to an archive.
+
+    :param args: Arguments
+    :param basename: Archive base name
+    """
+
+    message = _("adding files to")
+    with t_gui.start_progress(message, basename):
+        t_manager.add_archive(args)
+        t_gui.stop_progress()
+
+
+def _main_extract(args, basename):
+    """
+    Extract files from an archive.
+
+    :param args: Arguments
+    :param basename: Archive base name
+    """
+
+    message = _("extracting files from")
+    with t_gui.start_progress(message, basename):
+        t_manager.extract_archive(args)
+        t_gui.stop_progress()
+
+
+def _main_delete(args, basename):
+    """
+    Delete files from an archive.
+
+    :param args: Arguments
+    :param basename: Archive base name
+    """
+
+    message = _("deleting files from")
+    with t_gui.start_progress(message, basename):
+        t_manager.delete_archive(args)
+        t_gui.stop_progress()
+
+
+def _main_rename(args, basename):
+    """
+    Rename archive contents.
+
+    :param args: Arguments
+    :param basename: Archive base name
+    """
+
+    message = _("renaming files in")
+    with t_gui.start_progress(message, basename):
+        t_manager.rename_archive(args)
+        t_gui.stop_progress()
+
+
+def _main_test(args, basename):
+    """
+    Test archive contents.
+
+    :param args: Arguments
+    :param basename: Archive base name
+    """
+
+    message = _("testing")
+    with t_gui.start_progress(message, basename):
+        t_manager.test_archive(args)
+        t_gui.stop_progress()
 
 
 def main():
@@ -49,7 +144,8 @@ def main():
 
     try:
         args = t_cmd_parser.get_arguments()
-        _main_options(args)
+        _main_output_options(args)
+        _main_behaviour_options(args)
 
         # Debug
         if config.get("main_b_debug"):
@@ -65,48 +161,27 @@ def main():
 
         # List
         if args.command in ("l", "list"):
-            message = _("reading")
-            with t_gui.start_progress(message, basename):
-                listing = t_manager.list_archive(args)
-                output_format = t_utils.get_effective_config(args.output_format, config.get("main_s_output_format"))
-                t_gui.debug("output_format", output_format)
-                t_gui.print_listing(listing, output_format)
-                t_gui.stop_progress()
+            _main_list(args, basename)
 
         # Compress
-        if args.command in ("a", "add"):
-            message = _("adding files to")
-            with t_gui.start_progress(message, basename):
-                t_manager.add_archive(args)
-                t_gui.stop_progress()
+        elif args.command in ("a", "add"):
+            _main_compress(args, basename)
 
         # Extract
-        if args.command in ("e", "x", "extract"):
-            message = _("extracting files from")
-            with t_gui.start_progress(message, basename):
-                t_manager.extract_archive(args)
-                t_gui.stop_progress()
+        elif args.command in ("e", "x", "extract"):
+            _main_extract(args, basename)
 
         # Delete
-        if args.command in ("d", "delete"):
-            message = _("deleting files from")
-            with t_gui.start_progress(message, basename):
-                t_manager.delete_archive(args)
-                t_gui.stop_progress()
+        elif args.command in ("d", "delete"):
+            _main_delete(args, basename)
 
         # Rename
-        if args.command in ("r", "rename"):
-            message = _("renaming files in")
-            with t_gui.start_progress(message, basename):
-                t_manager.rename_archive(args)
-                t_gui.stop_progress()
+        elif args.command in ("r", "rename"):
+            _main_rename(args, basename)
 
         # Test
-        if args.command in ("t", "test"):
-            message = _("testing")
-            with t_gui.start_progress(message, basename):
-                t_manager.test_archive(args)
-                t_gui.stop_progress()
+        elif args.command in ("t", "test"):
+            _main_test(args, basename)
 
     # We get BrokenPipeError whenever the output is redirected, just ignore it
     except BrokenPipeError:

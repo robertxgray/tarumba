@@ -32,6 +32,7 @@ class Config(t_data_classes.Base):
             "main_b_no_colors": False,
             "main_b_no_progress": False,
             "main_b_follow_links": False,
+            "main_b_preserve_owner": False,
             "main_s_create_folder": "auto",
             "main_l_list_columns": [
                 t_constants.COLUMN_PERMS,

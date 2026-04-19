@@ -83,7 +83,7 @@ class Tar(t_backend.Backend):
             params.append(f"{shlex.quote(self._compressor_bin)}{level}")
         if add_args.get("follow_links"):
             params.append("-h")
-        if not add_args.get("owner"):
+        if not add_args.get("preserve_owner"):
             params.append("--owner=0")
             params.append("--group=0")
         params.append("--quoting-style=literal")

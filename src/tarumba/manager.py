@@ -215,7 +215,7 @@ def add_archive(args):
     add_args.put("follow_links", config.get("main_b_follow_links"))
     add_args.put("level", args.level)
     add_args.put("overwrite", _get_overwrite(args))
-    add_args.put("owner", args.owner)
+    add_args.put("preserve_owner", config.get("main_b_preserve_owner"))
     add_args.put("password", _add_archive_get_password(backend, args.archive, args.encrypt))
     add_args.put("path", args.path.strip("/") if args.path else None)
     t_gui.debug("add_args", add_args)

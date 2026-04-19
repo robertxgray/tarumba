@@ -95,7 +95,9 @@ def get_arguments():
         help=_("show Tarumba's installed version and exit"),
         version=version("tarumba"),
     )
-    parser.add_argument("-w", "--owner", action="store_true", help=_("preserve the owner user and group when possible"))
+    parser.add_argument(
+        "-w", "--preserve-owner", action="store_true", help=_("preserve the owner user and group when possible")
+    )
     args = parser.parse_args()
 
     # Get the absolute archive path
