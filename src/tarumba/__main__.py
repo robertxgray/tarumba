@@ -16,47 +16,30 @@ from tarumba.gui import current as t_gui
 
 def _main_options(args):
     """
-    Sets the main options.
+    Sets the main command line options.
 
     :param args: Arguments
     """
 
-    # Create folder option
-    if args.create_folder:
-        config.put("main_s_create_folder", args.create_folder)
-    else:
-        config.put("main_s_create_folder", "auto")
-
-    # Debug option
+    # Output options
     if args.debug:
         config.put("main_b_debug", args.debug)
-        t_gui.debug("args", args)
-    else:
-        config.put("main_b_debug", False)
-
-    # Encoding
-    if args.encoding:
-        config.put("backends_s_unzip_encoding", args.encoding)
-    else:
-        config.put("backends_s_unzip_encoding", "default")
-
-    # Follow links option
-    if args.follow_links:
-        config.put("main_b_follow_links", args.follow_links)
-    else:
-        config.put("main_b_follow_links", False)
-
-    # No color option
-    if args.no_color:
-        t_gui.disable_color()
-    else:
-        t_gui.enable_color()
-
-    # Verbose option
+    if args.quiet:
+        config.put("main_b_quiet", args.quiet)
     if args.verbose:
         config.put("main_b_verbose", args.verbose)
-    else:
-        config.put("main_b_verbose", False)
+    if args.no_color:
+        config.put("main_b_no_colors", args.no_color)
+    if args.no_progress:
+        config.put("main_b_no_progress", args.no_progress)
+
+    # Behaviour options
+    if args.create_folder:
+        config.put("main_s_create_folder", args.create_folder)
+    if args.follow_links:
+        config.put("main_b_follow_links", args.follow_links)
+    if args.encoding:
+        config.put("backends_s_unzip_encoding", args.encoding)
 
 
 def main():
@@ -67,6 +50,16 @@ def main():
     try:
         args = t_cmd_parser.get_arguments()
         _main_options(args)
+
+        # Debug
+        if config.get("main_b_debug"):
+            t_gui.debug("args", args)
+
+        # Enable or disable colors
+        if config.get("main_b_no_colors"):
+            t_gui.disable_color()
+        else:
+            t_gui.enable_color()
 
         basename = os.path.basename(args.archive)
 

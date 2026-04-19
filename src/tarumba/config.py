@@ -27,8 +27,12 @@ class Config(t_data_classes.Base):
         super().__init__()
         self.dictionary = {
             "main_b_debug": False,
-            "main_s_create_folder": "auto",
+            "main_b_quiet": False,
+            "main_b_verbose": False,
+            "main_b_no_colors": False,
+            "main_b_no_progress": False,
             "main_b_follow_links": False,
+            "main_s_create_folder": "auto",
             "main_l_list_columns": [
                 t_constants.COLUMN_PERMS,
                 t_constants.COLUMN_SIZE,
@@ -39,7 +43,6 @@ class Config(t_data_classes.Base):
             "main_l_shell": ["bash"],
             "main_l_find": ["find"],
             "main_s_tmp_path": tempfile.gettempdir(),
-            "main_b_verbose": False,
             # Backends
             "backends_l_7zip_bin": ["7zz", "7zzs", "7z", "7zr", "7za"],
             "backends_l_ar_bin": ["ar"],

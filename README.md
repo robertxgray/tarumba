@@ -52,6 +52,8 @@ There are 6 available actions, you can enter the word or only the first letter.
   Force a specific backend, overriding autodetection.
 - -c COLUMNS, --columns COLUMNS  
   Comma separated columns to include in the listing.
+- -C, --no-color  
+  Disable the colored output.
 - -D, --debug  
   Show debugging information.
 - -e, --encrypt  
@@ -66,8 +68,6 @@ There are 6 available actions, you can enter the word or only the first letter.
   Follow symbolic links. **WARNING: MAY CREATE INIFINITE PATHS.**
 - -l LEVEL, --level LEVEL  
   Compression level [0-9].
-- -m, --no-color  
-  Disable colored output.
 - -n, --never-overwrite  
   Never overwrite existing files.
 - -o {table,raw,csv,json}, --output-format {table,raw,csv,json}  
@@ -76,6 +76,10 @@ There are 6 available actions, you can enter the word or only the first letter.
   Process only the Nth occurrence of each file in the archive.
 - -p PATH, --path PATH  
   Modify the file paths in the archive using this reference.
+- -P, --no-progress  
+  Disable the progress bars.
+- -q, --quiet  
+  Don't print any warnings or errors.
 - -v, --verbose  
   Verbosely list processed files.
 - -V --version  

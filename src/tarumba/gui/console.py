@@ -82,7 +82,8 @@ class Console(t_gui.Gui):
         :param message: Message to print
         """
 
-        self.out_c.out(message.rstrip(), style=config.get("colors_s_warn"))
+        if not config.get("main_b_quiet"):
+            self.out_c.out(message.rstrip(), style=config.get("colors_s_warn"))
 
     @override
     def error(self, message):
@@ -92,7 +93,8 @@ class Console(t_gui.Gui):
         :param message: Message to print
         """
 
-        self.err_c.out(message.rstrip(), style=config.get("colors_s_error"))
+        if not config.get("main_b_quiet"):
+            self.err_c.out(message.rstrip(), style=config.get("colors_s_error"))
 
     @override
     def adding_msg(self, file):
@@ -196,6 +198,7 @@ class Console(t_gui.Gui):
             r_progress.BarColumn(),
             r_progress.TaskProgressColumn(),
             console=self.out_c,
+            disable=config.get("main_b_no_progress"),
         )
         color = config.get("colors_s_list_header")
         description = message + " [" + color + "]" + r_markup.escape(file) + "[/" + color + "]"

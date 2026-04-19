@@ -62,6 +62,7 @@ def get_arguments():
         help=_("force a specific backend"),
     )
     parser.add_argument("-c", "--columns", help=_("comma separated columns to include in the listing"))
+    parser.add_argument("-C", "--no-color", action="store_true", help=_("disable the colored output"))
     parser.add_argument("-D", "--debug", action="store_true", help=_("show debugging information"))
     parser.add_argument("-e", "--encrypt", action="store_true", help=_("encrypt the archive contents using a password"))
     parser.add_argument("-E", "--encoding", help=_("specify a character encoding for non-standard archives"))
@@ -78,13 +79,14 @@ def get_arguments():
         help=_("follow symbolic links. WARNING: MAY CREATE INIFINITE PATHS"),
     )
     parser.add_argument("-l", "--level", help=_("compression level [0-9]"))
-    parser.add_argument("-m", "--no-color", action="store_true", help=_("disable colored output"))
     parser.add_argument("-n", "--never-overwrite", action="store_true", help=_("never overwrite existing files"))
     parser.add_argument(
         "-o", "--output-format", choices=["table", "raw", "csv", "json"], help=_("listing output format")
     )
     parser.add_argument("-O", "--occurrence", help=_("process only the Nth occurrence of each file in the archive"))
     parser.add_argument("-p", "--path", help=_("modify the file paths in the archive using this reference"))
+    parser.add_argument("-P", "--no-progress", action="store_true", help=_("disable the progress bars"))
+    parser.add_argument("-q", "--quiet", action="store_true", help=_("don't print any warnings or errors"))
     parser.add_argument("-v", "--verbose", action="store_true", help=_("verbosely list processed files"))
     parser.add_argument(
         "-V",
