@@ -9,13 +9,13 @@ from gettext import gettext as _
 
 from typing_extensions import override
 
+import tarumba.config as t_config
 import tarumba.constants as t_constants
 import tarumba.errors as t_errors
+import tarumba.executor as t_executor
 import tarumba.file_utils as t_file_utils
 import tarumba.utils as t_utils
-from tarumba import executor as t_executor
 from tarumba.backend import x7z as t_x7z
-from tarumba.config import current as config
 from tarumba.gui import current as t_gui
 
 LIST_ELEMENTS = 7
@@ -52,14 +52,14 @@ class Rar(t_x7z.X7z):
 
         # Rar is required to modify archives
         try:
-            self._rar_bin = t_utils.check_installed(config.get("backends_l_rar_bin"))
+            self._rar_bin = t_utils.check_installed(t_config.get("backends_l_rar_bin"))
         except t_errors.BackendUnavailableError:
             if operation in (t_constants.OPERATION_ADD, t_constants.OPERATION_DELETE, t_constants.OPERATION_RENAME):
                 raise
 
         # Unrar can be used to list and extract if rar is unavailable
         if not self._rar_bin:
-            self._rar_bin = t_utils.check_installed(config.get("backends_l_unrar_bin"))
+            self._rar_bin = t_utils.check_installed(t_config.get("backends_l_unrar_bin"))
             self._check_unrar_free()
 
     def _check_unrar_free(self):
@@ -108,7 +108,7 @@ class Rar(t_x7z.X7z):
         params = ["a", "-idcdp", "-y"]
         if add_args.get("password"):
             params.append("-hp")
-        if not config.get("main_b_follow_links"):
+        if not t_config.get("main_b_follow_links"):
             params.append("-ol")
         if add_args.get("level"):
             params.append(f"-m{add_args.get('level')}")

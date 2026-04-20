@@ -10,8 +10,8 @@ import stat
 import tempfile
 from gettext import gettext as _
 
+import tarumba.config as t_config
 import tarumba.constants as t_constants
-from tarumba.config import current as config
 from tarumba.gui import current as t_gui
 
 
@@ -169,10 +169,10 @@ def tmp_folder_same_fs(paths):
             common_fs = None
             break
 
-    default_tmp = config.get("main_s_tmp_path")
+    default_tmp = t_config.get("main_s_tmp_path")
     default_tmp_fs = get_filesystem(default_tmp)
     # Prefer the default tmp
-    if config.get("main_b_follow_links") or (common_fs is not None and common_fs == default_tmp_fs):
+    if t_config.get("main_b_follow_links") or (common_fs is not None and common_fs == default_tmp_fs):
         return (tmp_folder(default_tmp), True)
     # Use a hidden folder in the same path as an alternative
     if os.access(base_path, os.W_OK):
@@ -202,7 +202,7 @@ def _check_add_file(add_args, path):
         and not os.path.islink(path)
     ):
         raise IsADirectoryError(_("this archive format can't store the special file %(filename)s") % {"filename": path})
-    if not os.access(path, os.R_OK, follow_symlinks=config.get("main_b_follow_links")):
+    if not os.access(path, os.R_OK, follow_symlinks=t_config.get("main_b_follow_links")):
         raise PermissionError(_("can't read %(filename)s") % {"filename": path})
 
     copy = True
@@ -242,7 +242,7 @@ def _check_add_file_copy(add_args, path, copy):
         dest_path = os.path.join(add_args.get("tmp_dir")[0], file_path)
 
         makedirs(os.path.dirname(dest_path))
-        if config.get("main_b_follow_links"):
+        if t_config.get("main_b_follow_links"):
             if os.path.islink(path):
                 link_path = os.path.join(os.path.dirname(os.path.abspath(path)), os.readlink(path))
                 os.symlink(link_path, dest_path)
@@ -292,9 +292,9 @@ def check_add_filesystem_tree(add_args, path):
     :return: Number of files and folders
     """
 
-    if os.path.isdir(path) and (config.get("main_b_follow_links") or not os.path.islink(path)):
+    if os.path.isdir(path) and (t_config.get("main_b_follow_links") or not os.path.islink(path)):
         total = _check_add_folder_copy(add_args, path, create=True)
-        for root, dirs, files in os.walk(path, topdown=True, followlinks=config.get("main_b_follow_links")):
+        for root, dirs, files in os.walk(path, topdown=True, followlinks=t_config.get("main_b_follow_links")):
             for name in dirs:
                 dirpath = os.path.join(root, name)
                 total += _check_add_folder_copy(add_args, dirpath, create=True)
@@ -303,7 +303,7 @@ def check_add_filesystem_tree(add_args, path):
                 copy = _check_add_file(add_args, filepath)
                 total += _check_add_file_copy(add_args, filepath, copy)
         # Folder permissions are updated at the end to avoid errors when copying the files
-        for root, dirs, _files in os.walk(path, topdown=False, followlinks=config.get("main_b_follow_links")):
+        for root, dirs, _files in os.walk(path, topdown=False, followlinks=t_config.get("main_b_follow_links")):
             for name in dirs:
                 dirpath = os.path.join(root, name)
                 _check_add_folder_copy(add_args, dirpath, perms=True)

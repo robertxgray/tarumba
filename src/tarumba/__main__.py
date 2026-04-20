@@ -7,10 +7,10 @@ import os
 import sys
 from gettext import gettext as _
 
-from tarumba import cmd_parser as t_cmd_parser
-from tarumba import manager as t_manager
-from tarumba import utils as t_utils
-from tarumba.config import current as config
+import tarumba.cmd_parser as t_cmd_parser
+import tarumba.config as t_config
+import tarumba.manager as t_manager
+import tarumba.utils as t_utils
 from tarumba.gui import current as t_gui
 
 
@@ -22,15 +22,15 @@ def _main_output_options(args):
     """
 
     if args.debug:
-        config.put("main_b_debug", args.debug)
+        t_config.put("main_b_debug", args.debug)
     if args.quiet:
-        config.put("main_b_quiet", args.quiet)
+        t_config.put("main_b_quiet", args.quiet)
     if args.verbose:
-        config.put("main_b_verbose", args.verbose)
+        t_config.put("main_b_verbose", args.verbose)
     if args.no_color:
-        config.put("main_b_no_colors", args.no_color)
+        t_config.put("main_b_no_colors", args.no_color)
     if args.no_progress:
-        config.put("main_b_no_progress", args.no_progress)
+        t_config.put("main_b_no_progress", args.no_progress)
 
 
 def _main_behaviour_options(args):
@@ -41,13 +41,13 @@ def _main_behaviour_options(args):
     """
 
     if args.create_folder:
-        config.put("main_s_create_folder", args.create_folder)
+        t_config.put("main_s_create_folder", args.create_folder)
     if args.follow_links:
-        config.put("main_b_follow_links", args.follow_links)
+        t_config.put("main_b_follow_links", args.follow_links)
     if args.preserve_owner:
-        config.put("main_b_preserve_owner", args.preserve_owner)
+        t_config.put("main_b_preserve_owner", args.preserve_owner)
     if args.encoding:
-        config.put("backends_s_unzip_encoding", args.encoding)
+        t_config.put("backends_s_unzip_encoding", args.encoding)
 
 
 def _main_list(args, basename):
@@ -61,7 +61,7 @@ def _main_list(args, basename):
     message = _("reading")
     with t_gui.start_progress(message, basename):
         listing = t_manager.list_archive(args)
-        output_format = t_utils.get_effective_config(args.output_format, config.get("main_s_output_format"))
+        output_format = t_utils.get_effective_config(args.output_format, t_config.get("main_s_output_format"))
         t_gui.debug("output_format", output_format)
         t_gui.print_listing(listing, output_format)
         t_gui.stop_progress()
@@ -148,11 +148,11 @@ def main():
         _main_behaviour_options(args)
 
         # Debug
-        if config.get("main_b_debug"):
+        if t_config.get("main_b_debug"):
             t_gui.debug("args", args)
 
         # Enable or disable colors
-        if config.get("main_b_no_colors"):
+        if t_config.get("main_b_no_colors"):
             t_gui.disable_color()
         else:
             t_gui.enable_color()

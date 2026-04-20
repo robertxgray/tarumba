@@ -11,11 +11,11 @@ from gettext import gettext as _
 import tzlocal
 from typing_extensions import override
 
+import tarumba.config as t_config
 import tarumba.constants as t_constants
 import tarumba.file_utils as t_file_utils
 import tarumba.utils as t_utils
 from tarumba.backend import backend as t_backend
-from tarumba.config import current as config
 from tarumba.gui import current as t_gui
 
 LIST_ELEMENTS = 7
@@ -35,7 +35,7 @@ class Ar(t_backend.Backend):
         """
 
         super().__init__(mime, operation)
-        self._ar_bin = t_utils.check_installed(config.get("backends_l_ar_bin"))
+        self._ar_bin = t_utils.check_installed(t_config.get("backends_l_ar_bin"))
         self._error_prefix = f"{self._ar_bin}: "
 
     @override

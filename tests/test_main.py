@@ -7,8 +7,8 @@ import sys
 
 import pytest
 
+import tarumba.constants as t_constants
 from tarumba.__main__ import main
-from tarumba.config import current as config
 from tests import utils as test_utils
 
 TEST = "main"
@@ -16,8 +16,6 @@ TEST = "main"
 
 class TestMain:
     "Main function tests"
-
-    INVALID_ARCHIVE = "README.md"
 
     def test_noargs(self):
         "Run the program without arguments"
@@ -54,9 +52,9 @@ class TestMain:
     def test_unknown_archive(self):
         "Error due to unknown archive type"
 
-        config.put("backends_l_7zip_bin", [""])
-        test_utils.copy(TEST, self.INVALID_ARCHIVE)
+        test_params = test_utils.TestParams(t_constants.BACKEND_TAR, test_utils.GTAR, test_utils.FILE1)
+        test_utils.copy(TEST, test_params.archive)
         with pytest.raises(SystemExit) as err:
-            test_utils.test_list(TEST, self.INVALID_ARCHIVE, [], [])
+            test_utils.test_list(TEST, test_params, [], [])
         assert err.value.code == 1
-        test_utils.cleanup(TEST, self.INVALID_ARCHIVE)
+        test_utils.cleanup(TEST, test_utils.FILE1)

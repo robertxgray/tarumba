@@ -7,11 +7,11 @@ import copy
 import os
 from gettext import gettext as _
 
+import tarumba.classifier as t_classifier
 import tarumba.constants as t_constants
-from tarumba import classifier as t_classifier
-from tarumba import data_classes as t_data_classes
-from tarumba import executor as t_executor
-from tarumba import file_utils as t_file_utils
+import tarumba.data_classes as t_data_classes
+import tarumba.executor as t_executor
+import tarumba.file_utils as t_file_utils
 from tarumba.gui import current as t_gui
 
 PAIR = 2

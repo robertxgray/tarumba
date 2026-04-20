@@ -7,16 +7,15 @@ import os
 from argparse import ArgumentError
 from gettext import gettext as _
 
+import tarumba.classifier as t_classifier
+import tarumba.config as t_config
 import tarumba.constants as t_constants
-from tarumba import classifier as t_classifier
-from tarumba import config as t_config
-from tarumba import data_classes as t_data_classes
-from tarumba import errors as t_errors
-from tarumba import executor as t_executor
-from tarumba import file_utils as t_file_utils
-from tarumba import recompressor as t_recompressor
-from tarumba import utils as t_utils
-from tarumba.config import current as config
+import tarumba.data_classes as t_data_classes
+import tarumba.errors as t_errors
+import tarumba.executor as t_executor
+import tarumba.file_utils as t_file_utils
+import tarumba.recompressor as t_recompressor
+import tarumba.utils as t_utils
 from tarumba.gui import current as t_gui
 
 PAIR = 2
@@ -55,7 +54,7 @@ def list_archive(args):
     t_file_utils.check_read_file(args.archive)
 
     arg_columns = t_config.parse_columns(args.columns)
-    columns = t_utils.get_effective_config(arg_columns, config.get("main_l_list_columns"))
+    columns = t_utils.get_effective_config(arg_columns, t_config.get("main_l_list_columns"))
 
     list_args = t_data_classes.ListArgs()
     list_args.put("archive", args.archive)
@@ -123,7 +122,7 @@ def _add_archive_check_archive_operation(add_args):
         for file in add_args.get("files"):
             if os.path.isdir(file):
                 raise t_errors.InvalidOperationError(_("this archive format can't store folders"))
-        if not config.get("main_b_follow_links") and os.path.islink(add_args.get("files")[0]):
+        if not t_config.get("main_b_follow_links") and os.path.islink(add_args.get("files")[0]):
             raise t_errors.InvalidOperationError(_("this archive format can't store links"))
 
     if not add_args.get("backend").can_pack() and add_args.get("path"):
@@ -214,7 +213,7 @@ def add_archive(args):
     add_args.put("files", args.files)
     add_args.put("level", args.level)
     add_args.put("overwrite", _get_overwrite(args))
-    add_args.put("preserve_owner", config.get("main_b_preserve_owner"))
+    add_args.put("preserve_owner", t_config.get("main_b_preserve_owner"))
     add_args.put("password", _add_archive_get_password(backend, args.archive, args.encrypt))
     add_args.put("path", args.path.strip("/") if args.path else None)
     t_gui.debug("add_args", add_args)
@@ -292,7 +291,7 @@ def extract_archive(args):
     extract_args = t_data_classes.ExtractArgs()
     extract_args.put("archive", args.archive)
     extract_args.put("backend", backend)
-    extract_args.put("create_folder", config.get("main_s_create_folder"))
+    extract_args.put("create_folder", t_config.get("main_s_create_folder"))
     extract_args.put("destination", os.getcwd())
     extract_args.put("files", args.files)
     extract_args.put("occurrence", args.occurrence)

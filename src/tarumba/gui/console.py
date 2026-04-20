@@ -18,8 +18,8 @@ from rich import text as r_text
 from rich import theme as r_theme
 from typing_extensions import override
 
+import tarumba.config as t_config
 import tarumba.constants as t_constants
-from tarumba.config import current as config
 from tarumba.gui import gui as t_gui
 
 
@@ -33,16 +33,16 @@ class Console(t_gui.Gui):
     def __init__(self):
         self.theme = r_theme.Theme(
             {
-                "bar.back": config.get("colors_s_progress_back"),
-                "bar.complete": config.get("colors_s_progress_complete"),
-                "bar.finished": config.get("colors_s_progress_finished"),
-                "bar.pulse": config.get("colors_s_progress_pulse"),
-                "progress.percentage": config.get("colors_s_progress_percentage"),
-                "prompt": config.get("colors_s_prompt"),
-                "prompt.choices": config.get("colors_s_prompt_choices"),
-                "prompt.default": config.get("colors_s_prompt_default"),
-                "prompt.invalid": config.get("colors_s_prompt_invalid"),
-                "prompt.invalid.choice": config.get("colors_s_prompt_invalid_choice"),
+                "bar.back": t_config.get("colors_s_progress_back"),
+                "bar.complete": t_config.get("colors_s_progress_complete"),
+                "bar.finished": t_config.get("colors_s_progress_finished"),
+                "bar.pulse": t_config.get("colors_s_progress_pulse"),
+                "progress.percentage": t_config.get("colors_s_progress_percentage"),
+                "prompt": t_config.get("colors_s_prompt"),
+                "prompt.choices": t_config.get("colors_s_prompt_choices"),
+                "prompt.default": t_config.get("colors_s_prompt_default"),
+                "prompt.invalid": t_config.get("colors_s_prompt_invalid"),
+                "prompt.invalid.choice": t_config.get("colors_s_prompt_invalid_choice"),
             }
         )
         self.out_c = None
@@ -61,8 +61,8 @@ class Console(t_gui.Gui):
         :param message: Message to print
         """
 
-        if config.get("main_b_debug"):
-            self.out_c.out((f"{key.upper()}: {value}").rstrip(), style=config.get("colors_s_debug"))
+        if t_config.get("main_b_debug"):
+            self.out_c.out((f"{key.upper()}: {value}").rstrip(), style=t_config.get("colors_s_debug"))
 
     @override
     def info(self, message):
@@ -72,7 +72,7 @@ class Console(t_gui.Gui):
         :param message: Message to print
         """
 
-        self.out_c.out(message.rstrip(), style=config.get("colors_s_info"))
+        self.out_c.out(message.rstrip(), style=t_config.get("colors_s_info"))
 
     @override
     def warn(self, message):
@@ -82,8 +82,8 @@ class Console(t_gui.Gui):
         :param message: Message to print
         """
 
-        if not config.get("main_b_quiet"):
-            self.out_c.out(message.rstrip(), style=config.get("colors_s_warn"))
+        if not t_config.get("main_b_quiet"):
+            self.out_c.out(message.rstrip(), style=t_config.get("colors_s_warn"))
 
     @override
     def error(self, message):
@@ -93,8 +93,8 @@ class Console(t_gui.Gui):
         :param message: Message to print
         """
 
-        if not config.get("main_b_quiet"):
-            self.err_c.out(message.rstrip(), style=config.get("colors_s_error"))
+        if not t_config.get("main_b_quiet"):
+            self.err_c.out(message.rstrip(), style=t_config.get("colors_s_error"))
 
     @override
     def adding_msg(self, file):
@@ -104,10 +104,10 @@ class Console(t_gui.Gui):
         :param file: File name
         """
 
-        if config.get("main_b_verbose"):
+        if t_config.get("main_b_verbose"):
             text = r_text.Text()
             text.append(_("adding") + ": ")
-            text.append(file, style=config.get("colors_s_list_name"))
+            text.append(file, style=t_config.get("colors_s_list_name"))
             self.out_c.print(text)
 
     @override
@@ -118,10 +118,10 @@ class Console(t_gui.Gui):
         :param file: File name
         """
 
-        if config.get("main_b_verbose"):
+        if t_config.get("main_b_verbose"):
             text = r_text.Text()
             text.append(_("extracting") + ": ")
-            text.append(file, style=config.get("colors_s_list_name"))
+            text.append(file, style=t_config.get("colors_s_list_name"))
             self.out_c.print(text)
 
     @override
@@ -132,10 +132,10 @@ class Console(t_gui.Gui):
         :param file: File name
         """
 
-        if config.get("main_b_verbose"):
+        if t_config.get("main_b_verbose"):
             text = r_text.Text()
             text.append(_("testing") + ": ")
-            text.append(file, style=config.get("colors_s_list_name"))
+            text.append(file, style=t_config.get("colors_s_list_name"))
             self.out_c.print(text)
 
     @override
@@ -198,9 +198,9 @@ class Console(t_gui.Gui):
             r_progress.BarColumn(),
             r_progress.TaskProgressColumn(),
             console=self.out_c,
-            disable=config.get("main_b_no_progress"),
+            disable=t_config.get("main_b_no_progress"),
         )
-        color = config.get("colors_s_list_header")
+        color = t_config.get("colors_s_list_header")
         description = message + " [" + color + "]" + r_markup.escape(file) + "[/" + color + "]"
         self.task = self.progress.add_task(description, total=None, transient=True)
         return self.progress
@@ -232,7 +232,7 @@ class Console(t_gui.Gui):
 
         if self.progress is None:
             raise AssertionError(_("a progress bar is not running"))
-        color = config.get("colors_s_list_header")
+        color = t_config.get("colors_s_list_header")
         description = message + " [" + color + "]" + r_markup.escape(file) + "[/" + color + "]"
         self.progress.remove_task(self.task)
         self.task = self.progress.add_task(description, total=None, transient=True)
@@ -276,10 +276,10 @@ class Console(t_gui.Gui):
 
         params = {}
         if filename:
-            color = config.get("colors_s_list_name")
+            color = t_config.get("colors_s_list_name")
             params["filename"] = "[" + color + "]" + r_markup.escape(filename) + "[/" + color + "]"
         if archive:
-            color = config.get("colors_s_list_header")
+            color = t_config.get("colors_s_list_header")
             params["archive"] = "[" + color + "]" + r_markup.escape(archive) + "[/" + color + "]"
         return params
 
@@ -322,7 +322,7 @@ class Console(t_gui.Gui):
         Enables the colored output.
         """
 
-        self._set_console_color_system(config.get("colors_s_system"))
+        self._set_console_color_system(t_config.get("colors_s_system"))
 
     def disable_color(self):
         """
@@ -336,7 +336,7 @@ class Console(t_gui.Gui):
         Prints a traceback for the current exception.
         """
 
-        if config.get("main_b_debug"):
+        if t_config.get("main_b_debug"):
             self.err_c.print_exception(show_locals=True)
 
     def _get_localized_headers(self, headers):
@@ -358,7 +358,7 @@ class Console(t_gui.Gui):
         """
 
         headers = self._get_localized_headers(listing[0])
-        self.out_c.out("\t".join(headers), style=config.get("colors_s_list_header"))
+        self.out_c.out("\t".join(headers), style=t_config.get("colors_s_list_header"))
 
         # Identify name column
         col_name = None
@@ -371,9 +371,9 @@ class Console(t_gui.Gui):
             markup_row = []
             for idx in range(headers):
                 if idx == col_name:
-                    markup_row.append(f"[{config.get('colors_s_list_name')}]{r_markup.escape(row[idx])}[/]")
+                    markup_row.append(f"[{t_config.get('colors_s_list_name')}]{r_markup.escape(row[idx])}[/]")
                 else:
-                    markup_row.append(f"[{config.get('colors_s_list_default')}]{r_markup.escape(row[idx])}[/]")
+                    markup_row.append(f"[{t_config.get('colors_s_list_default')}]{r_markup.escape(row[idx])}[/]")
             self.out_c.print("\t".join(markup_row))
 
     def _print_csv_listing(self, listing):
@@ -391,10 +391,10 @@ class Console(t_gui.Gui):
             self.out_c.out(buffer.getvalue(), style=style)
 
         headers = self._get_localized_headers(listing[0])
-        _print_row(headers, config.get("colors_s_list_header"))
+        _print_row(headers, t_config.get("colors_s_list_header"))
 
         for row in listing[1:]:
-            _print_row(row, config.get("colors_s_list_default"))
+            _print_row(row, t_config.get("colors_s_list_default"))
 
     def _print_json_listing(self, listing):
         """
@@ -421,20 +421,20 @@ class Console(t_gui.Gui):
 
         table = r_table.Table(
             box=r_box.SIMPLE,
-            header_style=config.get("colors_s_list_header"),
-            border_style=config.get("colors_s_list_border"),
+            header_style=t_config.get("colors_s_list_header"),
+            border_style=t_config.get("colors_s_list_border"),
         )
 
         headers = self._get_localized_headers(listing[0])
         col_name = None
         for idx, column in enumerate(listing[0]):
             if column == t_constants.COLUMN_NAME:
-                table.add_column(headers[idx], style=config.get("colors_s_list_name"))
+                table.add_column(headers[idx], style=t_config.get("colors_s_list_name"))
                 col_name = idx
             elif column == t_constants.COLUMN_SIZE:
-                table.add_column(headers[idx], style=config.get("colors_s_list_default"), justify="right")
+                table.add_column(headers[idx], style=t_config.get("colors_s_list_default"), justify="right")
             else:
-                table.add_column(headers[idx], style=config.get("colors_s_list_default"))
+                table.add_column(headers[idx], style=t_config.get("colors_s_list_default"))
 
         for row in listing[1:]:
             if col_name is not None:

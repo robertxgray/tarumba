@@ -8,12 +8,12 @@ from gettext import gettext as _
 
 from typing_extensions import override
 
+import tarumba.config as t_config
 import tarumba.constants as t_constants
+import tarumba.executor as t_executor
 import tarumba.file_utils as t_file_utils
 import tarumba.utils as t_utils
-from tarumba import executor as t_executor
 from tarumba.backend import backend as t_backend
-from tarumba.config import current as config
 from tarumba.gui import current as t_gui
 
 
@@ -48,7 +48,7 @@ class X7z(t_backend.Backend):
         """
 
         super().__init__(mime, operation)
-        self._7zip_bin = t_utils.check_installed(config.get("backends_l_7zip_bin"))
+        self._7zip_bin = t_utils.check_installed(t_config.get("backends_l_7zip_bin"))
         self._detect_p7zip_variants()
         self._list_started = False
         self._extract_started = False
@@ -117,7 +117,7 @@ class X7z(t_backend.Backend):
             params.append("-p")
             if self.mime[0] == t_constants.MIME_7Z:
                 params.append("-mhe")
-        if config.get("main_b_follow_links"):
+        if t_config.get("main_b_follow_links"):
             params.append("-snh")
             if self._p7zip:
                 params.append("-l")

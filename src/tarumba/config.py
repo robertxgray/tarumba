@@ -80,29 +80,6 @@ class Config(t_data_classes.Base):
         }
 
 
-def parse_columns(col_string):
-    """
-    Parse a list of columns.
-
-    :param col_string: Text describing a list of columns
-    :return: List of columns or None if no input
-    :raises ValueError: A column name is invalid
-    """
-
-    if not col_string:
-        return None
-
-    output = []
-    columns = col_string.split(",")
-    for column in columns:
-        formatted = column.strip().upper()
-        if formatted in t_constants.COLUMNS_SET:
-            output.append(formatted)
-        else:
-            raise ValueError(_("invalid column name: %(column)s") % {"column": column.strip()})
-    return output
-
-
 def _config_2_init(config, parser):
     """
     Saves the configuration into a init file.
@@ -154,6 +131,50 @@ def _parse_config():
         _config_2_init(current, parser)
         with open(CONFIG_FILE, "w", encoding="utf-8") as config_file:
             parser.write(config_file)
+
+
+def parse_columns(col_string):
+    """
+    Parse a list of columns.
+
+    :param col_string: Text describing a list of columns
+    :return: List of columns or None if no input
+    :raises ValueError: A column name is invalid
+    """
+
+    if not col_string:
+        return None
+
+    output = []
+    columns = col_string.split(",")
+    for column in columns:
+        formatted = column.strip().upper()
+        if formatted in t_constants.COLUMNS_SET:
+            output.append(formatted)
+        else:
+            raise ValueError(_("invalid column name: %(column)s") % {"column": column.strip()})
+    return output
+
+
+def get(key):
+    """
+    Returns a global configuration value.
+
+    :return: Configuration value
+    """
+
+    return current.get(key)
+
+
+def put(key, value):
+    """
+    Updates a global configuration value.
+
+    :param key: Configuration key
+    :param value: Configuration value
+    """
+
+    current.put(key, value)
 
 
 # Init the configuration

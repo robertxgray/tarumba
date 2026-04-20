@@ -8,11 +8,11 @@ import shlex
 
 from typing_extensions import override
 
+import tarumba.config as t_config
 import tarumba.constants as t_constants
 import tarumba.file_utils as t_file_utils
 import tarumba.utils as t_utils
 from tarumba.backend import backend as t_backend
-from tarumba.config import current as config
 from tarumba.gui import current as t_gui
 
 LIST_ELEMENTS = 9
@@ -57,9 +57,9 @@ class Xz(t_backend.Backend):
         """
 
         super().__init__(mime, operation)
-        self._xz_bin = t_utils.check_installed(config.get("backends_l_xz_bin"))
+        self._xz_bin = t_utils.check_installed(t_config.get("backends_l_xz_bin"))
         if operation in [t_constants.OPERATION_ADD, t_constants.OPERATION_EXTRACT]:
-            self._shell = t_utils.check_installed(config.get("main_l_shell"))
+            self._shell = t_utils.check_installed(t_config.get("main_l_shell"))
 
     @override
     def list_commands(self, list_args):

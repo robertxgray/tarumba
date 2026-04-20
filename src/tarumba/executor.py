@@ -9,7 +9,7 @@ from gettext import gettext as _
 
 import pexpect
 
-from tarumba import utils as t_utils
+import tarumba.utils as t_utils
 from tarumba.gui import current as t_gui
 
 # Pseudo-command to change the working directory

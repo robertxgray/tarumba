@@ -10,7 +10,6 @@ import pytest
 
 import tarumba.classifier as t_classifier
 import tarumba.constants as t_constants
-from tarumba.config import current as config
 from tests import utils as test_utils
 
 TEST = "archiver"
@@ -120,7 +119,6 @@ class TestArchiver:
             test_utils.cleanup(TEST, test_params.archive)
 
         test_utils.test_add(TEST, test_params, [test_utils.LINK2], ["-b", test_params.backend, "-k"])
-        config.put("main_b_follow_links", False)
         test_utils.assert_file_exists(TEST, test_params.archive)
 
     def test_list_one(self, test_params):

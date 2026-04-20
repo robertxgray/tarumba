@@ -7,12 +7,12 @@ from gettext import gettext as _
 
 from typing_extensions import override
 
+import tarumba.config as t_config
 import tarumba.constants as t_constants
+import tarumba.executor as t_executor
 import tarumba.file_utils as t_file_utils
 import tarumba.utils as t_utils
-from tarumba import executor as t_executor
 from tarumba.backend import backend as t_backend
-from tarumba.config import current as config
 from tarumba.gui import current as t_gui
 
 LIST_ELEMENTS = 8
@@ -41,8 +41,8 @@ class Zip(t_backend.Backend):
         """
 
         super().__init__(mime, operation)
-        self._zip_bin = t_utils.check_installed(config.get("backends_l_zip_bin"))
-        self._unzip_bin = t_utils.check_installed(config.get("backends_l_unzip_bin"))
+        self._zip_bin = t_utils.check_installed(t_config.get("backends_l_zip_bin"))
+        self._unzip_bin = t_utils.check_installed(t_config.get("backends_l_unzip_bin"))
         self._iconv = self._detect_iconv_patch()
 
     def _detect_iconv_patch(self):
@@ -68,7 +68,7 @@ class Zip(t_backend.Backend):
         params = ["-Z", "-lT", "--h-t"]
         if self._iconv:
             params.append("-O")
-            params.append(config.get("backends_s_unzip_encoding"))
+            params.append(t_config.get("backends_s_unzip_encoding"))
         return [(self._unzip_bin, [*params, "--", list_args.get("archive"), *self._escape(list_args.get("files"))])]
 
     @override
@@ -84,7 +84,7 @@ class Zip(t_backend.Backend):
         params = ["-r", "-nw"]
         if add_args.get("password"):
             params.append("-e")
-        if not config.get("main_b_follow_links"):
+        if not t_config.get("main_b_follow_links"):
             params.append("-y")
         if add_args.get("level"):
             params.append(f"-{add_args.get('level')}")
@@ -102,7 +102,7 @@ class Zip(t_backend.Backend):
         params = ["-o"]
         if self._iconv:
             params.append("-O")
-            params.append(config.get("backends_s_unzip_encoding"))
+            params.append(t_config.get("backends_s_unzip_encoding"))
         return [
             (self._unzip_bin, [*params, "--", extract_args.get("archive"), *self._escape(extract_args.get("files"))])
         ]
@@ -144,7 +144,7 @@ class Zip(t_backend.Backend):
         params = ["-t"]
         if self._iconv:
             params.append("-O")
-            params.append(config.get("backends_s_unzip_encoding"))
+            params.append(t_config.get("backends_s_unzip_encoding"))
         return [(self._unzip_bin, [*params, "--", test_args.get("archive"), *self._escape(test_args.get("files"))])]
 
     def _parse_list_row(self, elements, extra):
