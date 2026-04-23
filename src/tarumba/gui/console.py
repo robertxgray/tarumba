@@ -369,7 +369,7 @@ class Console(t_gui.Gui):
 
         for row in listing[1:]:
             markup_row = []
-            for idx in range(headers):
+            for idx in range(len(headers)):
                 if idx == col_name:
                     markup_row.append(f"[{t_config.get('colors_s_list_name')}]{r_markup.escape(row[idx])}[/]")
                 else:
